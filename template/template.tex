@@ -1,0 +1,116 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[a4paper, body={18cm,22cm}]{geometry}
+\usepackage{amsmath,amssymb,amstext,wasysym,enumerate,graphicx}
+\usepackage{float,abstract,booktabs,indentfirst,amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{diagbox}
+\renewcommand\arraystretch{1.4}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\usepackage{enumitem}
+\setmonofont{Consolas}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{makecell}
+\setCJKmonofont{黑体}
+\lstset{
+    % language = C,
+    xleftmargin = 3em,xrightmargin = 3em, aboveskip = 1em,
+	backgroundcolor = \color{white}, % 背景色
+	basicstyle = \small\ttfamily, % 基本样式 + 小号字体
+	rulesepcolor= \color{gray}, % 代码块边框颜色
+	breaklines = true, % 代码过长则换行
+	numbers = left, % 行号在左侧显示
+	numberstyle = \small, % 行号字体
+    numbersep = -14pt, 
+    keywordstyle=\color{purple}\bfseries, % 关键字颜色
+    commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+    stringstyle = \color{red}, % 字符串颜色
+    morekeywords={ASSERT, int64_t, uint32_t},
+	frame = shadowbox, % 用(带影子效果)方框框住代码块
+	showspaces = false, % 不显示空格
+	columns = fixed, % 字间距固定
+} 
+\lstset{
+    sensitive=true,
+    moreemph={ASSERT, NULL}, emphstyle=\color{red}\bfseries,
+    moreemph=[2]{int64_t, uint32_t, tid_t, uint8_t, int16_t, uint16_t, int32_t, size_t}, emphstyle=[2]\color{purple}\bfseries,
+    }
+%--------------------页眉--------------------%
+\pagestyle{fancy}
+\fancyhead[L]{}
+\fancyhead[R]{}
+\fancyhead[C]{华东师范大学软件工程学院实验报告}
+\fancyfoot[C]{-\thepage-}
+\renewcommand{\headrulewidth}{1.5pt}
+%--------------------标题--------------------%
+\begin{document}
+\begin{center}
+  \LARGE{{\textbf{\heiti 华东师范大学软件工程学院实验报告}}}
+  \begin{table}[H]
+    \centering
+    \begin{tabular}{p{2cm}p{4cm}<{\centering}p{1cm}p{2cm}p{4cm}<{\centering}}
+      实验课程: & *** & \quad & 年\qquad 级: & ***       \\ \cline{2-2} \cline{5-5}
+      实验编号:    & Lab ** & \quad & 实验名称:    & *************
+      \\ \cline{2-2} \cline{5-5}
+      姓\qquad 名: & 李鹏达 & \quad & 学\qquad 号: & 10225101460       \\ \cline{2-2} \cline{5-5}
+    \end{tabular}
+  \end{table}
+\end{center}
+\rule{\textwidth}{1pt}
+%--------------------正文--------------------%
+\section{实验目的}
+\large
+\begin{enumerate}[noitemsep, label={{\arabic*})}]
+  \item 目的1
+  \item 目的2
+\end{enumerate}
+\normalsize
+\section{实验内容与实验步骤}
+\subsection{实验内容}
+\large
+这是实验内容
+
+\normalsize
+
+\subsection{实验步骤}
+\large
+\begin{enumerate}[noitemsep, label={{\arabic*})}]
+  \item 步骤1
+        \begin{lstlisting}[language=bash]
+    linux> xxx
+    \end{lstlisting}
+  \item 步骤2
+        \begin{lstlisting}[language=bash]
+    linux> xxx
+    \end{lstlisting}
+\end{enumerate}
+\normalsize
+\section{实验过程与分析}
+\large
+
+实验最后的评测截图如下：
+\begin{figure}[h]
+  \centering
+  % 在这里放你的图图
+  % \includegraphics[width=15cm]{lab*.png}
+  \caption{评测截图}
+\end{figure}
+
+\normalsize
+\section{实验结果总结}
+\large
+这是实验成果总结
+\normalsize
+\section{附录（源代码）}
+\large
+这是附录
+\normalsize
+\end{document}

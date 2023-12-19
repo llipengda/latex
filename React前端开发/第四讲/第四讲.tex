@@ -1,0 +1,759 @@
+\documentclass{beamer}
+\usepackage[UTF8]{ctex}
+\usetheme{Boadilla}
+% \useoutertheme{shadow}
+\useinnertheme{circles}
+\usecolortheme{beaver}
+% \usefonttheme{structuresmallcapsserif}
+\setbeamertemplate{background canvas}[vertical shading][bottom=white,middle=white,top=white]
+%\setbeamerfont{title}{size=\LARGE}
+%\setbeamercolor{title}{fg=yellow,bg=gray}
+%\setbeamertemplate{section in toc}[sections numbered]%节标题模板颜色
+%\setbeamercolor{section in toc}{fg=yellow!80!gray}%节标题模板颜色
+% \setbeamertemplate{frametitle}{\noindent\insertframetitle\par\noindent\insertframesubtitle\par}
+% \setbeamerfont{frametitle}{size=\large}
+% \setbeamercolor{frametitle}{fg=yellow!70!gray}
+% \setbeamercolor{normal text}{fg=white,bg=gray}
+% \setbeamertemplate{blocks}[rounded][shadow=true]
+% \setbeamercolor{block title}{fg=white,bg=gray!50!black}
+%\setbeamercolor{block body}{bg=gray}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}%常用的数学宏包
+\usepackage{amssymb}%数学宏包，可以实现一些数学符号
+\usepackage{graphicx}
+\usepackage{float}
+\RequirePackage{caption}
+\usepackage{subfigure}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{pxfonts}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsfonts}%数学字体宏包
+\usepackage{comment}%批量注释的宏包
+\usepackage{boxedminipage}%为文本段添加边框的宏包
+\usepackage{shadow}%带阴影的边框
+\usepackage{fancybox}%实现边框效果的宏包
+\usepackage{esint}%实现多重积分的宏包
+\usepackage{relsize}%提供加大数学符号命令\mathlarger
+\usepackage{listings}
+
+\setmonofont{JetBrains Mono}
+\setCJKmonofont{黑体}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, type, interface, implements, class, export, boolean, throw, implements, import, this},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+  % language = C,
+  xleftmargin = 1em,xrightmargin = 1em, aboveskip = 1em,
+	backgroundcolor = \color{white}, % 背景色
+	basicstyle = \footnotesize\ttfamily, % 基本样式 + 小号字体
+	rulesepcolor= \color{gray}, % 代码块边框颜色
+	breaklines = true, % 代码过长则换行
+	numbers = left, % 行号在左侧显示
+	numberstyle = \small, % 行号字体
+  numbersep = -14pt, 
+  keywordstyle=\color{purple}\bfseries, % 关键字颜色
+  commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+  stringstyle = \color{red}, % 字符串颜色
+  morekeywords={ASSERT, int64_t, uint32_t},
+	frame = shadowbox, % 用(带影子效果)方框框住代码块
+	showspaces = false, % 不显示空格
+	columns = fixed, % 字间距固定
+} 
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\title{\texttt{React}前端开发}
+\subtitle{第四讲 \texttt{Effect}、\texttt{Context}、其他补充内容与常用库}
+\author{PDLi}
+\date{2023年12月17日}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+\begin{frame}
+  \frametitle{目录}
+  \tableofcontents
+\end{frame}
+
+\section{\texttt{Effect}}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{Effect}}
+
+  在理想状态下，我们希望 \texttt{React} 组件的渲染结果只与 \texttt{props} 和 \texttt{state} 相关，但是实际上，我们经常需要在组件渲染的时候执行一些额外的操作，比如获取数据、订阅事件等。这些操作被称为 \texttt{side effect(副作用)}，\texttt{React} 为我们提供了 \texttt{useEffect Hook} 来处理这些 \texttt{side effect}。
+
+  \framebreak
+
+  \begin{block}{\texttt{useEffect}}
+    \texttt{useEffect} 接收一个函数作为参数，这个函数就是我们需要执行的副作用。在组件渲染的时候，\texttt{React} 会保存这个函数，然后在组件渲染完成后执行这个函数。如果我们需要在组件卸载的时候执行一些清理操作，我们可以在这个函数中返回一个函数，\texttt{React} 会在组件卸载的时候执行这个函数。
+    \texttt{useEffect}接受一个可选的第二个参数，这个参数是一个数组，数组中的每个元素都是一个依赖项。如果依赖项发生了变化，\texttt{React} 会重新执行这个副作用函数。如果没有传入依赖项，那么每次组件渲染的时候都会执行这个副作用函数。
+  \end{block}
+
+  \framebreak
+
+  示例代码：
+  \begin{lstlisting}[language=JavaScript]
+    import React, { useState, useEffect } from 'react';
+
+    function Example() {
+      const [count, setCount] = useState(0);
+      const [data, setData] = useState('');
+
+      useEffect(() => {
+        // 使用 setTimeout 模拟异步请求
+        setTimeout(() => {
+          setData('111111');
+        }, 1000);
+      }, []);
+
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          <h1>{data}</h1>
+          <button onClick={() => setCount(count + 1)}>
+            Click me
+          </button>
+        </div>
+      );
+    }
+  \end{lstlisting}
+
+  设置依赖项：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React, { useState, useEffect } from 'react';
+
+    function Example() {
+      const [count, setCount] = useState(0);
+
+      useEffect(() => {
+        document.title = `You clicked ${count} times`;
+      }, [count]);
+
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          <button onClick={() => setCount(count + 1)}>
+            Click me
+          </button>
+        </div>
+      );
+    }
+  \end{lstlisting}
+
+  设置定时器：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React, { useState, useEffect } from 'react';
+
+    function Example() {
+      const [count, setCount] = useState(0);
+
+      useEffect(() => {
+        const timer = setInterval(() => {
+          setCount(count + 1);
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [count]);
+
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+        </div>
+      );
+    }
+  \end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{\texttt{useEffect}的执行时机}
+    \begin{itemize}
+      \item \texttt{React} 会在每次渲染后调用副作用函数，包括第一次渲染的时候。
+      \item 之后每次渲染前，\texttt{React} 会先清除上一次渲染时的副作用函数。
+      \item \texttt{React} 会在组件卸载的时候执行副作用函数，清除副作用。
+    \end{itemize}
+  \end{block}
+
+  \begin{alertblock}{依赖项的设置}
+    \begin{itemize}
+      \item 如果没有传入依赖项，那么每次组件渲染的时候都会执行这个副作用函数。
+      \item 如果传入了空数组，那么副作用函数只会在组件渲染的时候执行一次，之后不会再执行。
+      \item 如果传入了非空数组，那么副作用函数会在组件渲染的时候执行一次，之后只有当依赖项发生变化的时候才会执行。
+    \end{itemize}
+  \end{alertblock}
+
+
+\end{frame}
+
+\section{\texttt{Context}}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{Context}}
+
+  \texttt{Context} 提供了一种在组件之间共享值的方式，而不必通过组件树的逐层传递 \texttt{props}。在一些场景下，这种做法会使得组件的传递变得很复杂，\texttt{Context} 可以帮助我们解决这个问题。
+
+  \framebreak
+
+  \begin{block}{\texttt{Context}的使用}
+    \begin{itemize}
+      \item 首先，我们需要创建一个 \texttt{Context} 对象，这个对象包含一个 \texttt{Provider} 组件和一个 \texttt{Consumer} 组件。
+      \item 然后，我们需要在 \texttt{Provider} 组件中传入一个值，这个值可以是任意类型的数据。
+      \item 最后，我们可以在 \texttt{Consumer} 组件中获取到 \texttt{Provider} 组件中传入的值。
+    \end{itemize}
+  \end{block}
+
+  \framebreak
+
+  示例代码：
+  \begin{lstlisting}[language=JavaScript]
+    import React, { useState, useEffect, createContext, useContext } from 'react';
+
+    const CountContext = createContext();
+
+    function Counter() {
+      const count = useContext(CountContext);
+      return <h2>{count}</h2>;
+    }
+
+    function Example() {
+      const [count, setCount] = useState(0);
+
+      useEffect(() => {
+        const timer = setInterval(() => {
+          setCount(count + 1);
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [count]);
+
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          <CountContext.Provider value={count}>
+            <Counter />
+          </CountContext.Provider>
+        </div>
+      );
+    }
+  \end{lstlisting}
+
+\end{frame}
+
+\section{其他补充内容}
+\subsection{\texttt{JSX} 中的 \texttt{if}语句}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{在 \texttt{JSX} 中使用 \texttt{if} 语句}
+
+  \begin{block}{\texttt{if} 语句}
+    \texttt{JSX} 本身并不支持 \texttt{if} 语句，但是我们可以在 \texttt{JSX} 中使用三元运算符或 \texttt{\&\&} 来实现 \texttt{if} 语句的功能。
+  \end{block}
+
+  \framebreak
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React, { useState } from 'react';
+
+    function Example() {
+      const [count, setCount] = useState(0);
+
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          {count % 2 === 0 ? <h1>偶数</h1> : <h1>奇数</h1>}
+          {count > 5 && <h1>大于5</h1>}
+          <button onClick={() => setCount(count + 1)}>
+            Click me
+          </button>
+        </div>
+      );
+    }
+  \end{lstlisting}
+
+\end{frame}
+
+\subsection{\texttt{JSX} 中的 \texttt{for} 循环}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{在 \texttt{JSX} 中使用 \texttt{for} 循环}
+
+  \begin{block}{\texttt{for} 循环}
+    \texttt{JSX} 本身并不支持 \texttt{for} 循环，但是我们可以在 \texttt{JSX} 中使用 \texttt{map} 来实现 \texttt{for} 循环的功能。
+  \end{block}
+
+  \framebreak
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React, { useState } from 'react';
+
+    function Example() {
+      const [count, setCount] = useState(0);
+
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          {[1, 2, 3, 4, 5].map((item) => {
+            return <h1 key={item}>{item}</h1>;
+          })}
+          <button onClick={() => setCount(count + 1)}>
+            Click me
+          </button>
+        </div>
+      );
+    }
+  \end{lstlisting}
+
+  \framebreak
+
+  \begin{alertblock}{\texttt{key} 属性}
+    在使用 \texttt{map} 的时候，我们需要为每个元素添加一个 \texttt{key} 属性，这个属性的值应该是唯一的，这样 \texttt{React} 才能够正确地识别每个元素。
+
+    \texttt{key} 属性的作用是帮助 \texttt{React} 识别哪些元素发生了变化，从而减少 \texttt{DOM} 操作的次数，提高性能。
+  \end{alertblock}
+
+\end{frame}
+
+
+\subsection{受控组件与非受控组件}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{受控组件与非受控组件}
+
+  \begin{block}{受控组件}
+    受控组件是指表单元素的值由 \texttt{React} 组件来控制的组件，比如下面的代码：
+    \begin{lstlisting}[language=JavaScript]
+    import React, { useState } from 'react';
+
+    function Example() {
+      const [value, setValue] = useState('');
+
+      return (
+        <div>
+          <input value={value} onChange={(e) => setValue(e.target.value)} />
+        </div>
+      );
+    }
+  \end{lstlisting}
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{非受控组件}
+    非受控组件是指表单元素的值由 \texttt{DOM} 元素来控制的组件，比如下面的代码：
+    \begin{lstlisting}[language=JavaScript]
+    import React, { useRef } from 'react';
+
+    function Example() {
+      const inputRef = useRef(null);
+
+      return (
+        <div>
+          <input ref={inputRef} />
+        </div>
+      );
+    }
+  \end{lstlisting}
+  \end{block}
+
+  \framebreak
+
+  \begin{alertblock}{受控组件与非受控组件}
+    \begin{itemize}
+      \item 受控组件的值由 \texttt{React} 组件来控制，所以我们可以通过 \texttt{props} 来控制表单元素的值。
+      \item 非受控组件的值由 \texttt{DOM} 元素来控制，所以我们只能通过 \texttt{DOM} 元素的方法来控制表单元素的值。
+    \end{itemize}
+  \end{alertblock}
+
+  \begin{block}{使用 \bf{受控组件}}
+    在一般情况下，我们应该尽量使用受控组件，因为这样可以让表单元素的值与 \texttt{React} 组件的状态保持一致，从而减少出错的可能性。
+  \end{block}
+
+\end{frame}
+
+\section{常用库}
+\subsection{\texttt{React Router}}
+\subsubsection{\texttt{React Router} 简介与安装}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{React Router} 简介与安装}
+
+  \begin{block}{\texttt{React Router}}
+    \texttt{React Router} 是一个用于 \texttt{React} 的路由库，它可以帮助我们实现页面之间的跳转。
+  \end{block}
+
+  通过 \texttt{React Router}，我们可以在 \texttt{SPA} 应用中实现页面之间的跳转，而不需要刷新页面。
+
+  \framebreak
+
+  \begin{block}{安装}
+    \begin{lstlisting}[language=bash]
+    npm install react-router-dom
+    \end{lstlisting}
+  \end{block}
+\end{frame}
+
+\subsubsection{\texttt{ReactRouter} 的使用}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{ReactRouter} 的使用}
+
+  \begin{block}{\texttt{ReactRouter} 的使用}
+    \begin{itemize}
+      \item 首先，我们需要在 \texttt{App.js} 中导入 \texttt{BrowserRouter} 组件，然后将 \texttt{App} 组件包裹在 \texttt{BrowserRouter} 组件中。
+      \item 然后，我们需要在 \texttt{App.js} 中导入 \texttt{Routes} 组件，然后在 \texttt{BrowserRouter} 组件中添加 \texttt{Routes} 组件。
+      \item 最后，我们需要在 \texttt{Routes} 组件中添加 \texttt{Route} 组件，其中 \texttt{path} 属性表示路由的路径，\texttt{element} 属性表示路由对应的组件。
+    \end{itemize}
+  \end{block}
+
+  \framebreak
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React from 'react';
+    import { BrowserRouter, Routes, Route } from 'react-router-dom';
+    import Home from './Home';
+    import About from './About';
+
+    function App() {
+      return (
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </BrowserRouter>
+      );
+    }
+
+    export default App;
+  \end{lstlisting}
+
+  \framebreak
+
+  \begin{alertblock}{\texttt{Route} 组件的属性}
+    \begin{itemize}
+      \item \texttt{path} 属性表示路由的路径。
+      \item \texttt{element} 属性表示路由对应的组件。
+      \item \texttt{caseSensitive} 属性表示是否区分大小写。
+      \item \texttt{index} 属性表示索引路由。
+      \item \texttt{children} 属性表示嵌套路由。
+    \end{itemize}
+  \end{alertblock}
+
+  \framebreak
+
+  \begin{block}{\texttt{caseSensitive} 属性}
+    \texttt{caseSensitive} 属性表示是否区分大小写，如果设置了 \texttt{caseSensitive} 属性，那么只有当路径大小写完全匹配的时候才会渲染对应的组件。
+  \end{block}
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React from 'react';
+    import { BrowserRouter, Routes, Route } from 'react-router-dom';
+    import Home from './Home';
+    import About from './About';
+
+    function App() {
+      return (
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/About" element={<About />} caseSensitive />
+          </Routes>
+        </BrowserRouter>
+      );
+    }
+
+    export default App;
+  \end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{\texttt{index} 属性}
+    \texttt{index} 属性表示索引路由，如果设置了 \texttt{index} 属性，那么这个组件将被渲染到父级路由的 \texttt{Outlet} 中。
+  \end{block}
+
+  \begin{block}{嵌套路由}
+    我们可以在 \texttt{Route} 组件下添加子组件来实现嵌套路由。
+  \end{block}
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React from 'react';
+    import { BrowserRouter, Routes, Route } from 'react-router-dom';
+    import Home from './Home';
+    import About from './About';
+    import AboutMe from './AboutMe';
+    import AboutYou from './AboutYou';
+
+    function App() {
+      return (
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />}>
+              <Route path="me" element={<AboutMe />} />
+              <Route path="you" element={<AboutYou />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      );
+    }
+
+    export default App;
+  \end{lstlisting}
+
+\end{frame}
+
+\subsubsection{路由表}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{路由表}
+
+  \begin{block}{路由表}
+    我们可以将路由表单独抽离出来，然后在 \texttt{App.js} 中导入路由表。并使用 \texttt{useRoutes} 函数来渲染路由表。
+  \end{block}
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React from 'react';
+    import { BrowserRouter as Router, Route, useRoutes } from 'react-router-dom';
+    import Home from './Home';
+    import About from './About';
+    import AboutMe from './AboutMe';
+    import AboutYou from './AboutYou';
+
+    const routes = [
+      {
+        path: '/',
+        element: <Home />,
+      },
+      {
+        path: '/about',
+        element: <About />,
+      },
+      {
+        path: '/about/me',
+        element: <AboutMe />,
+      },
+      {
+        path: '/about/you',
+        element: <AboutYou />,
+      },
+    ];
+
+    function App() {
+      const routing = useRoutes(routes);
+
+      return (
+        <Router>
+          {routing}
+        </Router>
+      );
+    }
+
+    export default App;
+  \end{lstlisting}
+
+\end{frame}
+
+\subsubsection{路由参数}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{路由参数}
+
+  \begin{block}{路由参数}
+    我们可以在路由中添加参数，然后在组件中通过 \texttt{useParams} 或 \texttt{useSearchParams} 函数来获取路由参数。
+  \end{block}
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React from 'react';
+    import { BrowserRouter as Router, Route, useRoutes, useParams } from 'react-router-dom';
+    import Home from './Home';
+    import About from './About';
+    import AboutMe from './AboutMe';
+    import AboutYou from './AboutYou';
+
+    const routes = [
+      {
+        path: '/',
+        element: <Home />,
+      },
+      {
+        path: '/about',
+        element: <About />,
+      },
+      {
+        path: '/about/me',
+        element: <AboutMe />,
+      },
+      {
+        path: '/about/you',
+        element: <AboutYou />,
+      },
+      {
+        path: '/about/:name',
+        element: <AboutName />,
+      },
+    ];
+
+    function AboutName() {
+      const { name } = useParams();
+      return <h1>{name}</h1>;
+    }
+
+    function App() {
+      const routing = useRoutes(routes);
+
+      return (
+        <Router>
+          {routing}
+        </Router>
+      );
+    }
+
+    export default App;
+  \end{lstlisting}
+
+  \texttt{search} 参数：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React from 'react';
+    import { BrowserRouter as Router, Route, useRoutes, useSearchParams } from 'react-router-dom';
+    import Home from './Home';
+    import SearchResults from './SearchResults';
+    
+    const routes = [
+      {
+        path: '/',
+        element: <Home />,
+      },
+      {
+        path: '/search',
+        element: <SearchResults />,
+      },
+    ];
+    
+    function SearchResults() {
+      const [searchParams] = useSearchParams();
+      const query = searchParams.get('query');
+    
+      return <h1>Search Results for: {query}</h1>;
+    }
+    
+    function App() {
+      const routing = useRoutes(routes);
+    
+      return (
+        <Router>
+          {routing}
+        </Router>
+      );
+    }
+    
+    export default App;
+\end{lstlisting}
+
+\end{frame}
+
+\subsubsection{\texttt{Link} 组件}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{Link} 组件}
+
+  \begin{block}{\texttt{Link} 组件}
+    \texttt{Link} 组件可以帮助我们实现页面之间的跳转。
+  \end{block}
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    import React from 'react';
+    import { BrowserRouter as Router, Route, useRoutes, Link } from 'react-router-dom';
+    import Home from './Home';
+    import About from './About';
+    import AboutMe from './AboutMe';
+    import AboutYou from './AboutYou';
+
+    const routes = [
+      {
+        path: '/',
+        element: <Home />,
+      },
+      {
+        path: '/about',
+        element: <About />,
+      },
+      {
+        path: '/about/me',
+        element: <AboutMe />,
+      },
+      {
+        path: '/about/you',
+        element: <AboutYou />,
+      },
+      {
+        path: '/about/:name',
+        element: <AboutName />,
+      },
+    ];
+
+    function AboutName() {
+      const { name } = useParams();
+      return <h1>{name}</h1>;
+    }
+
+    function App() {
+      const routing = useRoutes(routes);
+
+      return (
+        <Router>
+          <nav>
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+            <Link to="/about/me">About Me</Link>
+            <Link to="/about/you">About You</Link>
+          </nav>
+          {routing}
+        </Router>
+      );
+    }
+
+    export default App;
+  \end{lstlisting}
+
+\end{frame}
+
+\end{document}

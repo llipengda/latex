@@ -1,0 +1,771 @@
+\documentclass{beamer}
+\usepackage[UTF8]{ctex}
+\usetheme{Boadilla}
+% \useoutertheme{shadow}
+\useinnertheme{circles}
+\usecolortheme{beaver}
+% \usefonttheme{structuresmallcapsserif}
+\setbeamertemplate{background canvas}[vertical shading][bottom=white,middle=white,top=white]
+%\setbeamerfont{title}{size=\LARGE}
+%\setbeamercolor{title}{fg=yellow,bg=gray}
+%\setbeamertemplate{section in toc}[sections numbered]%节标题模板颜色
+%\setbeamercolor{section in toc}{fg=yellow!80!gray}%节标题模板颜色
+% \setbeamertemplate{frametitle}{\noindent\insertframetitle\par\noindent\insertframesubtitle\par}
+% \setbeamerfont{frametitle}{size=\large}
+% \setbeamercolor{frametitle}{fg=yellow!70!gray}
+% \setbeamercolor{normal text}{fg=white,bg=gray}
+% \setbeamertemplate{blocks}[rounded][shadow=true]
+% \setbeamercolor{block title}{fg=white,bg=gray!50!black}
+%\setbeamercolor{block body}{bg=gray}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}%常用的数学宏包
+\usepackage{amssymb}%数学宏包，可以实现一些数学符号
+\usepackage{graphicx}
+\usepackage{float}
+\RequirePackage{caption}
+\usepackage{subfigure}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{pxfonts}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsfonts}%数学字体宏包
+\usepackage{comment}%批量注释的宏包
+\usepackage{boxedminipage}%为文本段添加边框的宏包
+\usepackage{shadow}%带阴影的边框
+\usepackage{fancybox}%实现边框效果的宏包
+\usepackage{esint}%实现多重积分的宏包
+\usepackage{relsize}%提供加大数学符号命令\mathlarger
+\usepackage{listings}
+
+\setmonofont{JetBrains Mono}
+\setCJKmonofont{黑体}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, type, interface, implements, class, export, boolean, throw, implements, import, this},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+  % language = C,
+  xleftmargin = 1em,xrightmargin = 1em, aboveskip = 1em,
+	backgroundcolor = \color{white}, % 背景色
+	basicstyle = \footnotesize\ttfamily, % 基本样式 + 小号字体
+	rulesepcolor= \color{gray}, % 代码块边框颜色
+	breaklines = true, % 代码过长则换行
+	numbers = left, % 行号在左侧显示
+	numberstyle = \small, % 行号字体
+  numbersep = -14pt, 
+  keywordstyle=\color{purple}\bfseries, % 关键字颜色
+  commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+  stringstyle = \color{red}, % 字符串颜色
+  morekeywords={ASSERT, int64_t, uint32_t},
+	frame = shadowbox, % 用(带影子效果)方框框住代码块
+	showspaces = false, % 不显示空格
+	columns = fixed, % 字间距固定
+} 
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\title{\texttt{React}前端开发}
+\subtitle{第三讲 \texttt{React}初探}
+\author{PDLi}
+\date{2023年12月10日}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+\begin{frame}
+  \frametitle{目录}
+  今天课程的主要内容
+  \begin{enumerate}
+    \item 补充：\texttt{Promise}的使用
+          \begin{enumerate}
+            \item 异步编程的概念
+            \item \texttt{Promise}的基本使用
+            \item \texttt{async \& await}
+          \end{enumerate}
+    \item \texttt{React}初探
+          \begin{enumerate}
+            \item \texttt{React}的基本概念
+            \item \texttt{JSX}语法规则
+            \item 创建\tt{React}项目
+            \item \texttt{React}组件
+            \item \texttt{state} - 状态
+            \item \texttt{props} - 属性
+            \item \texttt{ref} - 引用
+          \end{enumerate}
+  \end{enumerate}
+\end{frame}
+
+\section{补充：\texttt{Promise}的使用}
+\subsection{异步编程的概念}
+\begin{frame}
+  \frametitle{异步编程的概念}
+  在\tt{JavaScript}中，异步编程是一种处理异步操作的编程范式，它允许程序在等待某些操作完成的同时继续执行其他任务。异步编程对于处理事件、处理I/O操作、发起网络请求等场景非常有用，因为这些操作可能需要一些时间来完成，而在等待的过程中，程序可以执行其他任务，提高了程序的性能和响应能力。
+
+  \vspace{1em}
+
+  协程：协程是一种比线程更加轻量级的存在，它可以在不同的线程之间切换，但是协程的切换不是由系统控制，而是由程序自身控制，因此协程的切换不会引起线程的切换，也不会引起线程上下文的切换，所以协程的切换非常快。在某种程度上，协程可以用作实现异步编程的一种方式。异步编程涉及到管理非阻塞的操作，而协程是实现这一目标的一种机制。在一些编程语言和框架中，协程和异步编程的概念经常结合在一起，以提供更高效和清晰的异步代码编写方式。
+\end{frame}
+
+\subsection{\texttt{Promise}的基本使用}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{Promise}的基本使用}
+  \texttt{Promise}是异步编程的一种解决方案，它是一个对象，用来表示一个异步操作的最终完成或者失败。
+
+  \vspace{1em}
+
+  它提供了一种统一的API，使得异步操作更加容易管理。在\tt{JavaScript}中，\tt{Promise}是一个构造函数，可以通过\tt{new}关键字来创建一个\tt{Promise}对象。
+
+
+  \vspace{1em}
+
+
+  创建\tt{Promise}对象时，需要传入一个函数作为参数，这个函数被称为\tt{executor}，它接收两个参数\tt{resolve}和\tt{reject}，分别表示异步操作执行成功和失败时的回调函数。在\tt{executor}函数中，我们可以执行一些异步操作，当异步操作执行成功时，调用\tt{resolve}函数，当异步操作执行失败时，调用\tt{reject}函数。
+
+  \begin{lstlisting}[language=JavaScript]
+    const promise = new Promise((resolve, reject) => {
+      // 异步操作
+      // ...
+      if (/* 异步操作成功 */) {
+        resolve(/* 异步操作成功的结果 */);
+      } else {
+        reject(/* 异步操作失败的原因 */);
+      }
+    });
+\end{lstlisting}
+
+  \framebreak
+
+  \tt{Promise}对象创建成功后，可以通过\tt{then}方法来指定异步操作执行成功时的回调函数，通过\tt{catch}方法来指定异步操作执行失败时的回调函数。
+
+  \begin{lstlisting}[language=JavaScript]
+    promise.then((result) => {
+      // 异步操作执行成功时的回调函数
+      // result是异步操作执行成功的结果
+    }).catch((reason) => {
+      // 异步操作执行失败时的回调函数
+      // reason是异步操作执行失败的原因
+    });
+\end{lstlisting}
+
+  \framebreak
+
+  \texttt{then}方法和\tt{catch}方法都会返回一个\tt{Promise}对象，因此可以通过链式调用的方式来指定多个异步操作执行成功或者失败时的回调函数。
+
+  \begin{lstlisting}[language=JavaScript]
+    promise.then((result) => {
+      // 异步操作执行成功时的回调函数
+      // result是异步操作执行成功的结果
+    }).then((result) => {
+      // 异步操作执行成功时的回调函数
+      // result是异步操作执行成功的结果
+    }).catch((reason) => {
+      // 异步操作执行失败时的回调函数
+      // reason是异步操作执行失败的原因
+    });
+\end{lstlisting}
+
+  \framebreak
+
+  多个\tt{Promise}对象可以通过\tt{Promise.all}方法组合成一个新的\tt{Promise}对象，这个新的\tt{Promise}对象在所有的\tt{Promise}对象都执行成功时执行成功，只要有一个\tt{Promise}对象执行失败，这个新的\tt{Promise}对象就执行失败。
+
+
+
+  \vspace{1em}
+
+  \tt{Promise.all}方法接收一个\tt{Promise}对象数组作为参数，返回一个新的\tt{Promise}对象。\texttt{then}的回调函数接收一个数组作为参数，这个数组包含了所有\tt{Promise}对象执行成功的结果，\texttt{catch}的回调函数接收一个参数，这个参数是第一个执行失败的\tt{Promise}对象的执行失败的原因。
+
+  \begin{lstlisting}[language=JavaScript]
+    const promise1 = new Promise((resolve, reject) => {
+    // 异步操作
+    // ...
+    if (/* 异步操作成功 */) {
+        resolve(/* 异步操作成功的结果 */);
+      } else {
+        reject(/* 异步操作失败的原因 */);
+      }
+    });
+
+    const promise2 = new Promise((resolve, reject) => {
+    // 异步操作
+    // ...
+    if (/* 异步操作成功 */) {
+        resolve(/* 异步操作成功的结果 */);
+      } else {
+        reject(/* 异步操作失败的原因 */);
+      }
+    });
+
+    Promise.all([promise1, promise2]).then((results) => {
+      // 所有的异步操作都执行成功时的回调函数
+      // results是所有异步操作执行成功的结果
+    }).catch((reason) => {
+      // 有一个异步操作执行失败时的回调函数
+      // reason是第一个异步操作执行失败的原因
+    });
+
+  
+\end{lstlisting}
+  \framebreak
+  我们可以使用 \texttt{setTimeout} 函数来模拟一个异步操作，它接收一个回调函数和一个延迟时间作为参数，当延迟时间过去后，回调函数会被调用。
+
+  \begin{lstlisting}[language=JavaScript]
+    const promise1 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise1');
+      }, 1000);
+    });
+
+    const promise2 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise2');
+      }, 2000);
+    });
+
+    Promise.all([promise1, promise2]).then((results) => {
+      console.log(results);
+    }).catch((reason) => {
+      console.log(reason);
+    });
+\end{lstlisting}
+
+  出现错误的情况：
+
+  \begin{lstlisting}[language=JavaScript]
+    const promise1 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise1');
+      }, 1000);
+    });
+
+    const promise2 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject('promise2');
+      }, 2000);
+    });
+
+    Promise.all([promise1, promise2]).then((results) => {
+      console.log(results);
+    }).catch((reason) => {
+      console.log(reason);
+    });
+\end{lstlisting}
+
+\end{frame}
+
+\subsection{\texttt{async \& await}}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{async \& await}}
+
+  \texttt{async}函数是\tt{ES2017}引入的新的语法，它可以让我们更加方便地编写异步代码。
+
+  \vspace{1em}
+
+  它使我们拥有了像编写同步代码一样编写异步代码的能力。
+
+
+  \vspace{1em}
+
+
+
+  使用\tt{async}函数，我们可以在函数内部使用\tt{await}关键字来等待一个\tt{Promise}对象执行完成，\tt{await}关键字后面可以跟\tt{Promise}对象，也可以跟\tt{then}方法返回的结果，\tt{await}关键字后面的表达式会被暂停执行，直到\tt{Promise}对象执行成功，\tt{await}关键字后面的表达式才会被执行。
+  \vspace{1em}
+
+  在这种情况下，我们使用\tt{try...catch}语句来捕获\tt{await}关键字后面的\tt{Promise}对象执行失败时抛出的异常。
+
+  % 使用setTimeout模拟异步操作
+  \begin{lstlisting}[language=JavaScript]
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise');
+      }, 1000);
+    });
+    try {
+      console.log('before await');
+      const result = await promise;
+      console.log('after await');
+      console.log(result);
+    } catch (reason) {
+      console.log(reason);
+    }
+\end{lstlisting}
+
+  \framebreak
+
+  \tt{async}函数返回一个\tt{Promise}对象，因此我们可以通过\tt{then}方法来指定异步操作执行成功时的回调函数，通过\tt{catch}方法来指定异步操作执行失败时的回调函数。
+
+  \begin{lstlisting}[language=JavaScript]
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise');
+      }, 1000);
+    });
+    async function asyncFunction() {
+      try {
+        console.log('before await');
+        const result = await promise;
+        console.log('after await');
+        console.log(result);
+      } catch (reason) {
+        console.log(reason);
+      }
+    }
+    asyncFunction().then(() => {
+      console.log('asyncFunction resolved');
+    }).catch(() => {
+      console.log('asyncFunction rejected');
+    });
+  \end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{为什么要使用\tt{async}函数？}
+    回调地狱：在异步编程中，我们经常会遇到回调地狱的问题，当我们需要执行多个异步操作时，我们需要在每个异步操作执行成功时执行下一个异步操作，这样就会出现多层嵌套的回调函数，这种代码不仅难以阅读，而且难以维护。
+
+    例如，我们需要执行三个异步操作，每个异步操作执行成功后执行下一个异步操作，如果使用回调函数来实现，代码如下所示：
+  \end{block}
+  \begin{lstlisting}[language=JavaScript]
+    const promise1 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise1');
+      }, 1000);
+    });
+    const promise2 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise2');
+      }, 2000);
+    });
+    const promise3 = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('promise3');
+      }, 3000);
+    });
+    promise1.then((result1) => {
+      console.log(result1);
+      promise2.then((result2) => {
+        console.log(result2);
+        promise3.then((result3) => {
+          console.log(result3);
+        });
+      });
+    });
+\end{lstlisting}
+  \begin{block}{}
+    \tt{async}函数可以解决回调地狱的问题，它可以让我们像编写同步代码一样编写异步代码，使得异步代码更加清晰易读。
+
+  \end{block}
+  \begin{lstlisting}[language=JavaScript]
+  const data1 = await promise1;
+  console.log(data1);
+  const data2 = await promise2;
+  console.log(data2);
+  const data3 = await promise3;
+  console.log(data3);
+\end{lstlisting}
+
+  \framebreak
+
+  \begin{alertblock}{注意: \texttt{async \& await}的传染性}
+    \tt{await}关键字只能在\tt{async}函数中使用，如果在\tt{async}函数之外使用\tt{await}关键字，会抛出语法错误。
+
+  \end{alertblock}
+
+
+\end{frame}
+
+\section{\texttt{React}初探}
+
+\subsection{\texttt{React}的基本概念}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{React}的基本概念}
+  \texttt{React}是一个用于构建用户界面的\tt{JavaScript}库，它是\tt{Facebook}开发的一个开源项目，它可以用于构建单页面应用程序，也可以用于构建移动端应用程序。
+
+  \vspace{1em}
+
+  \texttt{React}的核心思想是组件化，它将用户界面抽象成一个个组件，通过组合这些组件来构建复杂的用户界面。
+
+  \vspace{1em}
+
+  \texttt{React}使用\tt{JSX}语法来描述用户界面，它是一种\tt{JavaScript}的语法扩展，可以在\tt{JavaScript}中编写\tt{HTML}代码，它可以让我们在\tt{JavaScript}中编写\tt{HTML}代码，这样可以更加方便地描述用户界面。
+
+  \framebreak
+
+  函数式编程的思想：\tt{React}的组件是一个函数，它接收一个\tt{props}对象作为参数，返回一个\tt{React}元素，这个\tt{React}元素描述了组件的用户界面。
+  $$UI=f(state, props)$$
+  其中，\tt{state}表示组件的状态，\tt{props}表示组件的属性，\tt{UI}表示组件的用户界面。
+
+  \vspace{1em}
+
+  \tt{React}元素是\tt{React}中最基本的构建块，它是一个普通的\tt{JavaScript}对象，它描述了组件的用户界面，它包含了组件的类型、属性和子元素等信息。
+
+  \vspace{1em}
+
+  \tt{React}元素是不可变的，一旦创建，就无法修改它的属性和子元素，如果需要更新\tt{React}元素的属性或者子元素，需要创建一个新的\tt{React}元素。
+\end{frame}
+
+\subsection{\texttt{JSX}语法规则}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{JSX}语法规则}
+  \texttt{JSX}是一种\tt{JavaScript}的语法扩展，它可以在\tt{JavaScript}中编写\tt{HTML}代码，它可以让我们在\tt{JavaScript}中编写\tt{HTML}代码，这样可以更加方便地描述用户界面。
+
+  \vspace{1em}
+
+  \begin{block}{\texttt{JSX}语法规则}
+
+    \begin{enumerate}
+      \item 标签中混入\tt{JavaScript}表达式时，需要用\tt{\{\}}将\tt{JavaScript}表达式包裹起来。
+      \item 标签中指定类名时，需要使用\tt{className}属性，而不是\tt{class}属性。（\tt{class}是\tt{JavaScript}的关键字）
+      \item 对于内联的样式，需要使用\tt{style}属性，需要传入一个\tt{JavaScript}对象，而不能是\tt{CSS}字符串。（\texttt{style=\{\{key: value\}\}}）
+    \end{enumerate}
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{\texttt{JSX}语法规则}
+    \begin{enumerate}
+      \setcounter{enumi}{3}
+      \item \tt{JSX}标签必须闭合（\tt{<br/>}）
+      \item \tt{JSX}标签必须有唯一的根元素。（可以使用\tt{<div></div>}或\tt{<></>}包裹）
+      \item 标签首字母
+            \begin{enumerate}
+              \item 如果首字母是小写，那么将会按照\tt{HTML}标签的规则进行解析。
+              \item 如果首字母是大写，那么将会按照\tt{React}组件的规则进行解析。
+            \end{enumerate}
+    \end{enumerate}
+  \end{block}
+
+  \framebreak
+
+  示例代码：
+
+  \begin{lstlisting}[language=JavaScript]
+    const element = (
+      <div className='container'>
+      <h1>Hello, world!</h1>
+      <h2>It is {new Date().toLocaleTimeString()}.</h2>
+      <div style={{ color: 'red' }}>Hello, world!</div>
+      <image src='https://www.baidu.com/img/flexible/logo/pc/result.png' />
+      </div>
+    );
+\end{lstlisting}
+\end{frame}
+
+\subsection{创建\tt{React}项目}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{创建\tt{React}项目}
+  \begin{block}{使用\tt{create-react-app}创建\tt{React}项目}
+    \begin{enumerate}
+      \item 安装\tt{create-react-app}工具
+            \begin{lstlisting}[language=bash]
+    npm install -g create-react-app
+\end{lstlisting}
+      \item 创建\tt{React}项目（使用TypeScript）
+            \begin{lstlisting}[language=bash]
+    create-react-app my-app --template typescript
+\end{lstlisting}
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+\subsection{\texttt{React}组件}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{React}组件}
+
+  类组件与函数组件：
+
+  \begin{block}{类组件}
+    类组件是\tt{React}中最基本的组件，它是一个类，它继承自\tt{React.Component}类，它必须包含一个\tt{render}方法，这个\tt{render}方法必须返回一个\tt{React}元素，它描述了组件的用户界面。
+  \end{block}
+
+  \begin{lstlisting}[language=JavaScript]
+    class Welcome extends React.Component {
+      render() {
+        return <h1>Hello, world!</h1>;
+      }
+    }
+\end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{函数组件}
+    函数组件是\tt{React}中最基本的组件，它是一个函数，它接收一个\tt{props}对象作为参数，返回一个\tt{React}元素，这个\tt{React}元素描述了组件的用户界面。
+  \end{block}
+
+  \begin{lstlisting}[language=JavaScript]
+    type WelcomeProps = {
+      name: string;
+    };
+    function Welcome(props: WelcomeProps) {
+      return <h1>Hello, {props.name}</h1>;
+    }
+  \end{lstlisting}
+
+  在本课程中，我们主要使用函数组件来编写\tt{React}组件。
+
+\end{frame}
+
+\subsection{\texttt{state} - 状态}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{state} - 状态}
+
+  \begin{block}{\texttt{state} - 状态}
+    \tt{state}是组件的状态，它是一个普通的\tt{JavaScript}对象，它用于存储组件内部的状态数据，当组件的状态发生变化时，组件会重新渲染。
+  \end{block}
+
+  \begin{block}{使用\tt{useState}创建状态}
+    \tt{useState}是\tt{React}中的一个\tt{Hook}，它可以用于在函数组件中创建状态，它接收一个初始状态作为参数，返回一个数组，数组的第一个元素是当前的状态，数组的第二个元素是一个函数，这个函数可以用于更新状态。
+  \end{block}
+
+  \framebreak
+
+  示例：计数器组件
+
+  \begin{lstlisting}[language=JavaScript]
+    function Counter() {
+      const [count, setCount] = useState(0);
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          <button onClick={() => setCount(count + 1)}>
+            Click me
+          </button>
+        </div>
+      );
+    }
+\end{lstlisting}
+
+  \framebreak
+
+  \begin{alertblock}{注意：\texttt{useState}的使用条件}
+    \tt{useState}是\tt{React}中的一个\tt{Hook}，它只能在函数组件中使用，如果在函数组件之外使用\tt{useState}，会抛出语法错误。
+  \end{alertblock}
+
+  \begin{lstlisting}[language=JavaScript]
+    const [count, setCount] = useState(0);
+\end{lstlisting}
+
+  \begin{alertblock}{状态的不可变性}
+    \tt{state}是不可变的，一旦创建，就无法修改它的值，如果需要更新状态，需要调用\tt{setCount}函数。
+
+  \end{alertblock}
+
+  \begin{lstlisting}[language=JavaScript]
+    setCount(count + 1);
+\end{lstlisting}
+
+  \begin{alertblock}{状态改变时组件的重新渲染}
+    当组件的状态发生变化时，组件会重新渲染。
+  \end{alertblock}
+
+  \begin{lstlisting}[language=JavaScript]
+    function Counter() {
+      const [count, setCount] = useState(0);
+      console.log('render');
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          <button onClick={() => setCount(count + 1)}>
+            Click me
+          </button>
+        </div>
+      );
+    }
+  \end{lstlisting}
+
+\end{frame}
+
+\subsection{\texttt{props} - 属性}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{props} - 属性}
+
+  \begin{block}{\texttt{props} - 属性}
+    \tt{props}是组件的属性，它是一个普通的\tt{JavaScript}对象，它用于接收父组件传递过来的数据，它是只读的，不能修改它的值。
+  \end{block}
+
+  \begin{block}{使用\tt{props}传递数据}
+    父组件可以通过\tt{props}属性向子组件传递数据，子组件可以通过\tt{props}属性接收父组件传递过来的数据。
+  \end{block}
+
+  \framebreak
+
+  示例：欢迎组件
+
+  \begin{lstlisting}[language=JavaScript]
+    type WelcomeProps = {
+      name: string;
+    };
+    function Welcome(props: WelcomeProps) {
+      return <h1>Hello, {props.name}</h1>;
+    }
+\end{lstlisting}
+
+  \begin{lstlisting}[language=JavaScript]
+    function App() {
+      return (
+        <div>
+          <Welcome name="Sara" />
+          <Welcome name="Cahal" />
+          <Welcome name="Edite" />
+        </div>
+      );
+    }
+\end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{子组件改变父组件的状态}
+    子组件可以通过\tt{props}属性调用父组件传递过来的函数，从而改变父组件的状态。
+
+  \end{block}
+
+  \begin{lstlisting}[language=JavaScript]
+    type WelcomeProps = {
+      name: string;
+      onClick: () => void;
+    };
+    function Welcome(props: WelcomeProps) {
+      return <h1 onClick={props.onClick}>Hello, {props.name}</h1>;
+    }
+\end{lstlisting}
+
+  \begin{lstlisting}[language=JavaScript]
+    function App() {
+      const [name, setName] = useState('Sara');
+      return (
+        <div>
+          <Welcome name={name} onClick={() => setName('Cahal')} />
+          <h2>{name}</h2>
+        </div>
+      );
+    }
+\end{lstlisting}
+
+  \framebreak
+
+  \begin{alertblock}{\texttt{props}的只读性}
+    \tt{props}是只读的，不能修改它的值，如果需要修改\tt{props}的值，需要使用\tt{state}。
+  \end{alertblock}
+
+  \begin{lstlisting}[language=JavaScript]
+    function Welcome(props: WelcomeProps) {
+      props.name = 'Cahal';
+      return <h1>Hello, {props.name}</h1>;
+    }
+\end{lstlisting}
+
+
+
+\end{frame}
+
+\subsection{\texttt{ref} - 引用}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{ref} - 引用}
+
+  \begin{block}{\texttt{ref} - 引用}
+    \tt{ref}是\tt{React}中的一个\tt{Hook}，它可以用于获取\tt{DOM}元素或者组件实例。
+  \end{block}
+
+  \begin{block}{使用\tt{ref}获取\tt{DOM}元素}
+    \tt{ref}可以用于获取\tt{DOM}元素，它接收一个\tt{DOM}元素作为参数，返回一个\tt{ref}对象，这个\tt{ref}对象的\tt{current}属性指向\tt{DOM}元素。
+  \end{block}
+
+  \framebreak
+
+  示例：获取\tt{DOM}元素
+
+  \begin{lstlisting}[language=JavaScript]
+    function TextInputWithFocusButton() {
+      const inputEl = useRef<HTMLInputElement | null>(null);
+      const onButtonClick = () => {
+        if (inputEl.current) {
+          inputEl.current.focus();
+        }
+      };
+      return (
+        <>
+          <input ref={inputEl} type="text" />
+          <button onClick={onButtonClick}>Focus the input</button>
+        </>
+      );
+    }
+\end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{使用\tt{ref}存储改变不会引起组件重新渲染的值}
+
+    \tt{ref}也可以用于存储改变不会引起组件重新渲染的值，例如定时器的返回值。
+  \end{block}
+
+
+  \begin{lstlisting}[language=JavaScript]
+    function Timer() {
+      const intervalRef = useRef<number | null>(null);
+      const [count, setCount] = useState(0);
+      const start = () => {
+        if (intervalRef.current) {
+          return;
+        }
+        intervalRef.current = window.setInterval(() => {
+          setCount((count) => count + 1);
+        }, 1000);
+      };
+      const stop = () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      };
+      return (
+        <>
+          <p>{count}</p>
+          <button onClick={start}>Start</button>
+          <button onClick={stop}>Stop</button>
+        </>
+      );
+    }
+\end{lstlisting}
+
+  \framebreak
+
+  \begin{alertblock}{注意：\texttt{ref}的使用条件}
+    \tt{ref}是\tt{React}中的一个\tt{Hook}，它只能在函数组件中使用，如果在函数组件之外使用\tt{ref}，会抛出语法错误。
+  \end{alertblock}
+
+  \begin{lstlisting}[language=JavaScript]
+    const inputEl = useRef<HTMLInputElement | null>(null);
+\end{lstlisting}
+
+\end{frame}
+
+
+
+\end{document}

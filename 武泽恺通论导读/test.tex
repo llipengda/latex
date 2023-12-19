@@ -1,0 +1,350 @@
+\documentclass[UTF8,openany]{ctexbook}
+
+% 论文版面要求:
+% 统一按 word 格式A4纸（页面设置按word默认值）编排、打印、制作。
+% 正文内容字体为宋体；字号为小4号；字符间距为标准；行距为25磅(约0.88175cm)。
+
+%%%%% ===== 页面设置
+\usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=3.17cm,right=3.17cm,%
+            ]{geometry}
+            
+\setlength{\parindent}{2em}
+%默认的弹性间距会导致文中某些排版flush的时候，出现大量空白。
+\setlength{\parskip}{0.5em} %指定固定段后间距，默认为弹性间距。
+\setlength{\intextsep}{10pt} %固定浮浮动体前后间距。
+
+
+
+
+
+% \fontsize{12pt}{18pt}\selectfont
+%%%%% =====章节 标题 设置
+\ctexset{%
+  contentsname={\vspace{-3.5em}\centerline{\zihao{-3}\heiti 目\quad 录}\vspace{-0.7em}},
+  listfigurename={\vspace{-3.5em}\centerline{\zihao{-3}\heiti 插\ 图\ 目\ 录}\vspace{-0.5em}},
+  listtablename={\vspace{-3.5em}\centerline{\zihao{-3}\heiti 表\ 格\ 目\ 录}\vspace{-0.5em}},
+  bibname={\vspace{-3em}\centerline{\zihao{-3}\heiti 参\ 考\ 文\ 献}\vspace{3em}},
+  chapter={name={第,章},
+           number=\chinese{chapter}, %指定章序号为一二三。。。。
+           nameformat={\zihao{3}\bfseries},
+           titleformat={\zihao{3}\bfseries},
+           beforeskip={-10pt},
+           afterskip={20pt}
+           },
+  section={ name={第,节},
+            number=\chinese{section},
+            % format=\raggedright,
+           nameformat={\zihao{4}\bfseries},
+           titleformat={\zihao{4}\bfseries},
+        %   afterskip={1ex plus 0.2ex}
+           beforeskip={1ex},% 固定段前段后间距，
+           afterskip={1ex}
+           },
+  subsection={format=\raggedright,
+           nameformat={\zihao{-4}\bfseries},
+           titleformat={\zihao{-4}\bfseries},
+%           afterskip={0.5ex plus 0.1ex}
+           beforeskip={0.5ex},
+           afterskip={0.5ex}
+           }
+}
+%%%%% ===== 中英文字体
+\setmainfont{Times New Roman}
+%\setsansfont{Myriad Pro} % 无衬线字体 sans serif \sffamily
+%\setmonofont{Consolas}   % 等宽字体 typewriter \ttfamily
+%\newcommand{\Times}{\fontspec{Times New Roman}}
+%% 中文字体
+%\setCJKmainfont[BoldFont={Microsoft YaHei},ItalicFont={KaiTi}]{NSimSun}
+%\setCJKsansfont{Microsoft YaHei}
+%\setCJKmonofont{KaiTi}
+%\setCJKfamilyfont{STSong}{方正小标宋_GBK}\newcommand{\STSong}{\CJKfamily{STSong}}
+\setCJKfamilyfont{songti}{STZhongsong}\newcommand{\STSong}{\CJKfamily{STSong}}
+
+%%%%% ===== 常用宏包
+\usepackage{amsmath,amssymb,amsfonts,bm}
+\usepackage[amsmath,thref,thmmarks,hyperref]{ntheorem}
+\usepackage{graphicx,xcolor,float}
+\usepackage{fancyhdr}
+\usepackage{tocloft} % 设置目录中的条目间距
+
+
+% % \renewcommand\cftdot{\textsubscript{……}}
+% % \renewcommand\cftdotsep{0}
+% \renewcommand{\cftpartleader}{\cftdotfill{\cftdotsep}} % 给 parts 加点
+% \renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % 给 chapters 加点
+% \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}} % 给 sections加点
+
+\usepackage{titletoc}  
+
+
+\setlength{\cftbeforechapskip}{1pt}
+\renewcommand{\cftchapleader}{\cftdotfill{\cdot}}
+
+
+\usepackage{booktabs} % toprule, midrule, bottomrule
+\usepackage{varwidth} % 可变宽度的 parbox
+
+%%%%% ===== 参考文献与链接
+\usepackage[numbers,sort&compress,sectionbib,super, square]{natbib} %引用上标，禁用连续缩写。
+\newcommand{\upcite}[1]{\textsuperscript{\cite{#1}}}
+
+
+\usepackage[xetex,pagebackref]{hyperref}
+\hypersetup{CJKbookmarks=true,colorlinks=true,citecolor=blue,%
+            linkcolor=blue,urlcolor=blue,bookmarksnumbered=true,%
+	        bookmarksopen=true,breaklinks=true}
+	        
+	        
+	        
+\iffalse   % 调试时，可去掉，以用于显示引用位置。
+\renewcommand*{\backrefalt}[2]{%
+\ifcase #1 No citations.%
+\or Cited on page #2.%
+\else Cited on pages #2.%
+%\else #1 Cited on pages #2.%
+\fi
+}
+
+\else
+\renewcommand*{\backrefalt}[4]{}
+\fi
+
+%%%%% ===== 浮动图表的标题
+\usepackage[margin=2em,labelsep=space,skip=0.5em,font=normalfont]{caption}
+\DeclareCaptionFormat{mycaption}{{\heiti\color{blue} #1}#2{\kaishu #3}}
+\captionsetup{format=mycaption,tablewithin=chapter,figurewithin=chapter}%,belowskip=-10pt
+%\setlength{\belowcaptionskip}{-10pt}
+
+%%%%%% ===== 浮动图表的比例默认50%以下，否则无法浮动。
+\renewcommand\floatpagefraction{.9} %当浮动体小于页面90%时进行直接放置。
+\renewcommand\topfraction{.9}  
+\renewcommand\bottomfraction{.9}  
+\renewcommand\textfraction{.1}
+
+
+
+%%%%% ===== 算法
+\usepackage{algorithm,algpseudocode}
+
+%%%%% ===== 其他
+\usepackage{ulem}
+\def\ULthickness{1pt}
+
+
+
+
+%%%%%===== Code Style代码
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+  language=Python,
+  xleftmargin = 3em,xrightmargin = 3em, aboveskip = 1em,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  rulesepcolor= \color{gray},
+  frame = ltrb,
+  basicstyle={\normalsize\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\usepackage{lastpage}
+\newcommand{\mcc}[1]{\multicolumn{1}{c}{\underline{\makebox[10em][c]{#1}}}}
+\newcommand{\mce}[1]{\multicolumn{1}{c}{\underline{\makebox[15em][l]{#1}}}}
+
+
+\pagestyle{fancy}
+\fancyhf{}  % 清除以前对页眉页脚的设置
+
+\newcommand{\makeheadrule}{%% 定义页眉与正文间双隔线
+    \makebox[0pt][l]{\rule[.7\baselineskip]{\headwidth}{0.3pt}}%0.4
+    \rule[0.85\baselineskip]{\headwidth}{1.0pt}\vskip-.8\baselineskip}
+\makeatletter
+\renewcommand{\headrule}{%
+    % {\if@fancyplain\let\headrulewidth\plainheadrulewidth\fi\makeheadrule}}
+    {\makeheadrule}}
+\makeatother
+\renewcommand{\chaptermark}[1]{\markboth{\CTEXthechapter \ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection \ #1}{}}
+%\fancyhead[RO,LE]{{\small\songti\rightmark}}     % 节标题
+%\fancyhead[RE]{{\small\songti\leftmark}}      % 章标题
+\fancyhead[C]{《通论》导读课程期末论文}
+% \fancyhead[RO,LE]{$\cdot$ {\small\thepage} $\cdot$}
+% \fancyfoot[C]{{\thepage\,\,/ 9}}
+%\fancyfoot[CO,CE]{{\thepage}}
+
+
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \begin{figure}[H]
+            \begin{center}
+                \vspace{5cm}
+                \includegraphics[width=12cm]{./图片1.png}
+            \end{center}
+        \end{figure}
+        {
+        \vspace{2em}
+        \songti\zihao{1}\textbf{凯恩斯《通论》导读} \\
+        \vspace{0.8em}
+        \heiti\zihao{-1}{“四万亿计划”中凯恩斯思想探析}
+        }
+        \\[12em]
+        \zihao{-3}
+        \begin{tabular}{p{0cm}p{5.5em}@{\extracolsep{0.5ex}}cc}
+            ~ & \hfill 院系专业：        &  & \mcc{软件工程 }   \\
+            ~ & \hfill   学\qquad 号：   &  & \mcc{10225101429} \\
+            ~ & \hfill     姓\qquad 名： &  & \mcc{武泽恺}      \\
+            ~ & \hfill   教\qquad 师：   &  & \mcc{黄忠华}      \\
+            ~ & \hfill 日\qquad 期:      &  & \mcc{2023/5/13}
+        \end{tabular}
+        \\[8em]
+    \end{center}
+    \thispagestyle{fancy}
+\end{titlepage}
+% \clearpage%{\pagestyle{empty}\cleardoublepage}
+\pagestyle{fancy}
+\phantomsection
+
+\titlecontents{chapter}[0pt]{\addvspace{2pt}\filright}
+{\contentspush{\color{blue}\thecontentslabel\ }}
+{}{\titlerule*[8pt]{.}\contentspage}
+\titlecontents{section}[36pt]{\addvspace{2pt}\filright}
+{\contentspush{\color{blue}\thecontentslabel\ }}
+{}{\titlerule*[8pt]{.}\contentspage}
+\fancyfoot[C]{\thepage}
+\setcounter{page}{1}
+\centerline{\zihao{-3}\heiti \textbf{摘\quad 要}}
+\addcontentsline{toc}{chapter}{摘\quad 要}
+
+\linespread{1.5}\zihao{-4} \bigskip
+\kaishu
+本文聚焦于四万亿计划中的凯恩斯主义思想，并分析了该计划在应对金融危机和促进经济增长方面的效果。
+
+凯恩斯主义强调政府干预和财政刺激，通过增加支出、刺激就业和促进消费来应对经济衰退。
+
+四万亿计划在2008年全球金融危机期间实施，采取了大规模的财政刺激措施，重点投资于基础设施建设和农村社会福利领域。该计划对中国经济产生了积极影响，刺激了内需、提振了市场信心，并促进了经济的稳定和增长。
+
+本文还对凯恩斯主义的合理性与局限性进行了理性分析，提出了一些对未来政策制定的建议，以更好地结合凯恩斯主义思想和可持续发展的目标，实现经济的稳健增长。
+
+\bigskip
+
+\noindent{\zihao{-4}\heiti 关键词：}
+四万亿计划，凯恩斯主义，政府干预，宏观调控
+\songti
+
+\newpage
+\tableofcontents
+% \titlecontents{chapter}[0pt]{\addvspace{2pt}\filright}
+%               {\contentspush{\thecontentslabel\ }}
+%               {}{\titlerule*[8pt]{.}\contentspage}
+\thispagestyle{fancy}
+\addcontentsline{toc}{chapter}{目\quad 录}
+
+
+\newpage
+\chapter{《通论》中的凯恩斯主义基本理论}
+\thispagestyle{fancy}
+通读凯恩斯的《就业、利息和货币通论》，可以大体提炼出凯恩斯主义中几个核心理论观点，分别是效应总需求观、失业与就业观、货币与利率观、政府干预观、收入再分配观。
+其一，效应总需求观：凯恩斯主义认为，经济活动的主要推动力是总需求，即消费者支出和投资支出的总和。消费者支出是消费者在商品和服务上的支出，而投资支出是企业和个人用于购买资本设备、建设工厂等的支出。凯恩斯认为，如果总需求不足，经济就会陷入衰退。
+
+其二，失业与就业观：凯恩斯主义关注失业问题。凯恩斯认为，市场经济中会出现周期性失业和结构性失业。周期性失业是由经济周期性衰退导致的，而结构性失业则是由技术进步和产业结构变化引起的。凯恩斯认为，这些失业问题主要是由于总需求不足导致的，即经济中存在闲置资源。因此，他主张政府应该通过增加支出来刺激总需求，促进经济增长和就业机会的创造。
+
+其三，货币与利率观：凯恩斯主义认为，货币政策对经济起着重要作用。他提出了“利率效应”和“流动性陷阱”等概念。利率效应指的是利率对投资和消费决策的影响。凯恩斯认为，降低利率可以促使企业增加投资支出，提高消费者的借贷能力，从而刺激总需求。然而，当利率已经很低时，进一步降低利率的效果会减弱，企业和个人可能更倾向于持有现金而不是进行投资和消费，这就是流动性陷阱。在这种情况下，凯恩斯主张政府采取货币政策措施来增加货币供应量，以刺激经济活动。
+
+其四，政府干预观：凯恩斯主义主张政府在经济中发挥积极的角色。政府可以通过财政政策和货币政策来干预经济。在衰退时期，政府可以通过增加公共支出、减税和提供贷款等方式来刺激总需求，从而促进经济复苏和就业增长。相反，在高涨时期，政府可以采取相应的措施来抑制过热经济，以防止通货膨胀。同时，凯恩斯认为，市场并不总是能够自动调整回长期平衡状态，需要政府进行长期实施宏观调控，或调整其政策的有效性。在短期内，市场可能存在不完全竞争和价格粘性等因素，导致经济波动和失业。凯恩斯主张政府的干预是必要的，以帮助经济尽快恢复到长期稳定状态。这种干预包括通过调整财政政策和货币政策来影响总需求，以及通过就业保障和社会福利政策来减轻失业和社会不公问题。
+
+其五，收入再分配：凯恩斯主义强调收入分配对经济稳定和社会公平的重要性。凯恩斯认为，不合理的收入分配会导致需求不足和社会不稳定。他主张通过适当的税收政策和社会福利措施来实现收入再分配，以促进经济的稳定和社会的公平。
+根据笔者对《通论》的阅读经验，将《通论》中的核心内容粗略地提炼为上述五条主要理论，下面，我们将结合具体实例“四万亿计划”，来探讨该经济政策是在怎样的背景下诞生的，又是如何反映凯恩斯主义思想的。
+
+
+\chapter{“四万亿计划”背景、政策及其蕴含的凯恩斯思想}
+\thispagestyle{fancy}
+\section{时代背景}
+下面，笔者先来介绍“四万亿计划”的时代背景。
+
+谈到2008年的经济危机，往往离不开其之前发生的次贷危机。2006年至2007年间，次贷危机在美国房地产市场中形成，由于高风险的次级抵押贷款违约的增加，导致金融机构面临重大损失和风险。这些次级抵押贷款是通过金融衍生品的复杂交易和金融机构之间的相互依赖来分散和转移风险的，但当房地产市场出现问题时，这些金融衍生品的价值暴跌，引发了金融市场的恐慌。随着金融市场的崩溃和信心的瓦解，全球范围内的金融机构遭受重大损失，流动性紧缩和信贷收缩导致企业倒闭、失业率上升，消费和投资下降。这最终导致了全球经济的衰退。
+
+2008 年 9月，全球金融危机全面爆发后，世界各主要经济体均出现了经济增速剧烈下滑的倾向，国际有效需求急剧下滑。在全球经济低迷的，世界性金融危机形势日益严峻的情况下，我国经济也难逃厄运。\cite{bi:1}
+
+2008年，中国GDP增速由第一季度的增长10.6\%放缓至第四季度的6.8\%，是1999年第四季度以来的最低增速。2008年四季度以来，受国际金融危机影响，中国进出口一度出现两位数的深度降幅。对于经济增长严重依赖出口的国内经济来说，由金融危机所引发的全球经济下滑特别是美国经济的低迷给中国经济带来了巨大的负面影响。在这种背景之下，政府出台了四万亿的经济刺激计划，四万亿投资计划，包含了一揽子扩大内需和保持经济平稳较快增长的措施。\cite{bi:2}
+
+进一步，我们来讨论四万亿计划的具体政策，以及这些政策是如何体现凯恩斯思想的。
+\newpage
+\section{具体政策及其体现的思想}
+通过查询相关资料，笔者对“四万亿计划”的具体政策进行了整理、分类，其中包括以下六个部分。
+
+其一，基础设施投资：计划通过加大对公路、铁路、机场、港口等基础设施建设的投资，改善交通运输条件，促进地区间的互联互通和经济活动。这包括新建和扩建高速公路、铁路线路，提升交通网络的能力和效率，支持交通运输和物流行业的发展。有数据显示，4万亿元投资中，15000亿元将用于铁路、公路、机场等重大基础设施建设和城市电网改造，4000亿元投向保障性住房、农村水电路气房等民生工程和基础设施建设。\cite{bi:3}
+
+其二，住房保障项目：计划投资用于改善农村和城市贫困人口的居住条件。保障性安居工程是其中的重要项目，通过为低收入家庭提供负担得起的住房，解决低收入群体的住房问题。此外，廉租房建设也是其中的一项措施，通过提供价格适中的租赁住房，改善居民居住条件。
+
+其三，农村发展投入：计划增加对农村基础设施建设、农田水利建设、农产品加工等领域的投资。这包括农村公路、农田水利设施、农村电网等基础设施的建设，以提升农村交通、灌溉和电力供应条件。此外，投资还用于发展农产品加工业，提高农产品的附加值和市场竞争力。
+
+其四，环保和节能产业支持：计划投资用于环境保护和节能减排项目，推动清洁能源、节能环保产业的发展。这包括支持可再生能源的开发和利用，鼓励能源效率的提升，推动环保技术和设备的研发和应用，以减少对环境的负面影响并实现可持续发展目标。
+
+其五，内需扩大和消费促进：计划通过增加居民收入、扩大社会保障、提高医疗教育水平等措施，提高居民消费能力，促进内需增长。政府加大社会保障和福利支出，提高居民收入水平，增加居民消费支出。同时，加强医疗和教育等公共服务的投入，提高服务质量和覆盖范围。
+
+其六，减税和优惠政策：降低企业所得税：政府降低了企业的所得税负担。通过减少企业所得税税率或提供税收优惠，鼓励企业增加投资和生产，刺激经济增长。针对小型和微型企业，政府还提供了一系列税收优惠政策，如减免企业所得税、增值税等，以降低小微企业的经营成本，促进其发展壮大。
+
+经过笔者的分析，认为上述政策体现出的思想如下：
+
+首先，体现出前文所述的政府干预观。中国的四万亿计划正是政府主导的经济刺激计划，政府通过大规模的财政干预来应对金融危机带来的经济衰退。
+其次，这体现出前文所述的效应总需求观。本计划中，通过大幅增加政府的支出，特别是在基础设施建设方面的投资，来刺激需求和促进经济增长。政府投入资金用于修建铁路、公路、机场等基础设施项目，这直接增加了政府支出，并通过需求的扩大间接刺激了经济增长。
+
+第三，这体现出前文所述的失业与就业观。“四万亿计划”通过大规模基础设施建设和其他投资项目的实施，创造了大量的就业机会。政府的投资和支出促使了相关产业的发展和壮大，吸纳了大批的劳动力，提高了就业水平，从而刺激了经济增长。
+
+通过四万亿计划，我国应对了经济衰退的挑战，实现了经济的稳定和增长。这些措施在一定程度上缓解了经济下行压力，提振了市场信心，促进了国内经济的快速恢复和发展。笔者认为，四万亿计划算是在应对全球金融危机中成功应用凯恩斯主义经济理论的例证，可见凯恩斯主义在当代仍具有其合理性。接下来，笔者想进一步探讨其在当代的适用性。
+
+\chapter{凯恩斯主义当代适用性分析}
+\thispagestyle{fancy}
+“四万亿计划”有其有效性，但也有其所导致的潜在负面影响。如金融危机背景下为了拉动内需，启动了家电下乡，汽车以旧换新的政策刺激农村消费市场的崛起，但这种权宜之计难以在长期内真正的带动农村消费市场的繁荣；又如四万亿经济刺激计划可能导致全国范围的投资失控和投资过热，于是之后又不得不采取降温的调控政策，叫停一大批建设项目，半拉子工程，造成了不必要的损失和浪费。\cite{bi:2}还如，从中国当时的就业形势来看，2000 万农民工失岗返乡、600 多万高校应届毕业生面临就业，两大群体叠加，就业压力陡增。城镇新增就业增速在下降，企业的用工需求也在减少，现有的工作岗位流失非常严重，这些都是新问题。\cite{bi:5}而对于2008年全球范围内的经济危机，更有学者声称“2008年全球金融危机 （GFC）令主流经济学‘声名扫地’”。\cite{bi:6}
+
+可见，即使运用效应需求观、失业与就业观的理念去制定、调整政策，依然会有潜在的问题风险存在。同时，对于2008年的经济危机而言，其具有金融化的复杂性、受到全球化的影响、次贷市场的创新和复杂性等新兴复杂因素参与其中，导致凯恩斯主义理论适用性降低。下面，笔者依自己的主见，撰写部分对凯恩斯主义可能的拓展。
+
+对于金融化的复杂性：由于凯恩斯主义相对较少关注金融市场的运作和风险管理，然而，金融市场的稳定对经济的稳定至关重要。在这方面，需要更加深入地研究金融市场的作用和风险管理，包括监管改革、金融稳定机制和防范金融危机的措施。
+
+对于全球化的影响：由于凯恩斯主义主要关注国内经济和国内政策，对于全球化和国际经济联系的分析相对有限。在当今全球化的背景下，国际合作和协调对于解决经济问题至关重要。在这方面，需要将国际因素纳入考虑，并推动全球范围内的政策协调和合作。
+
+因此，综上所述，凯恩斯主义理论的应用需要从当代背景实际出发，综合考虑多方因素，以理论基础为本，来制定和创新调控政策，或完善和修正既定方针。
+
+
+\newpage
+\setlength{\bibsep}{1ex}  % 需 natbib 宏包
+\begin{thebibliography}{99}
+    \addcontentsline{toc}{chapter}{参考文献}
+    \thispagestyle{fancy}
+
+    % \addtolength{\itemsep}{-5pt}
+    \bibitem{bi:1}
+    高静严. 从宏观角度分析 “四万亿” 计划对我国经济的影响[J]. 中国市场, 2016 (50): 12-14.
+
+    \bibitem{bi:2}
+    王沛沛. 浅析四万亿经济刺激计划之效果[J]. 商业文化, 2010.
+
+    \bibitem{bi:3}
+    新华社. 千方百计扩大内需\,\,我国4万亿投资计划初见成效[N].2009
+
+    \bibitem{bi:5}
+    戴艳军, 崔彦峰, 杨利兵. 四万亿经济刺激计划对我国经济的影响[J]. 当代经济, 2010 (7): 60-61.
+
+    \bibitem{bi:6}
+    李黎力. 货币与经济周期: 后凯恩斯主义的逻辑[J]. 政治经济学评论, 2021, 11(5): 65-94.
+
+\end{thebibliography}
+
+\end{document}

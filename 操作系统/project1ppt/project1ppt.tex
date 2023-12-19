@@ -1,0 +1,1711 @@
+\documentclass{beamer}
+\usepackage[UTF8]{ctex}
+\usetheme{Boadilla}
+% \useoutertheme{shadow}
+\useinnertheme{circles}
+\usecolortheme{beaver}
+% \usefonttheme{structuresmallcapsserif}
+\setbeamertemplate{background canvas}[vertical shading][bottom=white,middle=white,top=white]
+%\setbeamerfont{title}{size=\LARGE}
+%\setbeamercolor{title}{fg=yellow,bg=gray}
+%\setbeamertemplate{section in toc}[sections numbered]%节标题模板颜色
+%\setbeamercolor{section in toc}{fg=yellow!80!gray}%节标题模板颜色
+% \setbeamertemplate{frametitle}{\noindent\insertframetitle\par\noindent\insertframesubtitle\par}
+% \setbeamerfont{frametitle}{size=\large}
+% \setbeamercolor{frametitle}{fg=yellow!70!gray}
+% \setbeamercolor{normal text}{fg=white,bg=gray}
+% \setbeamertemplate{blocks}[rounded][shadow=true]
+% \setbeamercolor{block title}{fg=white,bg=gray!50!black}
+%\setbeamercolor{block body}{bg=gray}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}%常用的数学宏包
+\usepackage{amssymb}%数学宏包，可以实现一些数学符号
+\usepackage{graphicx}
+\usepackage{float}
+\RequirePackage{caption}
+\usepackage{subfigure}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{pxfonts}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{amsfonts}%数学字体宏包
+\usepackage{comment}%批量注释的宏包
+\usepackage{boxedminipage}%为文本段添加边框的宏包
+\usepackage{shadow}%带阴影的边框
+\usepackage{fancybox}%实现边框效果的宏包
+\usepackage{esint}%实现多重积分的宏包
+\usepackage{relsize}%提供加大数学符号命令\mathlarger
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
+
+\setmonofont{JetBrains Mono}
+\setCJKmonofont{黑体}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstset{
+    % language = C,
+    xleftmargin = 0.5em,xrightmargin = 0.5em, aboveskip = 1em,
+	backgroundcolor = \color{white}, % 背景色
+	basicstyle = \footnotesize\ttfamily, % 基本样式 + 小号字体
+	rulesepcolor= \color{gray}, % 代码块边框颜色
+	breaklines = true, % 代码过长则换行
+	numbers = left, % 行号在左侧显示
+	numberstyle = \footnotesize, % 行号字体
+    numbersep = -14pt, 
+    keywordstyle=\color{purple}\bfseries, % 关键字颜色
+    commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+    stringstyle = \color{red!60!green!90!blue!90}, % 字符串颜色
+    morekeywords={ASSERT, int64_t, uint32_t},
+	frame = shadowbox, % 用(带影子效果)方框框住代码块
+	showspaces = false, % 不显示空格
+	columns = fixed, % 字间距固定
+} 
+\lstset{
+    sensitive=true,
+    moreemph={ASSERT, NULL}, emphstyle=\color{red}\bfseries,
+    moreemph=[2]{int64_t, uint32_t, tid_t, uint8_t, int16_t, uint16_t, int32_t, size_t, bool}, emphstyle=[2]\color{purple}\bfseries,
+    commentstyle=\color{green!60!black}, % 设置注释颜色
+    morecomment=[l][\color{green!60!black}]{+}, % 设置以+开头的代码行为绿色
+}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\title{操作系统实验分享}
+\subtitle{从测试代码出发——逐步实现优先级调度 \\ 使用 \texttt{gdb} 调试 \texttt{pintos}}
+\author{李鹏达}
+\date{2023年12月11日}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{目录}
+  \tableofcontents
+\end{frame}
+
+\section{优先级调度的实现}
+
+\subsection{基本：按优先级插入线程}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{基本：按优先级插入线程}
+  在原本的实现中，线程的调度是按照FIFO的顺序进行的，这样会导致优先级高的线程无法优先执行。所以我们需要实现优先级调度，使得优先级高的线程能够优先执行。
+
+  \framebreak
+
+  \begin{block}{按顺序插入}
+    由于在pintos中有一个已经定义好的按顺序插入的函数\texttt{list\_insert\_ordered()}，所以我们可以使用这个函数来实现优先级调度。
+  \end{block}
+
+%   \begin{lstlisting}[language = C, title=\texttt{list\_insert\_ordered()}函数的定义]
+%     /* Inserts ELEM in the list in sorted order. */
+%     void
+%     list_insert_ordered (struct list *list, struct list_elem *elem,
+%                          list_less_func *less_func, void *aux)
+%     {
+%       struct list_elem *e;
+    
+%       ASSERT (list != NULL);
+%       ASSERT (elem != NULL);
+%       ASSERT (less_func != NULL);
+    
+%       for (e = list_begin (list); e != list_end (list); e = list_next (e))
+%         if (less_func (elem, e, aux))
+%           break;
+%       list_insert (e, elem);
+%     }
+
+% \end{lstlisting}
+
+  % \framebreak
+  \begin{block}{定义比较函数}
+    首先，我们需要实现一个比较函数，用来比较两个线程的优先级。
+  \end{block}
+
+%   \begin{lstlisting}[language = C, title=比较函数]
+%     /* 比较函数 */
+%     bool
+%     thread_priority_cmp (const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+%     {
+%       struct thread *ta = list_entry (a, struct thread, elem);
+%       struct thread *tb = list_entry (b, struct thread, elem);
+%       return ta->priority > tb->priority;
+%     }
+
+% \end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{按顺序插入}
+    然后，我们需要修改\texttt{thread\_unblock()}，\texttt{thread\_yield()}和\texttt{thread\_init()}这三个函数，使得线程在被唤醒、主动让出CPU和初始化的时候，按照优先级的顺序插入就绪队列。
+  \end{block}
+
+%   \begin{lstlisting}[language = C, title=对相关函数的修改]
+%     void
+%     thread_unblock (struct thread *t) 
+%     {
+%         enum intr_level old_level;
+
+%         ASSERT (is_thread (t));
+
+%         old_level = intr_disable ();
+%         ASSERT (t->status == THREAD_BLOCKED);
+%         list_insert_ordered (&ready_list, &t->elem, thread_priority_cmp, NULL); // 按优先级排序
+%         t->status = THREAD_READY;
+%         intr_set_level (old_level);
+%     }
+
+%     void
+%     thread_yield (void) 
+%     {
+%         struct thread *cur = thread_current ();
+%         enum intr_level old_level;
+        
+%         ASSERT (!intr_context ());
+
+%         old_level = intr_disable ();
+%         if (cur != idle_thread) 
+%         list_insert_ordered (&ready_list, &cur->elem, thread_priority_cmp, NULL); // 按优先级排序
+%         cur->status = THREAD_READY;
+%         schedule ();
+%         intr_set_level (old_level);
+%     }
+
+%     static void
+%     init_thread (struct thread *t, const char *name, int priority)
+%     {
+%         enum intr_level old_level;
+
+%         ASSERT (t != NULL);
+%         ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
+%         ASSERT (name != NULL);
+
+%         memset (t, 0, sizeof *t);
+%         t->status = THREAD_BLOCKED;
+%         strlcpy (t->name, name, sizeof t->name);
+%         t->stack = (uint8_t *) t + PGSIZE;
+%         t->priority = priority;
+%         t->magic = THREAD_MAGIC;
+
+%         old_level = intr_disable ();
+%         list_insert_ordered (&all_list, &t->allelem, thread_priority_cmp, NULL); // 按优先级排序
+%         intr_set_level (old_level);
+%     }
+      
+% \end{lstlisting}
+
+%   \framebreak
+
+  \begin{block}{创建时按优先级插入}
+    接下来，我们需要修改\texttt{thread\_create()}函数，使得线程在创建的时候，按照优先级的顺序插入就绪队列。
+  \end{block}
+
+%   \begin{lstlisting}[language = C, title=修改后的\texttt{thread\_create()}函数]
+%     tid_t
+%     thread_create (const char *name, int priority,
+%                   thread_func *function, void *aux) 
+%     {
+%       struct thread *t;
+%       struct kernel_thread_frame *kf;
+%       struct switch_entry_frame *ef;
+%       struct switch_threads_frame *sf;
+%       tid_t tid;
+    
+%       ASSERT (function != NULL);
+    
+%       /* Allocate thread. */
+%       t = palloc_get_page (PAL_ZERO);
+%       if (t == NULL)
+%         return TID_ERROR;
+    
+%       /* Initialize thread. */
+%       init_thread (t, name, priority);
+%       tid = t->tid = allocate_tid ();
+%       t->sleep_ticks = 0;
+    
+%       /* Stack frame for kernel_thread(). */
+%       kf = alloc_frame (t, sizeof *kf);
+%       kf->eip = NULL;
+%       kf->function = function;
+%       kf->aux = aux;
+    
+%       /* Stack frame for switch_entry(). */
+%       ef = alloc_frame (t, sizeof *ef);
+%       ef->eip = (void (*) (void)) kernel_thread;
+    
+%       /* Stack frame for switch_threads(). */
+%       sf = alloc_frame (t, sizeof *sf);
+%       sf->eip = switch_entry;
+%       sf->ebp = 0;
+    
+%       /* Add to run queue. */
+%       thread_unblock (t);
+    
+%       /* 优先级调度 */
+%       if (thread_current ()->priority < priority)
+%       {
+%         thread_yield ();
+%       }
+    
+%       return tid;
+%     }
+% \end{lstlisting}
+
+%   \framebreak
+
+  \begin{block}{修改优先级时重新调度}
+    然后，我们需要修改\texttt{thread\_set\_priority()}函数，使得线程在修改优先级的时候，重新调度。
+  \end{block}
+
+%   \begin{lstlisting}[language = C, title=修改后的\texttt{thread\_set\_priority()}函数]
+%     void
+%     thread_set_priority (int new_priority) 
+%     {
+%       enum intr_level old_level = intr_disable ();
+%       int old_priority = thread_current ()->priority;
+%       thread_current ()->priority = new_priority;
+%       thread_yield (); // 重新调度
+%       intr_set_level (old_level);
+%     }
+% \end{lstlisting}
+  \framebreak
+
+  这样，我们就可以通过测试 \texttt{alarm-priority, priority-change, priority-fifo}和 \texttt{priority-preempt}了。
+
+\end{frame}
+
+\subsection{测试\texttt{priority-donate-one}}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{测试\texttt{priority-donate-one}}
+
+  分析 \texttt{priority-donate-one}测试
+%   ，它的代码如下：
+
+%   \begin{lstlisting}[language = C, title=\texttt{priority-donate-one}测试]
+%     static thread_func acquire1_thread_func;
+%     static thread_func acquire2_thread_func;
+
+%     void
+%     test_priority_donate_one (void) 
+%     {
+%       struct lock lock;
+
+%       /* This test does not work with the MLFQS. */
+%       ASSERT (!thread_mlfqs);
+
+%       /* Make sure our priority is the default. */
+%       ASSERT (thread_get_priority () == PRI_DEFAULT);
+
+%       lock_init (&lock);
+%       lock_acquire (&lock);
+%       thread_create ("acquire1", PRI_DEFAULT + 1, acquire1_thread_func, &lock);
+%       msg ("This thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 1, thread_get_priority ());
+%       thread_create ("acquire2", PRI_DEFAULT + 2, acquire2_thread_func, &lock);
+%       msg ("This thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 2, thread_get_priority ());
+%       lock_release (&lock);
+%       msg ("acquire2, acquire1 must already have finished, in that order.");
+%       msg ("This should be the last line before finishing this test.");
+%     }
+
+%     static void
+%     acquire1_thread_func (void *lock_) 
+%     {
+%       struct lock *lock = lock_;
+
+%       lock_acquire (lock);
+%       msg ("acquire1: got the lock");
+%       lock_release (lock);
+%       msg ("acquire1: done");
+%     }
+
+%     static void
+%     acquire2_thread_func (void *lock_) 
+%     {
+%       struct lock *lock = lock_;
+
+%       lock_acquire (lock);
+%       msg ("acquire2: got the lock");
+%       lock_release (lock);
+%       msg ("acquire2: done");
+%     }
+
+% \end{lstlisting}
+
+  \framebreak
+  以下是测试的主要步骤和分析：
+
+  1. \textbf{初始化锁：}
+  \begin{lstlisting}[language=C]
+    struct lock lock;
+    lock_init(&lock);
+\end{lstlisting}
+
+  在测试开始时，创建一个锁以供线程之间同步和竞争。
+
+  2. \textbf{主线程获取锁：}
+  \begin{lstlisting}[language=C]
+    lock_acquire(&lock);    
+\end{lstlisting}
+
+  主线程获取锁，此时它的优先级是默认优先级 \texttt{PRI\_DEFAULT}。
+
+  3. \textbf{创建两个高优先级的线程：}
+  \begin{lstlisting}[language=C]
+    thread_create("acquire1", PRI_DEFAULT + 1, acquire1_thread_func, &lock);
+    thread_create("acquire2", PRI_DEFAULT + 2, acquire2_thread_func, &lock);
+\end{lstlisting}
+
+  创建两个新线程，分别命名为 \texttt{acquire1} 和 \texttt{acquire2}，它们的优先级分别比主线程高1和2。这两个线程被设计为在获取锁时被阻塞。
+
+  4. \textbf{释放锁：}
+  \begin{lstlisting}[language=C]
+    lock_release(&lock);
+\end{lstlisting}
+
+  主线程释放锁。由于这时两个新线程的优先级高于主线程，它们会优先尝试获取锁。
+
+  5. \textbf{\texttt{acquire2} 线程先获取锁：}
+  \begin{lstlisting}[language=C]
+    acquire2_thread_func(void *lock_) 
+    {
+    // ...
+      lock_acquire(lock);
+      msg("acquire2: got the lock");
+      lock_release(lock);
+    // ...
+    }
+\end{lstlisting}
+
+  由于 \texttt{acquire2} 的优先级更高，它首先获取了锁。
+
+  6. \textbf{\texttt{acquire1} 线程后获取锁：}
+  \begin{lstlisting}[language=C]
+    acquire1_thread_func(void *lock_) 
+    {
+    // ...
+      lock_acquire(lock);
+      msg("acquire1: got the lock");
+      lock_release(lock);
+    // ...
+    }
+\end{lstlisting}
+
+  由于 \texttt{acquire1} 的优先级次高，它在 \texttt{acquire2} 线程之后获取了锁。
+
+  7. \textbf{测试完成：}
+  \begin{lstlisting}[language=C]
+    msg("acquire2, acquire1 must already have finished, in that order.");
+    msg("This should be the last line before finishing this test.");
+\end{lstlisting}
+
+  打印测试结果，确认 \texttt{acquire2} 线程先完成，然后是 \texttt{acquire1} 线程。
+
+  \begin{block}{测试分析}
+    总体来说，这个测试验证了线程在释放锁时是否正确地将其优先级传递给等待该锁的其他线程，从而确保线程按照它们的优先级顺序获取锁。
+    \vspace{1em}
+
+    在这个测试中，主线程先持有锁，随后两个优先级更高、等待这个锁的线程被创建，于是这两个线程便会向主线程捐赠优先级。当主线程释放锁时，两个线程中优先级更高的线程会先获取锁，然后是优先级次高的线程。
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{修改 \texttt{lock\_acquire()}函数}
+    为了通过这个测试，首先，我们需要修改 \texttt{lock\_acquire()}函数，使得线程在获取锁的时候，如果锁已经被占用，且当前线程的优先级大于锁的持有者的优先级，则将当前线程的优先级赋值给锁的持有者。
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{lock\_acquire()}函数]
+%     void
+%     lock_acquire (struct lock *lock)
+%     {
+%       ASSERT (lock != NULL);
+%       ASSERT (!intr_context ());
+%       ASSERT (!lock_held_by_current_thread (lock));
+    
+%       if (lock->holder != NULL && lock->holder->priority < thread_current ()->priority)
+%       {
+%         lock->holder->priority = thread_current ()->priority;
+%       }
+    
+%       sema_down (&lock->semaphore);
+%       lock->holder = thread_current ();
+%     }
+
+% \end{lstlisting}
+
+  \begin{block}{修改 \texttt{lock\_release()}函数}
+    然后，我们需要修改 \texttt{lock\_release()}函数，使得线程在释放锁的时候，将当前线程的优先级恢复为原来的优先级。
+  \end{block}
+
+  为此，我们需要在线程结构体中增加一个成员变量\texttt{int original\_priority}，用来记录线程的原始优先级。
+  
+  \vspace{1em}
+  
+  
+
+%   \begin{lstlisting}[language=C, title=修改后的线程结构体]
+%     struct thread
+%       {
+%         /* Owned by thread.c. */
+%         tid_t tid;                          /* Thread identifier. */
+%         enum thread_status status;          /* Thread state. */
+%         char name[16];                      /* Name (for debugging purposes). */
+%         uint8_t *stack;                     /* Saved stack pointer. */
+%         int priority;                       /* Priority. */
+%         struct list_elem allelem;           /* List element for all threads list. */
+    
+%         /* Shared between thread.c and synch.c. */
+%         struct list_elem elem;              /* List element. */
+    
+%         /* 应该休眠的时间 */
+%         int64_t sleep_ticks;                /* Sleep ticks. */
+    
+%         /* 原始优先级 */
+%         int original_priority;              /* Original priority. */
+    
+%     #ifdef USERPROG
+%         /* Owned by userprog/process.c. */
+%         uint32_t *pagedir;                  /* Page directory. */
+%     #endif
+    
+%         /* Owned by thread.c. */
+%         unsigned magic;                     /* Detects stack overflow. */
+%       };
+
+% \end{lstlisting}
+
+
+\vspace{1em}
+
+
+
+  接下来，我们需要修改 \texttt{init\_thread()}函数，使得线程在创建的时候，将线程的原始优先级设置为线程的优先级。
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{init\_thread()}函数]
+%     static void
+%     init_thread (struct thread *t, const char *name, int priority)
+%     {
+%       enum intr_level old_level;
+
+%       ASSERT (t != NULL);
+%       ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
+%       ASSERT (name != NULL);
+
+%       memset (t, 0, sizeof *t);
+%       t->status = THREAD_BLOCKED;
+%       strlcpy (t->name, name, sizeof t->name);
+%       t->stack = (uint8_t *) t + PGSIZE;
+%       t->priority = priority;
+%       t->original_priority = priority;
+%       t->magic = THREAD_MAGIC;
+
+%       old_level = intr_disable ();
+%       list_insert_ordered (&all_list, &t->allelem, thread_priority_cmp, NULL);
+%       intr_set_level (old_level);
+%     }
+
+% \end{lstlisting}
+
+\vspace{1em}
+
+
+
+  然后，我们修改 \texttt{lock\_release()}函数，使得线程在释放锁的时候，将当前线程的优先级恢复为原来的优先级。
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{lock\_release()}函数]
+%     void
+%     lock_release (struct lock *lock) 
+%     {
+%       ASSERT (lock != NULL);
+%       ASSERT (lock_held_by_current_thread (lock));
+    
+%       lock->holder = NULL;
+%       sema_up (&lock->semaphore);
+      
+%       thread_set_priority (thread_current ()->original_priority);
+%     }
+
+% \end{lstlisting}
+
+\vspace{1em}
+
+
+
+  最后，我们修改 \texttt{sema\_down} 函数，保证等待锁的线程按照优先级顺序排列。
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{sema\_down()}函数]
+%     void
+%     sema_down (struct semaphore *sema) 
+%     {
+%       enum intr_level old_level;
+    
+%       ASSERT (sema != NULL);
+%       ASSERT (!intr_context ());
+    
+%       old_level = intr_disable ();
+%       while (sema->value == 0) 
+%         {
+%           list_insert_ordered (&sema->waiters, &thread_current ()->elem, thread_priority_cmp, NULL);
+%           thread_block ();
+%         }
+%       sema->value--;
+%       intr_set_level (old_level);
+%     }
+% \end{lstlisting}
+
+\framebreak
+
+  这样，我们就可以通过测试 \texttt{priority-donate-one}了。
+
+\end{frame}
+
+\subsection{测试\texttt{priority-donate-multiple}和 \texttt{priority-donate-multiple2}}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{测试\texttt{priority-donate-multiple}和 \texttt{priority-donate-multiple2}}
+  这两个测试比较类似。这里以 \texttt{priority-donate-multiple2}为例
+%   ，其代码如下：
+
+%   \begin{lstlisting}[language=C, title=\texttt{priority-donate-multiple2}测试]
+%   static thread_func a_thread_func;
+%   static thread_func b_thread_func;
+%   static thread_func c_thread_func;
+
+%   void
+%   test_priority_donate_multiple2 (void) 
+%   {
+%     struct lock a, b;
+
+%     /* This test does not work with the MLFQS. */
+%     ASSERT (!thread_mlfqs);
+
+%     /* Make sure our priority is the default. */
+%     ASSERT (thread_get_priority () == PRI_DEFAULT);
+
+%     lock_init (&a);
+%     lock_init (&b);
+
+%     lock_acquire (&a);
+%     lock_acquire (&b);
+
+%     thread_create ("a", PRI_DEFAULT + 3, a_thread_func, &a);
+%     msg ("Main thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 3, thread_get_priority ());
+
+%     thread_create ("c", PRI_DEFAULT + 1, c_thread_func, NULL);
+
+%     thread_create ("b", PRI_DEFAULT + 5, b_thread_func, &b);
+%     msg ("Main thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 5, thread_get_priority ());
+
+%     lock_release (&a);
+%     msg ("Main thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 5, thread_get_priority ());
+
+%     lock_release (&b);
+%     msg ("Threads b, a, c should have just finished, in that order.");
+%     msg ("Main thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT, thread_get_priority ());
+%   }
+
+%   static void
+%   a_thread_func (void *lock_) 
+%   {
+%     struct lock *lock = lock_;
+
+%     lock_acquire (lock);
+%     msg ("Thread a acquired lock a.");
+%     lock_release (lock);
+%     msg ("Thread a finished.");
+%   }
+
+%   static void
+%   b_thread_func (void *lock_) 
+%   {
+%     struct lock *lock = lock_;
+
+%     lock_acquire (lock);
+%     msg ("Thread b acquired lock b.");
+%     lock_release (lock);
+%     msg ("Thread b finished.");
+%   }
+
+%   static void
+%   c_thread_func (void *a_ UNUSED) 
+%   {
+%     msg ("Thread c finished.");
+%   }
+
+% \end{lstlisting}
+
+  \framebreak
+
+  以下是对测试步骤的分析：
+
+  1. \textbf{初始化锁：}
+  \begin{lstlisting}[language=C]
+    struct lock a, b;
+    lock_init(&a);
+    lock_init(&b);
+\end{lstlisting}
+
+  在测试开始时，创建两个锁，命名为 \texttt{a} 和 \texttt{b}，用于线程之间的同步。
+
+  2. \textbf{主线程获取锁 \texttt{a} 和 \texttt{b}：}
+  \begin{lstlisting}[language=C]
+    lock_acquire(&a);
+    lock_acquire(&b);
+\end{lstlisting}
+
+  主线程获取两个锁 \texttt{a} 和 \texttt{b}。
+
+  3. \textbf{创建三个高优先级的线程：}
+  \begin{lstlisting}[language=C]
+    thread_create("a", PRI_DEFAULT + 3, a_thread_func, &a);
+    thread_create("c", PRI_DEFAULT + 1, c_thread_func, NULL);
+    thread_create("b", PRI_DEFAULT + 5, b_thread_func, &b);
+\end{lstlisting}
+
+  创建三个新线程，分别命名为 \texttt{a}、\texttt{c} 和 \texttt{b}，它们的优先级分别比主线程高3、1和5。
+
+  4. \textbf{释放锁 \texttt{a} 和 \texttt{b}：}
+  \begin{lstlisting}[language=C]
+    lock_release(&a);
+    lock_release(&b);
+\end{lstlisting}
+
+  主线程释放两个锁。
+
+  5. \textbf{测试结果输出：}
+  \begin{lstlisting}[language=C]
+    msg ("Main thread should have priority %d.  Actual priority: %d.",
+    PRI_DEFAULT + 3, thread_get_priority ());
+    // ...
+    msg ("Main thread should have priority %d.  Actual priority: %d.",
+    PRI_DEFAULT + 5, thread_get_priority ());
+    // ...
+    msg ("Main thread should have priority %d.  Actual priority: %d.",
+    PRI_DEFAULT + 5, thread_get_priority ());
+    // ...
+    msg("Threads b, a, c should have just finished, in that order.");
+    msg("Main thread should have priority %d.  Actual priority: %d.",
+        PRI_DEFAULT, thread_get_priority ());
+\end{lstlisting}
+
+  打印测试结果，确认主线程拥有正确的优先级，且最后线程 \texttt{b}、\texttt{a}、\texttt{c} 已经完成，按照优先级的顺序。
+
+  \begin{block}{测试分析}
+    总体来说，这个测试验证了在有多个锁的情况下，线程在释放锁时，是否正确地将其优先级设为剩余锁的最高优先级，从而确保线程按照它们的优先级顺序获取锁。
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{增加 \texttt{locks} 字段}
+    为了通过这个测试，首先，我们必须记录线程持有的锁，为此，我们需要在线程结构体中增加一个成员变量\texttt{struct list locks}，用来记录线程持有的锁。
+  \end{block}
+%   \begin{lstlisting}[language=C, title=修改后的线程结构体]
+%       struct thread
+%       {
+%         /* Owned by thread.c. */
+%         tid_t tid;                          /* Thread identifier. */
+%         enum thread_status status;          /* Thread state. */
+%         char name[16];                      /* Name (for debugging purposes). */
+%         uint8_t *stack;                     /* Saved stack pointer. */
+%         int priority;                       /* Priority. */
+%         struct list_elem allelem;           /* List element for all threads list. */
+
+%         /* Shared between thread.c and synch.c. */
+%         struct list_elem elem;              /* List element. */
+
+%         /* 应该休眠的时间 */
+%         int64_t sleep_ticks;
+
+%         /* 原本的优先级 */
+%         int original_priority;               /* Orignal Priority*/
+
+%         /* 线程的锁 */
+%         struct list locks;                   /* Locks that the thread is holding */
+
+%     #ifdef USERPROG
+%         /* Owned by userprog/process.c. */
+%         uint32_t *pagedir;                  /* Page directory. */
+%     #endif
+
+%         /* Owned by thread.c. */
+%         unsigned magic;                     /* Detects stack overflow. */
+%       };
+
+% \end{lstlisting}
+
+  然后，我们修改 \texttt{init\_thread()}函数，使得线程在创建的时，初始化线程持有的锁列表。
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{init\_thread()}函数]
+%     static void
+%     init_thread (struct thread *t, const char *name, int priority)
+%     {
+%       enum intr_level old_level;
+
+%       ASSERT (t != NULL);
+%       ASSERT (PRI_MIN <= priority && priority <= PRI_MAX);
+%       ASSERT (name != NULL);
+
+%       memset (t, 0, sizeof *t);
+%       t->status = THREAD_BLOCKED;
+%       strlcpy (t->name, name, sizeof t->name);
+%       t->stack = (uint8_t *) t + PGSIZE;
+%       t->priority = priority;
+%       t->original_priority = priority;
+%       t->magic = THREAD_MAGIC;
+
+%       list_init (&t->locks); // 初始化锁列表
+
+%       old_level = intr_disable ();
+%       list_insert_ordered (&all_list, &t->allelem, thread_priority_cmp, NULL);
+%       intr_set_level (old_level);
+%     }
+
+% \end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{修改锁结构体}
+    同时，我们还必须记录想要获取这个锁的线程的最高优先级，为此，我们需要在锁结构体中增加成员变量\texttt{int max\_priority}和 \texttt{struct list\_elem elem}，用来记录想要获取这个锁的线程的最高优先级和用于插入列表的变量。
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=修改后的锁结构体]
+%     struct lock 
+%     {
+%       struct thread *holder;      /* Thread holding lock (for debugging). */
+%       struct semaphore semaphore; /* Binary semaphore controlling access. */
+%       int max_priority;           /* Maximum priority of threads waiting for lock. */
+%       struct list_elem elem;      /* List element for priority donation. */
+%     };
+% \end{lstlisting}
+
+  然后，我们修改 \texttt{lock\_init()}函数，使得线程在初始化锁的时候，将锁的最高优先级初始化为 \texttt{PRI\_MIN}。
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{lock\_init()}函数]
+%     void
+%     lock_init (struct lock *lock)
+%     {
+%       ASSERT (lock != NULL);
+
+%       lock->holder = NULL;
+%       lock->max_priority = PRI_MIN; // 初始化为 PRI_MIN
+%       sema_init (&lock->semaphore, 1);
+%     }
+
+% \end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{实现比较函数}
+
+    然后，我们实现一个锁的比较函数，用来比较两个锁的最高优先级。
+  \end{block}
+
+  % \begin{lstlisting}[language=C, title=锁的比较函数]
+  %   bool
+  %   lock_priority_cmp (const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+  %   {
+  %     struct lock *la = list_entry (a, struct lock, elem);
+  %     struct lock *lb = list_entry (b, struct lock, elem);
+  %     return la->max_priority > lb->max_priority;
+  %   }
+
+% \end{lstlisting}
+
+  \begin{block}{修改\texttt{lock\_acquire()}函数}
+    接下来，我们修改 \texttt{lock\_acquire()}函数，使得线程在获取锁的时候，如果锁已经被占用，且当前线程的优先级大于锁的持有者的优先级，则将当前线程的优先级赋值给锁的持有者，并将锁加入线程持有的锁列表中，并更新锁的最高优先级。
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{lock\_acquire()}函数]
+%     void
+%     lock_acquire (struct lock *lock)
+%     {
+%       ASSERT (lock != NULL);
+%       ASSERT (!intr_context ());
+%       ASSERT (!lock_held_by_current_thread (lock));
+    
+%       if (lock->holder != NULL && lock->holder->priority < thread_current ()->priority)
+%       {
+%         lock->holder->priority = thread_current ()->priority;
+%         if (lock->max_priority < thread_current ()->priority)
+%           lock->max_priority = thread_current ()->priority;
+%       }
+    
+%       sema_down (&lock->semaphore);
+    
+%       list_insert_ordered (&thread_current ()->locks, &lock->elem, lock_priority_cmp, NULL);
+%       lock->holder = thread_current ();
+%     }
+
+% \end{lstlisting}
+
+  \framebreak
+
+  \begin{block}{修改 \texttt{lock\_release()}函数}
+    最后，我们修改 \texttt{lock\_release()}函数，使得线程在释放锁的时候，将当前线程的优先级恢复（如果不持有锁，则恢复为初始优先级；若持有锁，则设置为所持有锁的最高优先级）。
+  \end{block}
+
+%   
+\framebreak
+
+  这样，我们就可以通过测试 \texttt{priority-donate-multiple}和 \texttt{priority-donate-multiple2}了。
+
+\end{frame}
+
+\subsection{测试\texttt{priority-donate-nest}}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{测试\texttt{priority-donate-nest}}
+  接下来，我们分析 \texttt{priority-donate-nest}测试
+%   ，它的代码如下：
+
+%   \begin{lstlisting}[language=C, title=\texttt{priority-donate-nest}测试]
+%     static thread_func medium_thread_func;
+%     static thread_func high_thread_func;
+    
+%     void
+%     test_priority_donate_nest (void) 
+%     {
+%       struct lock a, b;
+%       struct locks locks;
+    
+%       /* This test does not work with the MLFQS. */
+%       ASSERT (!thread_mlfqs);
+    
+%       /* Make sure our priority is the default. */
+%       ASSERT (thread_get_priority () == PRI_DEFAULT);
+    
+%       lock_init (&a);
+%       lock_init (&b);
+    
+%       lock_acquire (&a);
+    
+%       locks.a = &a;
+%       locks.b = &b;
+%       thread_create ("medium", PRI_DEFAULT + 1, medium_thread_func, &locks);
+%       thread_yield ();
+%       msg ("Low thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 1, thread_get_priority ());
+    
+%       thread_create ("high", PRI_DEFAULT + 2, high_thread_func, &b);
+%       thread_yield ();
+%       msg ("Low thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 2, thread_get_priority ());
+    
+%       lock_release (&a);
+%       thread_yield ();
+%       msg ("Medium thread should just have finished.");
+%       msg ("Low thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT, thread_get_priority ());
+%     }
+    
+%     static void
+%     medium_thread_func (void *locks_) 
+%     {
+%       struct locks *locks = locks_;
+    
+%       lock_acquire (locks->b);
+%       lock_acquire (locks->a);
+    
+%       msg ("Medium thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 2, thread_get_priority ());
+%       msg ("Medium thread got the lock.");
+    
+%       lock_release (locks->a);
+%       thread_yield ();
+    
+%       lock_release (locks->b);
+%       thread_yield ();
+    
+%       msg ("High thread should have just finished.");
+%       msg ("Middle thread finished.");
+%     }
+    
+%     static void
+%     high_thread_func (void *lock_) 
+%     {
+%       struct lock *lock = lock_;
+    
+%       lock_acquire (lock);
+%       msg ("High thread got the lock.");
+%       lock_release (lock);
+%       msg ("High thread finished.");
+%     }
+% \end{lstlisting}
+  \framebreak
+
+  以下是对测试步骤的分析：
+
+  1. \textbf{初始化锁：}
+  \begin{lstlisting}[language=C]
+    struct lock a, b;
+    struct locks 
+    {
+      struct lock *a;
+      struct lock *b;
+    };
+    struct locks locks;
+
+    lock_init(&a);
+    lock_init(&b);
+\end{lstlisting}
+
+  在测试开始时，创建两个锁，命名为 \texttt{a} 和 \texttt{b}。同时，定义一个结构 \texttt{locks} 包含指向这两个锁的指针。
+
+  2. \textbf{主线程获取锁 \texttt{a}：}
+  \begin{lstlisting}[language=C]
+    lock_acquire(&a);
+\end{lstlisting}
+
+  低优先级的主线程获取锁 \texttt{a}。
+
+  3. \textbf{创建两个新线程：}
+  \begin{lstlisting}[language=C]
+    thread_create("medium", PRI_DEFAULT + 1, medium_thread_func, &locks);
+    thread_yield();
+    msg("Low thread should have priority %d.  Actual priority: %d.",
+        PRI_DEFAULT + 1, thread_get_priority ());
+
+    thread_create("high", PRI_DEFAULT + 2, high_thread_func, &b);
+    thread_yield();
+    msg("Low thread should have priority %d.  Actual priority: %d.",
+        PRI_DEFAULT + 2, thread_get_priority ());
+\end{lstlisting}
+
+  创建一个中优先级的线程 \texttt{medium} 和一个高优先级的线程 \texttt{high}。此时，线程 \texttt{medium} 尝试获取锁 \texttt{a} 和 锁\texttt{b} 并阻塞，而线程 \texttt{high} 尝试获取锁 \texttt{b}。
+
+  4. \textbf{释放锁 \texttt{a}：}
+  \begin{lstlisting}[language=C]
+    lock_release(&a);
+    thread_yield();
+    msg("Medium thread should just have finished.");
+    msg("Low thread should have priority %d.  Actual priority: %d.",
+        PRI_DEFAULT, thread_get_priority ());
+\end{lstlisting}
+
+  主线程释放锁 \texttt{a}，线程 \texttt{medium} 获取了锁并执行完毕。主线程此时重新获取控制，检查其优先级。
+
+  5. \textbf{\texttt{medium} 线程执行：}
+  \begin{lstlisting}[language=C]
+    static void medium_thread_func(void *locks_) 
+    {
+      struct locks *locks = locks_;
+
+      lock_acquire(locks->b);
+      lock_acquire(locks->a);
+
+      msg("Medium thread should have priority %d.  Actual priority: %d.",
+          PRI_DEFAULT + 2, thread_get_priority ());
+      msg("Medium thread got the lock.");
+
+      lock_release(locks->a);
+      thread_yield();
+
+      lock_release(locks->b);
+      thread_yield();
+
+      msg("High thread should have just finished.");
+      msg("Middle thread finished.");
+    }
+\end{lstlisting}
+
+  线程 \texttt{medium} 获取锁 \texttt{b}，然后获取锁 \texttt{a}。由于线程 \texttt{high} 阻塞在锁 \texttt{b} 上，线程 \texttt{high} 的优先级捐赠给了线程 \texttt{medium}。线程 \texttt{medium} 执行完毕，释放锁 \texttt{a} 和 \texttt{b}。
+
+  6. \textbf{\texttt{high} 线程执行：}
+  \begin{lstlisting}[language=C]
+    static void high_thread_func(void *lock_) 
+    {
+      struct lock *lock = lock_;
+
+      lock_acquire(lock);
+      msg("High thread got the lock.");
+      lock_release(lock);
+      msg("High thread finished.");
+    }
+\end{lstlisting}
+
+  线程 \texttt{high} 获取锁 \texttt{b}，执行完毕后释放锁。
+
+  \framebreak
+
+  \begin{block}{测试分析}
+    总体来说，这个测试验证了在不同优先级的线程之间进行嵌套优先级捐赠的情况。
+  \end{block}
+
+  可以作出如下关系图：
+
+  \begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth, node distance=1cm]
+      % Nodes
+      \node (low) {低优先级线程 (31)};
+      \node[right=of low] (medium) {中优先级线程 (32)};
+      \node[right=of medium] (high) {高优先级线程 (33)};
+
+      % Arrows
+      \draw[->] (low.east) -- (medium.west) node[midway, above] {锁 \texttt{a}};
+      \draw[->] (medium.east) -- (high.west) node[midway, above] {锁 \texttt{b}};
+
+      % Priority Donations
+      \draw[->, dashed] (high.south) -- ++(0, -0.5) -| (medium.south) node[midway, below] {优先级捐赠};
+      \draw[->, dashed] (medium.south) -- ++(0, -0.5) -| (low.south) node[midway, below] {优先级捐赠};
+    \end{tikzpicture}
+    \caption{线程关系图}
+  \end{figure}
+
+  \begin{block}{测试分析}
+    通过分析，我们可以得知，优先级捐赠需要递归地进行，即当线程 \texttt{high} 捐赠优先级给线程 \texttt{medium} 时，线程 \texttt{medium} 也需要捐赠优先级给线程 \texttt{low}。
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{增加 \texttt{waiting} 字段}
+    为了实现这个功能，我们必须知道线程等待的锁，为此，我们需要在线程结构体中增加一个成员变量\texttt{struct lock *waiting}，用来记录线程等待的锁。
+
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=修改后的线程结构体]
+%       struct thread
+%       {
+%         /* Owned by thread.c. */
+%         tid_t tid;                          /* Thread identifier. */
+%         enum thread_status status;          /* Thread state. */
+%         char name[16];                      /* Name (for debugging purposes). */
+%         uint8_t *stack;                     /* Saved stack pointer. */
+%         int priority;                       /* Priority. */
+%         struct list_elem allelem;           /* List element for all threads list. */
+
+%         /* Shared between thread.c and synch.c. */
+%         struct list_elem elem;              /* List element. */
+
+%         /* 应该休眠的时间 */
+%         int64_t sleep_ticks;
+
+%         /* 原本的优先级 */
+%         int original_priority;              /* Orignal Priority*/
+
+%         /* 持有的锁 */
+%         struct list locks;                  /* List of locks that the thread is holding. */
+
+%         /* 等待的锁 */
+%         struct lock *waiting;               /* The lock that the thread is waiting for. */
+
+%     #ifdef USERPROG
+%         /* Owned by userprog/process.c. */
+%         uint32_t *pagedir;                  /* Page directory. */
+%     #endif
+
+%         /* Owned by thread.c. */
+%         unsigned magic;                     /* Detects stack overflow. */
+%       };
+% \end{lstlisting}
+
+%   \framebreak
+
+  \begin{block}{\texttt{priority\_donate()}函数}
+    接下来，我们将优先级捐赠的过程提取出来，作为一个函数 \texttt{priority\_donate()}，用来递归地进行优先级捐赠。
+  \end{block}
+
+
+  \begin{lstlisting}[language=C, title=优先级捐赠函数]
+    void
+    priority_donate (struct thread *t, struct lock *l)
+    {
+      if (l != NULL && t->priority > l->max_priority)
+      {
+        l->holder->priority = t->priority;
+        if (l->max_priority < t->priority)
+          l->max_priority = t->priority;
+        priority_donate (t, l->holder->waiting);
+      }
+    }
+
+\end{lstlisting}
+
+  然后，我们修改 \texttt{lock\_acquire()}函数，使得线程在获取锁时，如果锁已被占用，则记录线程等待的锁并递归地进行优先级捐赠。
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{lock\_acquire()}函数]
+%     void
+%     lock_acquire (struct lock *lock)
+%     {
+%       ASSERT (lock != NULL);
+%       ASSERT (!intr_context ());
+%       ASSERT (!lock_held_by_current_thread (lock));
+    
+%       if (lock->holder != NULL)
+%       {
+%         thread_current ()->waiting = lock;
+%         priority_donate (thread_current (), lock);
+%       }
+    
+%       sema_down (&lock->semaphore);
+    
+%       list_insert_ordered (&thread_current ()->locks, &lock->elem, lock_priority_cmp, NULL);
+%       thread_current ()->waiting = NULL;
+%       lock->max_priority = thread_current ()->priority;
+%       lock->holder = thread_current ();
+%     }
+% \end{lstlisting}
+
+\end{frame}
+
+\subsection{\texttt{priority-donate-sema}测试}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{priority-donate-sema}测试}
+  接下来，我们分析 \texttt{priority-donate-sema}测试
+%   ，它的代码如下：
+
+%   \begin{lstlisting}[language=C, title=\texttt{priority-donate-sema}测试]
+%     struct lock_and_sema 
+%     {
+%       struct lock lock;
+%       struct semaphore sema;
+%     };
+
+%     static thread_func l_thread_func;
+%     static thread_func m_thread_func;
+%     static thread_func h_thread_func;
+
+%     void
+%     test_priority_donate_sema (void) 
+%     {
+%       struct lock_and_sema ls;
+
+%       /* This test does not work with the MLFQS. */
+%       ASSERT (!thread_mlfqs);
+
+%       /* Make sure our priority is the default. */
+%       ASSERT (thread_get_priority () == PRI_DEFAULT);
+
+%       lock_init (&ls.lock);
+%       sema_init (&ls.sema, 0);
+%       thread_create ("low", PRI_DEFAULT + 1, l_thread_func, &ls);
+%       thread_create ("med", PRI_DEFAULT + 3, m_thread_func, &ls);
+%       thread_create ("high", PRI_DEFAULT + 5, h_thread_func, &ls);
+%       sema_up (&ls.sema);
+%       msg ("Main thread finished.");
+%     }
+
+%     static void
+%     l_thread_func (void *ls_) 
+%     {
+%       struct lock_and_sema *ls = ls_;
+
+%       lock_acquire (&ls->lock);
+%       msg ("Thread L acquired lock.");
+%       sema_down (&ls->sema);
+%       msg ("Thread L downed semaphore.");
+%       lock_release (&ls->lock);
+%       msg ("Thread L finished.");
+%     }
+
+%     static void
+%     m_thread_func (void *ls_) 
+%     {
+%       struct lock_and_sema *ls = ls_;
+
+%       sema_down (&ls->sema);
+%       msg ("Thread M finished.");
+%     }
+
+%     static void
+%     h_thread_func (void *ls_) 
+%     {
+%       struct lock_and_sema *ls = ls_;
+
+%       lock_acquire (&ls->lock);
+%       msg ("Thread H acquired lock.");
+
+%       sema_up (&ls->sema);
+%       lock_release (&ls->lock);
+%       msg ("Thread H finished.");
+%     }
+
+% \end{lstlisting}
+
+  \framebreak
+
+  以下是对测试步骤的分析：
+
+  \begin{itemize}
+    \item \textbf{初始化结构体：}
+          \begin{lstlisting}[language=C]
+    struct lock_and_sema 
+    {
+      struct lock lock;
+      struct semaphore sema;
+    };
+\end{lstlisting}
+          在测试开始时，创建了一个包含锁和信号量的结构体。
+
+    \item \textbf{创建线程并初始化结构体：}
+          \begin{lstlisting}[language=C]
+    struct lock_and_sema ls;
+    lock_init(&ls.lock);
+    sema_init(&ls.sema, 0);
+    thread_create("low", PRI_DEFAULT + 1, l_thread_func, &ls);
+    thread_create("med", PRI_DEFAULT + 3, m_thread_func, &ls);
+    thread_create("high", PRI_DEFAULT + 5, h_thread_func, &ls);
+    sema_up(&ls.sema);
+\end{lstlisting}
+          创建了三个线程，分别命名为 \texttt{low}、\texttt{med} 和 \texttt{high}，并将初始化的结构体传递给它们。主线程通过调用 \texttt{sema\_up} 释放了信号量。
+
+    \item \textbf{线程执行及互动：}
+          \begin{lstlisting}[language=C]
+    static void l_thread_func(void *ls_) 
+    {
+      struct lock_and_sema *ls = ls_;
+      lock_acquire(&ls->lock);
+      msg("Thread L acquired lock.");
+      sema_down(&ls->sema);
+      msg("Thread L downed semaphore.");
+      lock_release(&ls->lock);
+      msg("Thread L finished.");
+    }
+
+    static void m_thread_func(void *ls_) 
+    {
+      struct lock_and_sema *ls = ls_;
+      sema_down(&ls->sema);
+      msg("Thread M finished.");
+    }
+
+    static void h_thread_func(void *ls_) 
+    {
+      struct lock_and_sema *ls = ls_;
+      lock_acquire(&ls->lock);
+      msg("Thread H acquired lock.");
+      sema_up(&ls->sema);
+      lock_release(&ls->lock);
+      msg("Thread H finished.");
+    }
+\end{lstlisting}
+          - \texttt{Thread L：} 获取锁，等待信号量，释放锁。 \\
+          - \texttt{Thread M：} 等待信号量。 \\
+          - \texttt{Thread H：} 获取锁，发送信号量，释放锁。
+
+    \item \textbf{测试结果输出：}
+          \begin{lstlisting}[language=C]
+    msg("Main thread finished.");
+\end{lstlisting}
+          打印测试结果，确认主线程已经完成。
+
+  \end{itemize}
+
+  \framebreak
+
+  \begin{block}{测试分析}
+    总体来说，这个测试涉及了使用锁和信号量的线程之间的互动，以验证在这种情况下优先级捐赠的正确性。
+
+    \vspace{1em}
+
+    为了通过这个测试，我们需要保证在进行 \texttt{V} 操作时，能够正确的根据线程的优先级来进行调度。
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{修改 \texttt{sema\_up()} 函数}
+    因此，我们需要修改 \texttt{sema\_up()} 函数，使得线程在释放信号量的时候，能够根据线程的优先级来进行调度。
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{sema\_up()}函数]
+%     void
+%     sema_up (struct semaphore *sema) 
+%     {
+%       enum intr_level old_level;
+    
+%       ASSERT (sema != NULL);
+    
+%       old_level = intr_disable ();
+%       if (!list_empty (&sema->waiters)) 
+%       {
+%         list_sort (&sema->waiters, thread_priority_cmp, NULL);
+%         thread_unblock (list_entry (list_pop_front (&sema->waiters),
+%                                     struct thread, elem));
+%       }
+%       sema->value++;
+%       intr_set_level (old_level);
+%       thread_yield (); // 释放信号量后进行调度
+%     }
+% \end{lstlisting}
+
+  \framebreak
+
+  这样，我们就可以通过测试 \texttt{priority-donate-sema}了。
+
+\end{frame}
+
+\subsection{测试\texttt{priority-donate-lower}}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{测试\texttt{priority-donate-lower}}
+  接下来，我们分析 \texttt{priority-donate-lower}测试
+%   ，它的代码如下：
+
+%   \begin{lstlisting}[language=C, title=\texttt{priority-donate-lower}测试]
+%     static thread_func acquire_thread_func;
+
+%     void
+%     test_priority_donate_lower (void) 
+%     {
+%       struct lock lock;
+    
+%       /* This test does not work with the MLFQS. */
+%       ASSERT (!thread_mlfqs);
+    
+%       /* Make sure our priority is the default. */
+%       ASSERT (thread_get_priority () == PRI_DEFAULT);
+    
+%       lock_init (&lock);
+%       lock_acquire (&lock);
+%       thread_create ("acquire", PRI_DEFAULT + 10, acquire_thread_func, &lock);
+%       msg ("Main thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 10, thread_get_priority ());
+    
+%       msg ("Lowering base priority...");
+%       thread_set_priority (PRI_DEFAULT - 10);
+%       msg ("Main thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT + 10, thread_get_priority ());
+%       lock_release (&lock);
+%       msg ("acquire must already have finished.");
+%       msg ("Main thread should have priority %d.  Actual priority: %d.",
+%           PRI_DEFAULT - 10, thread_get_priority ());
+%     }
+    
+%     static void
+%     acquire_thread_func (void *lock_) 
+%     {
+%       struct lock *lock = lock_;
+    
+%       lock_acquire (lock);
+%       msg ("acquire: got the lock");
+%       lock_release (lock);
+%       msg ("acquire: done");
+%     }
+% \end{lstlisting}
+
+  \framebreak
+
+  以下是对测试步骤的分析：
+
+  \begin{itemize}
+    \item \textbf{初始化锁和创建线程：}
+          \begin{lstlisting}[language=C]
+    struct lock lock;
+    lock_init(&lock);
+    lock_acquire(&lock);
+    thread_create("acquire", PRI_DEFAULT + 10, acquire_thread_func, &lock);
+\end{lstlisting}
+
+    \item \textbf{检查主线程优先级：}
+          \begin{lstlisting}[language=C]
+    msg("Main thread should have priority %d.  Actual priority: %d.",
+        PRI_DEFAULT + 10, thread_get_priority());
+\end{lstlisting}
+
+    \item \textbf{降低基本优先级：}
+          \begin{lstlisting}[language=C]
+    msg("Lowering base priority...");
+    thread_set_priority(PRI_DEFAULT - 10);
+\end{lstlisting}
+
+    \item \textbf{再次检查主线程优先级：}
+          \begin{lstlisting}[language=C]
+    msg("Main thread should have priority %d.  Actual priority: %d.",
+        PRI_DEFAULT + 10, thread_get_priority());
+\end{lstlisting}
+
+    \item \textbf{释放锁：}
+          \begin{lstlisting}[language=C]
+    lock_release(&lock);
+\end{lstlisting}
+
+    \item \textbf{检查主线程的最终优先级：}
+          \begin{lstlisting}[language=C]
+    msg("acquire must already have finished.");
+    msg("Main thread should have priority %d.  Actual priority: %d.",
+        PRI_DEFAULT - 10, thread_get_priority());
+\end{lstlisting}
+  \end{itemize}
+
+  \framebreak
+
+  \begin{block}{测试分析}
+    总体来说，这个测试验证了在降低线程的基本优先级后，如果该线程被捐赠，那么优先级的降低应该发生在释放锁之后。
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{修改 \texttt{thread\_set\_priority()}函数}
+    为了通过这个测试，我们需要修改 \texttt{thread\_set\_priority()}函数，使得线程在降低基本优先级后，如果线程被捐赠，那么修改其 \texttt{original\_priority}，使得优先级的降低发生在释放锁之后。
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{thread\_set\_priority()}函数]
+%   void
+%   thread_set_priority (int new_priority) 
+%   {
+%     enum intr_level old_level = intr_disable ();
+%     thread_current ()->original_priority = new_priority;
+%     if (list_empty (&thread_current ()->locks) || new_priority > thread_current ()->priority)
+%     {
+%       thread_current ()->priority = new_priority;
+%       thread_yield ();
+%     }
+%     intr_set_level (old_level);
+%   }
+% \end{lstlisting}
+
+  \framebreak
+
+  这样，我们就可以通过测试 \texttt{priority-donate-lower}了。意外地发现，我们还通过了\texttt{priority-sema}测试。
+
+\end{frame}
+
+\subsection{测试\texttt{priority-condvar}}
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{测试\texttt{priority-condvar}}
+  接下来，我们分析 \texttt{priority-condvar}测试
+%   ，它的代码如下：
+
+%   \begin{lstlisting}[language=C, title=\texttt{priority-condvar}测试]
+%     static thread_func priority_condvar_thread;
+%     static struct lock lock;
+%     static struct condition condition;
+    
+%     void
+%     test_priority_condvar (void) 
+%     {
+%       int i;
+      
+%       /* This test does not work with the MLFQS. */
+%       ASSERT (!thread_mlfqs);
+    
+%       lock_init (&lock);
+%       cond_init (&condition);
+    
+%       thread_set_priority (PRI_MIN);
+%       for (i = 0; i < 10; i++) 
+%         {
+%           int priority = PRI_DEFAULT - (i + 7) % 10 - 1;
+%           char name[16];
+%           snprintf (name, sizeof name, "priority %d", priority);
+%           thread_create (name, priority, priority_condvar_thread, NULL);
+%         }
+    
+%       for (i = 0; i < 10; i++) 
+%         {
+%           lock_acquire (&lock);
+%           msg ("Signaling...");
+%           cond_signal (&condition, &lock);
+%           lock_release (&lock);
+%         }
+%     }
+    
+%     static void
+%     priority_condvar_thread (void *aux UNUSED) 
+%     {
+%       msg ("Thread %s starting.", thread_name ());
+%       lock_acquire (&lock);
+%       cond_wait (&condition, &lock);
+%       msg ("Thread %s woke up.", thread_name ());
+%       lock_release (&lock);
+%     }
+
+% \end{lstlisting}
+
+  \framebreak
+
+  以下是对测试步骤的分析：
+
+  \begin{itemize}
+    \item \textbf{初始化锁和条件变量：}
+          \begin{lstlisting}[language=C]
+    static struct lock lock;
+    static struct condition condition;
+    lock_init(&lock);
+    cond_init(&condition);
+\end{lstlisting}
+
+    \item \textbf{设置主线程优先级并创建子线程：}
+          \begin{lstlisting}[language=C]
+    thread_set_priority(PRI_MIN);
+    for (int i = 0; i < 10; i++) {
+      int priority = PRI_DEFAULT - (i + 7) % 10 - 1;
+      char name[16];
+      snprintf(name, sizeof name, "priority %d", priority);
+      thread_create(name, priority, priority_condvar_thread, NULL);
+    }
+\end{lstlisting}
+
+    \item \textbf{向条件变量发送信号：}
+          \begin{lstlisting}[language=C]
+    for (int i = 0; i < 10; i++) {
+      lock_acquire(&lock);
+      msg("Signaling...");
+      cond_signal(&condition, &lock);
+      lock_release(&lock);
+    }
+\end{lstlisting}
+
+    \item \textbf{子线程等待条件变量：}
+          \begin{lstlisting}[language=C]
+    static void priority_condvar_thread(void *aux UNUSED) {
+      msg("Thread %s starting.", thread_name());
+      lock_acquire(&lock);
+      cond_wait(&condition, &lock);
+      msg("Thread %s woke up.", thread_name());
+      lock_release(&lock);
+    }
+\end{lstlisting}
+  \end{itemize}
+
+  \framebreak
+
+  \begin{block}{测试分析}
+    总体来说，这个测试验证了在使用条件变量时，线程能够正确地在被唤醒时执行，并且线程的优先级在等待条件变量期间能够正确地起到作用，即条件变量能按照优先级顺序唤醒线程。
+  \end{block}
+
+  \framebreak
+
+  \begin{block}{修改 \texttt{cond\_signal()}函数}
+    为了通过这个测试，我们需要修改 \texttt{cond\_signal()}函数，使得线程在被唤醒时，能够根据线程的优先级来进行调度。
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=修改后的\texttt{cond\_signal()}函数]
+%   void
+%   cond_signal (struct condition *cond, struct lock *lock UNUSED) 
+%   {
+%     ASSERT (cond != NULL);
+%     ASSERT (lock != NULL);
+%     ASSERT (!intr_context ());
+%     ASSERT (lock_held_by_current_thread (lock));
+  
+%     if (!list_empty (&cond->waiters)) 
+%     {
+%       list_sort (&cond->waiters, sema_priority_cmp, NULL);
+%       sema_up (&list_entry (list_pop_front (&cond->waiters),
+%                             struct semaphore_elem, elem)->semaphore);
+%     }
+%   }
+% \end{lstlisting}
+
+  % \framebreak
+
+  \begin{block}{信号量比较函数}
+    同时，我们还需要实现一个信号量的比较函数，用来比较两个信号量的最高优先级。
+  \end{block}
+
+%   \begin{lstlisting}[language=C, title=信号量比较函数]
+%     bool
+%     sema_priority_cmp (const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+%     {
+%       struct semaphore_elem *sema_a = list_entry (a, struct semaphore_elem, elem);
+%       struct semaphore_elem *sema_b = list_entry (b, struct semaphore_elem, elem);
+%       struct thread *ta = list_entry (list_front (&sema_a->semaphore.waiters), struct thread, elem);
+%       struct thread *tb = list_entry (list_front (&sema_b->semaphore.waiters), struct thread, elem);
+    
+%       return ta->priority > tb->priority;
+%     }
+% \end{lstlisting}
+
+  \framebreak
+
+  这样，我们就可以通过测试 \texttt{priority-condvar}了。同时，我们也通过了\texttt{priority-donate-chain}测试。
+
+  \framebreak
+
+  这样，我们就通过了优先级调度的所有测试。
+
+\end{frame}
+
+\section{使用 \texttt{gdb} 调试 \texttt{pintos}}
+
+\subsection{\texttt{gdb} 命令行}
+
+\begin{frame}[allowframebreaks, fragile]
+  \frametitle{\texttt{gdb} 命令行}
+  \begin{itemize}
+    \item \textbf{运行测试文件}
+          \begin{lstlisting}[language=bash]
+    $ pintos --gdb -- run alarm-multiple
+    \end{lstlisting}
+    \item \textbf{启动 \texttt{gdb}：}
+          \begin{lstlisting}[language=bash]
+    $ pintos-gdb kernel.o
+\end{lstlisting}
+    \item \textbf{设置 \texttt{gdb} 参数：}
+          \begin{lstlisting}[language=bash]
+    (gdb) set architecture i386:x86-64
+    (gdb) target remote localhost:1234
+      \end{lstlisting}
+    \item \textbf{调试}
+  \end{itemize}
+
+\end{frame}
+
+\subsection{\texttt{VS Code gdb} 调试}
+\begin{frame}[allowframebreaks, fragile]
+\frametitle{\texttt{VS Code gdb} 调试}
+\begin{itemize}
+  \item \textbf{安装 \texttt{C/C++} 插件}
+  \item \textbf{配置 \texttt{launch.json}：}
+  \begin{lstlisting}[language=C, numbers=none]
+{
+  "configurations": [
+    {
+      "name": "gdb调试pintos",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/threads/build/kernel.o",
+      "MIMode": "gdb",
+      "miDebuggerServerAddress": "localhost:1234",
+      "cwd": "${workspaceRoot}",
+      "setupCommands": [
+          {
+              "description": "set architecture i386:x86-64",
+              "text": "set architecture i386:x86-64",
+              "ignoreFailures": true
+          }
+      ],
+    }
+  ]
+}
+  \end{lstlisting}
+  \item \textbf{运行测试文件}
+          \begin{lstlisting}[language=bash]
+    $ pintos --gdb -- run alarm-multiple
+    \end{lstlisting}
+  \item \textbf{调试}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\LARGE{谢谢}\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+
+\end{document}
