@@ -15,12 +15,13 @@
 \usepackage{indentfirst}
 \setlength{\parindent}{2em}
 \usepackage{enumitem}
-\setmonofont{Consolas}
+\setmonofont{DejaVu Sans Mono}
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{makecell}
 \setCJKmonofont{黑体}
 \usepackage{tikz}
+\usepackage{tabularx}
 \usetikzlibrary{positioning, arrows.meta}
 \lstset{
     % language = C,
@@ -81,7 +82,7 @@
 
 \subsubsection{捕获数据}
 
-启动 \texttt{Wireshark}，在菜单栏的捕获\(\to \)选项中进行设置，选择已连接的以太网，设置捕获过滤器为\texttt{arp}，捕获\texttt{arp}数据报。
+启动 \texttt{Wireshark}，在菜单栏的捕获\(\to \)选项中进行设置，选择已连接的以太网，设置捕获过滤器为\texttt{arp}，捕获\texttt{arp}数据包。
 
 然后在命令行中使用\texttt{ipconfig -all}命令获取本机的\texttt{IP}地址和\texttt{MAC}地址。
 
@@ -128,14 +129,14 @@ To see if there is other ARP activity, make sure to clear any Ethernet address f
     PS> ipconfig -all
   \end{lstlisting}
   \item 回到\texttt{Wireshark}，设置捕获过滤器为 \texttt{eth.addr==<yourMAC>
-  }
+        }
   \item 在管理员模式下，使用 \texttt{arp -d} 命令清除本机的 \texttt{ARP} 缓存。
         \begin{lstlisting}
     PS> arp -d
   \end{lstlisting}
   \item 打开 \texttt{Wireshark}，停止捕获。
   \item 分析捕获到的\texttt{ARP}数据包，并回答相关问题。
-  \item 对捕获到的\texttt{IP}数据报进行数据分析，并回答相关问题。
+  \item 对捕获到的\texttt{ARP}数据包进行数据分析，并回答相关问题。
   \item 问题讨论
 \end{enumerate}
 
@@ -152,8 +153,216 @@ To see if there is other ARP activity, make sure to clear any Ethernet address f
 
 \section{实验结果与分析}
 
+\subsection{捕获数据}
+
+首先，打开\texttt{Wireshark}，在菜单栏的捕获\(\to \)选项中进行设置，选择已连接的以太网，设置捕获过滤器为\texttt{arp}，将混杂模式设为关闭，然后开始捕获。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/1.png}
+  \caption{设置捕获选项}
+  \label{fig:1}
+\end{figure}
+
+然后在命令行中使用\texttt{ipconfig -all}命令获取本机的\texttt{IP}地址和\texttt{MAC}地址。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/2.png}
+  \caption{获取本机\texttt{IP}地址和\texttt{MAC}地址}
+  \label{fig:2}
+\end{figure}
+
+可以看到，本机的 \texttt{IP} 地址为 \texttt{192.168.1.107}， \texttt{MAC} 地址为 \texttt{10-3D-1C-CC-0F-D3}。
+
+回到\texttt{Wireshark}，设置捕获过滤器为 \texttt{eth.addr==10-3D-1C-CC-0F-D3}。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/3.png}
+  \caption{设置捕获过滤器}
+  \label{fig:3}
+\end{figure}
+
+接下来，在管理员模式下，在终端中使用 \texttt{arp -d} 命令清除本机的 \texttt{ARP} 缓存。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.3\textwidth]{img/4.png}
+  \caption{清除本机\texttt{ARP}缓存}
+  \label{fig:4}
+\end{figure}
+
+打开 \texttt{Wireshark}，停止捕获。捕获结果如下图所示：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/5.png}
+  \caption{捕获结果}
+  \label{fig:5}
+\end{figure}
+
+\subsection{回答问题}
+
+\begin{enumerate}[noitemsep]
+  \item 画出你的计算机和本地路由间ARP的请求和应答数据包，标记出请求和应答，为每个数据包 给出发送者和接受者的MAC和IP地址。
+
+        选择 \texttt{ARP} 请求数据包，如下图所示：
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth]{img/6.png}
+          \caption{选择\texttt{ARP}请求数据包}
+          \label{fig:6}
+        \end{figure}
+
+        可以看到，它包括了一个长度为 28 字节的 \texttt{ARP} 报头，其中包括了以下字段：
+
+        \begin{itemize}[noitemsep]
+          \item Hardware type: Ethernet (1)，长度为 2 字节
+          \item Protocol type: \texttt{IPv4}（0x0800），长度为 2 字节
+          \item Hardware size: 6，长度为 1 字节
+          \item Protocol size: 4，长度为 1 字节
+          \item Opcode: request (1)，长度为 2 字节
+          \item Sender MAC address: \texttt{10:3d:1c:cc:0f:d3}，长度为 6 字节
+          \item Sender IP address: \texttt{192.168.1.107}，长度为 4 字节
+          \item Target MAC address: \texttt{00:00:00:00:00:00}，长度为 6 字节
+          \item Target IP address: \texttt{192.168.1.1}，长度为 4 字节
+        \end{itemize}
+
+        画出 \texttt{ARP} 请求数据包，如下图所示：
+
+        % 10 列的表格
+        \begin{table}[H]
+          \centering
+          \begin{tabularx}{0.78\textwidth}{|*{10}{X|}}
+            \hline
+            \multicolumn{2}{|c|}{Hardware type}      & \multicolumn{2}{c|}{Protocol type}     & \multicolumn{1}{c|}{Hardware size} & \multicolumn{1}{c|}{Protocol size} & \multicolumn{2}{c|}{Opcode} & \multicolumn{2}{c|}{} \\
+            \multicolumn{2}{|c|}{1}                  & \multicolumn{2}{c|}{0x0800}            & \multicolumn{1}{c|}{6}             & \multicolumn{1}{c|}{4}             & \multicolumn{2}{c|}{1}      & \multicolumn{2}{c|}{} \\
+            \hline
+            \multicolumn{6}{|c|}{Sender MAC address} & \multicolumn{4}{c|}{Sender IP address}                                                                                                                                 \\
+            \multicolumn{6}{|c|}{10:3d:1c:cc:0f:d3}  & \multicolumn{4}{c|}{192.168.1.107}                                                                                                                                     \\
+            \hline
+            \multicolumn{6}{|c|}{Target MAC address} & \multicolumn{4}{c|}{Target IP address}                                                                                                                                 \\
+            \multicolumn{6}{|c|}{00:00:00:00:00:00}  & \multicolumn{4}{c|}{192.168.1.1}                                                                                                                                       \\
+            \hline
+          \end{tabularx}
+          \caption{\texttt{ARP}请求数据包}
+        \end{table}
+
+        选择一个 \texttt{ARP} 应答数据包，如下图所示：
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth]{img/7.png}
+          \caption{选择\texttt{ARP}应答数据包}
+          \label{fig:7}
+        \end{figure}
+
+        画出 \texttt{ARP} 应答数据包，如下图所示：
+
+        % 10 列的表格
+        \begin{table}[H]
+          \centering
+          \begin{tabularx}{0.78\textwidth}{|*{10}{X|}}
+            \hline
+            \multicolumn{2}{|c|}{Hardware type}      & \multicolumn{2}{c|}{Protocol type}     & \multicolumn{1}{c|}{Hardware size} & \multicolumn{1}{c|}{Protocol size} & \multicolumn{2}{c|}{Opcode} & \multicolumn{2}{c|}{} \\
+            \multicolumn{2}{|c|}{1}                  & \multicolumn{2}{c|}{0x0800}            & \multicolumn{1}{c|}{6}             & \multicolumn{1}{c|}{4}             & \multicolumn{2}{c|}{2}      & \multicolumn{2}{c|}{} \\
+            \hline
+            \multicolumn{6}{|c|}{Sender MAC address} & \multicolumn{4}{c|}{Sender IP address}                                                                                                                                 \\
+            \multicolumn{6}{|c|}{58:41:20:b0:c3:87}  & \multicolumn{4}{c|}{192.168.1.1}                                                                                                                                       \\
+            \hline
+            \multicolumn{6}{|c|}{Target MAC address} & \multicolumn{4}{c|}{Target IP address}                                                                                                                                 \\
+            \multicolumn{6}{|c|}{10:3d:1c:cc:0f:d3}  & \multicolumn{4}{c|}{192.168.1.107}                                                                                                                                     \\
+            \hline
+          \end{tabularx}
+          \caption{\texttt{ARP}应答数据包}
+        \end{table}
+
+
+  \item 什么样的操作码是用来表示一个请求？应答呢？
+
+        \texttt{ARP} 报头中的 \texttt{Opcode} 字段用来表示 \texttt{ARP} 请求或应答，其中 \texttt{Opcode} 为 1 表示请求，为 2 表示应答。
+
+  \item 一个请求的ARP的报头有多大？应答呢？
+
+        长度均为 28 字节。
+  \item 对未知目标的MAC地址的请求是什么值？
+
+        对未知目标的 \texttt{MAC} 地址的请求是 \texttt{00:00:00:00:00:00}。
+  \item 什么以太网类型值说明ARP是更高一层的协议？
+
+        以太网类型值为 \texttt{0x0806} 说明 \texttt{ARP} 是更高一层的协议。
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth]{img/8.png}
+          \caption{\texttt{ARP} 的类型值为 \texttt{0x0806}}
+          \label{fig:8}
+        \end{figure}
+  \item ARP应答是广播吗？
+
+        在以太网层可以看出，\texttt{ARP} 应答是单播。
+
+        \begin{figure}[H]
+          \centering
+          \includegraphics[width=0.8\textwidth]{img/9.png}
+          \caption{\texttt{ARP} 应答是单播}
+          \label{fig:9}
+        \end{figure}
+
+\end{enumerate}
+
+\subsection{问题讨论}
+
+\begin{enumerate}[noitemsep]
+\item ARP requests broadcast by other computers. The other computers on the local network are also using ARP. Since requests are broadcast, your computer will receive their requests.
+
+清除筛选后，可以看到其他计算机发送的 \texttt{ARP} 请求。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/10.png}
+  \caption{其他计算机发送的 \texttt{ARP} 请求}
+  \label{fig:10}
+\end{figure}
+\item ARP replies sent by your computer. If another computer happens to ARP for the IP address of your computer, then your computer will send an ARP reply to tell it the answer.
+
+可以在另一台计算机上使用 \texttt{arp -d <Your IP>} 命令清除 \texttt{ARP} 缓存，然后使用 \texttt{ping <Your IP>} 命令向本机发送 \texttt{ICMP} 请求，这时也会发起一个 \texttt{ARP}请求，此时本机会发送 \texttt{ARP} 应答，如下图所示（由于从 \texttt{WIFI} 换到了以太网， \texttt{IP} 地址发生了变化）：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/11.png}
+  \caption{本机发送了 \texttt{ARP} 应答}
+  \label{fig:11}
+\end{figure}
+\item Gratuitous ARPs in which your computer sends a request or reply about itself. This is helpful when a computer or link comes up to make sure that no-one else is using the same IP address. Gratuitous ARPs have the same sender and target IP address, and they have an Info field in Wireshark that identified them as gratuitous.
+
+可以在捕获列表中看到 \texttt{gratuitous ARP} 数据包。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{img/13.png}
+\caption{捕获到的 \texttt{gratuitous ARP} 数据包}
+\label{fig:13}
+\end{figure}
+\item Other ARP requests sent by your computer and the corresponding ARP reply. Your computer may need to ARP for other hosts besides the default gateway after you flush its ARP cache.
+
+清除 \texttt{ARP} 缓存后，观察到了相关请求。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/12.png}
+  \caption{相关请求}
+  \label{fig:12}
+\end{figure}
+
+\end{enumerate}
+
 
 \section{实验结果总结}
+
+本次实验通过 \texttt{Wireshark} 捕获了 \texttt{ARP} 数据包，并对其进行了分析，了解了 \texttt{ARP} 数据包的结构和各字段的含义，进一步增强了对 \texttt{ARP} 协议的理解。
 
 
 \section{附录}
