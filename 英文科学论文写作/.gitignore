@@ -1,0 +1,8 @@
+*.aux
+*.log
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+~$*
+*.synctex
+英文科学论文写作.pdf
