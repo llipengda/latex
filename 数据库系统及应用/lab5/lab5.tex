@@ -1,0 +1,107 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[a4paper, body={18cm,22cm}]{geometry}
+\usepackage{amsmath,amssymb,amstext,wasysym,enumerate,graphicx}
+\usepackage{float,abstract,booktabs,indentfirst,amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{diagbox}
+\usepackage{hyperref}
+\usepackage{listings}
+\renewcommand\arraystretch{1.4}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\usepackage{enumitem}
+\usepackage{accsupp}
+\setmonofont{Consolas}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{subfigure}
+\setCJKmonofont{黑体}
+\newcommand\emptyaccsupp[1]{\BeginAccSupp{ActualText={}}#1\EndAccSupp{}}
+\newcommand\SQL{\texttt{SQL}}
+\renewcommand\tt{\texttt}
+\lstset{
+    % language = C,
+    showstringspaces=false,
+    xleftmargin = 3em,xrightmargin = 3em, aboveskip = 1em,
+	backgroundcolor = \color{white}, % 背景色
+	basicstyle = \small\ttfamily, % 基本样式 + 小号字体
+	rulesepcolor= \color{gray}, % 代码块边框颜色
+	breaklines = true, % 代码过长则换行
+	numbers = left, % 行号在左侧显示
+	numberstyle=\emptyaccsupp,
+    numbersep = 14pt, 
+    keywordstyle=\color{purple}\bfseries, % 关键字颜色
+    commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+    stringstyle = \color{red}, % 字符串颜色
+    morekeywords={ASSERT, int64_t, uint32_t},
+	% frame = shadowbox, % 用(带影子效果)方框框住代码块
+	frame = single, % 用(带影子效果)方框框住代码块
+	showspaces = false, % 不显示空格
+	columns = fixed, % 字间距固定
+  framesep=1em
+} 
+\lstset{
+    sensitive=true,
+    moreemph={ASSERT, NULL}, emphstyle=\color{red}\bfseries,
+    moreemph=[2]{int64_t, uint32_t, tid_t, uint8_t, int16_t, uint16_t, int32_t, size_t}, emphstyle=[2]\color{purple}\bfseries,
+    showspaces = false, % 不显示空格
+    }
+%--------------------页眉--------------------%
+\pagestyle{fancy}
+\fancyhead[L]{}
+\fancyhead[R]{}
+\fancyhead[C]{《数据库系统及应用实践》课程实验报告}
+\fancyfoot[C]{-\thepage-}
+\renewcommand{\headrulewidth}{1.5pt}
+%--------------------标题--------------------%
+\begin{document}
+\begin{center}
+  \LARGE{{\textbf{\heiti 《数据库系统及应用实践》课程实验报告}}}
+
+  \vspace{0.5em}
+
+  \large 实验5：存储、索引和基准测试
+  \begin{table}[H]
+    \centering
+    \begin{tabular}{p{2cm}p{2cm}<{\centering}p{0.4cm}p{2cm}p{3cm}<{\centering}p{0.4cm}p{2cm}p{3cm}<{\centering}}
+      姓\qquad 名: & 李鹏达 & \quad & 学\qquad 号: & 10225101460 & \quad & 完成日期: & 2024年5月16日 \\ \cline{2-2} \cline{5-5} \cline{8-8}
+    \end{tabular}
+  \end{table}
+\end{center}
+% \rule{\textwidth}{1pt}
+%--------------------正文--------------------%
+\section{实验目标}
+\begin{enumerate}[noitemsep]
+  \item 学习和理解MySQL数据库管理系统中表空间、模式和索引的基本概念和操作；
+  \item 理解MySQL数据库管理系统中数据存储的基本结构；
+  \item 了解索引对查询性能的影响，能够根据应用场景设计合适的索引；
+  \item 使用TPC-H基准测试对MySQL数据库管理系统进行评测；
+\end{enumerate}
+
+\section{实验过程记录}
+
+\subsection{表空间管理}
+
+
+
+
+\section{存在的问题及解决方案}
+
+\begin{enumerate}
+  \item 
+\end{enumerate}
+
+
+\section{实验小结}
+
+
+
+\end{document}
