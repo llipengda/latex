@@ -745,4 +745,78 @@ subsection={format=\raggedright,
 
 \chapter{\texttt{SQL}}
 
+在此部分，我们将展示部分 \texttt{SQL} 语句，用于实现系统相关功能。
+
+由于数据量较大，我们考虑在查询时应该使用分页查询，以减少查询时间。我们使用 \texttt{LIMIT} 和 \texttt{OFFSET} 关键字来实现分页查询，例如，\texttt{LIMIT n OFFSET m}或\texttt{LIMIT m, n} 表示从第 $m+1$ 行开始取 $n$ 行数据。\textbf{为了使报告中的 \texttt{SQL} 语句更加简洁，我们在此省略了分页查询的部分}。
+
+在下面的代码中，\texttt{SQL} 语句中的 \texttt{?} 表示占位符，用于接收用户输入的参数。
+
+\section{用户相关功能}
+
+\section{搜索相关功能}
+
+根据作者姓名（模糊）搜索作者信息：
+
+\begin{lstlisting}[language=sql]
+SELECT * FROM `author` WHERE `name` LIKE "%?%";
+\end{lstlisting}
+
+根据作者姓名（模糊）搜索其撰写的文献：
+
+\begin{lstlisting}[language=sql]
+SELECT `author_name`, `id`, `title`, `abstract`,`doi`,
+    `license`, `publish_time`, `url` 
+FROM `write` JOIN `article` 
+ON `article_id` = `id` 
+WHERE `author_name` LIKE "%?%";
+\end{lstlisting}
+
+根据文献标题（模糊）搜索文献：
+
+\begin{lstlisting}[language=sql]
+SELECT `id`, `title`, `abstract`, `doi`, `license`
+FROM (
+    SELECT * 
+    FROM `article`
+    WHERE `title` LIKE "%?%"
+) AS `art`
+JOIN `publish` ON `id`=`publish`.`article_id`
+JOIN `write` ON `id`=`write`.`article_id`;
+\end{lstlisting}
+
+根据期刊名模糊搜索期刊：
+
+\begin{lstlisting}[language=sql]
+SELECT * 
+FROM `journal` 
+WHERE `journal`.`name` LIKE "%?%";
+\end{lstlisting}
+
+根据期刊名模糊搜索该期刊刊登的文章：
+\begin{lstlisting}[language=sql]
+SELECT * 
+FROM `publish` JOIN `article` ON `article_id` = `id`
+WHERE `journal_name` LIKE "%?%";
+\end{lstlisting}
+
+根据研究方向、研究对象和研究问题搜索文献：
+\begin{lstlisting}[language=sql]
+SELECT `id`, `title`, `abstract`, `doi`, `license`, 
+    `publish_time`, `url`, `journal_name`
+FROM (
+    SELECT * 
+    FROM `article`
+    WHERE `study_type` LIKE "%?%"
+    OR `addressed_population` LIKE "%?%"
+    OR `challenge` LIKE "%?%"
+    OR `focus` LIKE "%?%"
+) AS `art`
+JOIN `publish` ON `id`=`publish`.`article_id`
+JOIN `write` ON `id`=`write`.`article_id`;
+\end{lstlisting}
+
+\section{文献相关功能}
+
+
+
 \end{document}
