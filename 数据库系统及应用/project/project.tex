@@ -745,4 +745,57 @@ subsection={format=\raggedright,
 
 \chapter{\texttt{SQL}}
 
+\section{用户相关功能}
+
+根据用户邮箱和密码进行注册:
+
+\begin{lstlisting}[language=SQL]
+INSERT INTO `user` (`email`, `password`) VALUES (?, ?);
+\end{lstlisting}
+
+根据邮箱查询用户:
+
+\begin{lstlisting}[language=SQL]
+SELECT * FROM `user` WHERE email = ?;
+\end{lstlisting}
+
+根据用户传入的新密码和用户的id来修改密码:
+
+\begin{lstlisting}[language=SQL]
+UPDATE `user` SET `password` = ? WHERE `id`= ?;
+\end{lstlisting}
+
+根据用户传入修改信息来对原信息进行修改:
+
+\begin{lstlisting}[language=SQL]
+UPDATE `user` SET `nickname` = ?, `avatar` = ?, `motto` = ?, `collage` = ?, `subscribe_email` = ? `save_history` = ? WHERE `id` = ?;
+\end{lstlisting}
+
+根据用户的id和期刊的名称实现用户订阅感兴趣的期刊:
+
+\begin{lstlisting}[language=SQL]
+INSERT INTO `subscribe` VALUES(?,?);
+\end{lstlisting}
+
+根据用户的ID和文献的ID用户实现收藏感兴趣的文献:
+
+\begin{lstlisting}[language=SQL]
+INSERT INTO `collect` VALUES(?,?); 
+\end{lstlisting}
+
+根据用户的ID来实现查看用户的浏览历史:
+
+\begin{lstlisting}[language=SQL]
+SELECT * FROM `history` WHERE `user_id` = ?;
+\end{lstlisting}
+
+新文章发布时，根据用户的订阅情况发送邮件:
+
+\begin{lstlisting}[language=SQL]
+CREATE Trigger tri_rem_user_jou_upd AFTER INSERT
+ON `publish` FOR EACH ROW SELECT `subscribe`.`user_id` FROM `publish` JOIN `journal` on new.journal_name = `journal`.`name` JOIN `subscribe` on `journal`.`name`=`subscribe`.`journal_name`;
+\end{lstlisting}
+
+
+
 \end{document}
