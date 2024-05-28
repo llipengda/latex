@@ -576,7 +576,7 @@ subsection={format=\raggedright,
 
 由于数据集较大，包含了大量无用信息，且格式不是我们期望的格式，我们需要对数据集进行预处理，提取出我们需要的信息，并插入数据库中。
 
-我们使用 \texttt{Python} 脚本\footnote{见附录}进行处理，处理方式如下：
+我们使用 \texttt{Python} 脚本进行处理，处理方式如下：
 
 \begin{enumerate}
     \item 创建一些存储过程或函数，用于简化后续大量数据的插入。
@@ -753,6 +753,62 @@ subsection={format=\raggedright,
 
 \section{用户相关功能}
 
+根据用户邮箱和密码进行注册:
+
+\begin{lstlisting}[language=SQL]
+INSERT INTO `user` (`email`, `password`) VALUES (?, ?);
+\end{lstlisting}
+
+根据邮箱查询用户:
+
+\begin{lstlisting}[language=SQL]
+SELECT * FROM `user` WHERE email = ?;
+\end{lstlisting}
+
+根据用户传入的新密码和用户的id来修改密码:
+
+\begin{lstlisting}[language=SQL]
+UPDATE `user` SET `password` = ? WHERE `id`= ?;
+\end{lstlisting}
+
+根据用户传入修改信息来对原信息进行修改:
+
+\begin{lstlisting}[language=SQL]
+UPDATE `user` SET `nickname` = ?, `avatar` = ?, `motto` = ?, 
+    `collage` = ?, `subscribe_email` = ? `save_history` = ? 
+    WHERE `id` = ?;
+\end{lstlisting}
+
+根据用户的ID和期刊的名称实现用户订阅感兴趣的期刊:
+
+\begin{lstlisting}[language=SQL]
+INSERT INTO `subscribe` VALUES(?,?);
+\end{lstlisting}
+
+根据用户的ID和文献的ID用户实现收藏感兴趣的文献:
+
+\begin{lstlisting}[language=SQL]
+INSERT INTO `collect` VALUES(?,?); 
+\end{lstlisting}
+
+根据用户的ID来实现查看用户的浏览历史:
+
+\begin{lstlisting}[language=SQL]
+SELECT * FROM `history` WHERE `user_id` = ?;
+\end{lstlisting}
+
+\textbf{定时任务}——删除过期的浏览历史：
+
+\begin{lstlisting}[language=sql]
+CREATE EVENT daily_clean_history 
+ON SCHEDULE EVERY 1 day STARTS '2024-05-21 00:00:00'
+ON COMPLETION PRESERVE
+DO 
+    DELETE FROM `history` 
+    WHERE `time` < NOW() - INTERVAL 1 MONTH;
+\end{lstlisting}
+
+
 \section{搜索相关功能}
 
 根据作者姓名（模糊）搜索作者信息：
@@ -815,8 +871,99 @@ JOIN `publish` ON `id`=`publish`.`article_id`
 JOIN `write` ON `id`=`write`.`article_id`;
 \end{lstlisting}
 
+
+
 \section{文献相关功能}
 
+根据文献ID查询文献的详细信息：
 
+\begin{lstlisting}[language=sql]
+SELECT `id`,`title`,`abstract`,`doi`,`license`,`publish_time`,`url`,`study_type`,
+`addressed_population`,`challenge`,`focus`,`journal_name`,`volume`,`pages`
+FROM `article` JOIN `publish` ON `id`=`article_id`
+WHERE `id` = ?;
+\end{lstlisting}
+
+根据文献ID查询作者：
+
+\begin{lstlisting}[language=sql]
+SELECT `write`.author_name
+FROM `article` JOIN `write` ON article_id = `id`
+WHERE `id`= ?;
+\end{lstlisting}
+
+\textbf{存储过程}——插入被引用的文献：
+
+\begin{lstlisting}[language=sql]
+CREATE DEFINER=`root`@`%` PROCEDURE `Insert_cited_art`(
+    IN aid VARCHAR(50),
+    IN in_title VARCHAR(2000),
+    IN in_doi VARCHAR(500),
+    IN in_publish_time DATETIME,
+    IN in_journal VARCHAR(500),
+    IN in_volume VARCHAR(50),
+    IN in_pages VARCHAR(500),
+    IN authors VARCHAR(2000)
+)
+BEGIN
+    DECLARE cnt INT;
+    DECLARE current_author VARCHAR(100);
+    DECLARE position INT;
+    SELECT COUNT(*) INTO cnt FROM article WHERE article.title = in_title;
+    IF (cnt = 0) THEN
+        SET position = 1;
+        WHILE POSITION(';' IN authors) > 0 DO
+            SET current_author = SUBSTRING_INDEX(authors,';',1);
+            INSERT IGNORE INTO author(name) VALUES(current_author); 
+            SET authors = SUBSTRING(authors,POSITION(';' IN authors)+1);
+        END WHILE;
+        SET current_author = authors;
+        INSERT IGNORE INTO author(name) VALUES(current_author);
+        INSERT IGNORE INTO article(`id`,title,doi,publish_time) 
+        VALUES(aid, in_title, in_doi, in_publish_time);
+        INSERT IGNORE INTO journal(name) VALUES (in_journal);
+        INSERT IGNORE INTO publish VALUES(in_journal, aid, in_volume, in_pages);
+    END IF;
+END;
+\end{lstlisting}
+
+\textbf{存储过程}——插入扩展文章：
+
+\begin{lstlisting}[language=sql]
+CREATE DEFINER='root'@'%' PROCEDURE `Insert_extend_art`(
+    IN aid VARCHAR(50),
+    IN in_title VARCHAR(2000),
+    IN in_publish_time DATETIME,
+    IN in_url VARCHAR(800),
+    IN in_study_type VARCHAR(200),
+    IN in_addressed_population VARCHAR(1000),
+    IN in_challenge VARCHAR(2000),
+    IN in_focus VARCHAR(100),
+    IN in_journal VARCHAR(500)
+)
+BEGIN
+    DECLARE cnt INT;
+    SELECT COUNT(*) INTO cnt FROM article WHERE article.title = in_title;
+    IF (cnt = 0) THEN
+        INSERT IGNORE INTO article(`id`, title, publish_time, url, study_type, addressed_population, challenge,focus) 
+        VALUES(aid, in_title, in_publish_time, in_url, in_study_type, in_addressed_population, in_challenge, in_focus);
+        INSERT IGNORE INTO journal(name) VALUES (in_journal);
+        INSERT IGNORE INTO publish VALUES(in_journal, aid, NULL, NULL);
+    END IF;
+END;
+\end{lstlisting}
+
+\textbf{递归查询}——查询文献的直接引用和间接引用：
+
+\begin{lstlisting}[language=sql]
+WITH RECURSIVE `c` AS (
+    SELECT `citing_id`, `cited_id`, 0 AS `flag` FROM `cite`
+    WHERE `citing_id` = ?
+    UNION
+    SELECT `citing_id`, `id`, 1 AS `flag` FROM `c` JOIN `article`
+    ON `c`.`cited_id` = `article`.`id`
+) 
+SELECT * FROM `c`;
+\end{lstlisting}
 
 \end{document}
