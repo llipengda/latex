@@ -10,6 +10,8 @@
 \usepackage{tcolorbox}
 \usepackage{colortbl}
 \usepackage{dirtree}
+\usepackage{longtable}
+\usepackage{booktabs}
             
 \setlength{\parindent}{2em}
 %默认的弹性间距会导致文中某些排版flush的时候，出现大量空白。
@@ -209,7 +211,7 @@ subsection={format=\raggedright,
             \end{figure}
             \heiti\zihao{2}《数据库系统及应用实践》课程项目报告\\
             \vspace{0.8em}
-            \zihao{2}\textbf{CovidLit Search}\Large{(Milestone 1)}
+            \zihao{2}\textbf{CovidLit Search}\Large{(Final Report)}
         }
         \\[10em]
         \zihao{-3}
@@ -219,7 +221,7 @@ subsection={format=\raggedright,
             ~ & \hfill             &  & \mcc{王\quad 力\quad 10225101434} \\
         \end{tabular}
         \\[8em]
-        \zihao{-2}2024年5月
+        \zihao{-2}2024年5月 - 6月
     \end{center}
     \thispagestyle{fancy}
     \fancyfoot[C]{}
@@ -243,21 +245,25 @@ subsection={format=\raggedright,
 
 另外，本项目还提供了一个用户注册和登录系统。用户可以通过注册登录后，将自己的搜索历史保存在云端，以便在不同设备上查看自己的搜索历史。用户还可以将自己感兴趣的文献加入到自己的收藏夹中或订阅期刊，以便在以后查看。
 
-本项目名称为 ``CovidLit Search''，意为 ``COVID-19 Literature Search''，即 COVID-19 相关文献检索。
+本项目名称为 ""CovidLit Search''，意为 ""COVID-19 Literature Search''，即 COVID-19 相关文献检索。
 
 \chapter{数据库设计}
 
 \section{概述}
+\label{sec:overviewOfDatabaseDesign}
 
-为了实现文献检索系统，我们需要设计一个数据库来存储文献、期刊、作者和引用等信息。我们将使用MySQL数据库来存储这些信息。
+为了实现文献检索系统，我们需要设计一个数据库来存储文献、期刊、作者和引用等信息。
 
 为了实现相关功能，我们考虑使用 Entity-Relation 模型来设计数据库。我们考虑设计文章(article)、作者(author)、期刊(journal)和用户(user)等实体集，以及撰写(write)、引用(cite)、订阅(subscribe)、收藏(collect)和浏览历史(history)等联系集。
 
 其中，文章(article)与作者(author)通过撰写(write)联系集相连，表示作者撰写了文章；文章(article)与期刊(journal)通过发表(publish)联系集相连，表示文章在期刊上发表；文章(article)与文章(article)通过引用(cite)联系集相连，标识不同文章之间的引用与被引用关系；用户(user)与文章(article)通过收藏(collect)浏览历史(history)联系集相连，表示用户收藏了文章和用户的历史浏览文章；用户(user)与期刊(journal)通过订阅(subscribe)联系集相连，表示作者订阅了该期刊，可能希望获取该期刊的最新文章。
 
+起初，我们考虑使用 MySQL 数据库来存储数据，并成功地将小数据集的数据导入了数据库中，完成了基本的测试。但在完成实验5后，我们发现 PostgreSQL 在多表的复杂查询上的性能要明显优于 MySQL，在数据规模较大的完整数据集上，PostgreSQL 的性能可能会更优。因此，我们决定改用 PostgreSQL 数据库来存储数据。
+
 \section{表结构}
 
 \subsection{实体集}
+\label{sec:entities}
 
 用户(user)表存储用户的基本信息，其结构如下：
 
@@ -318,6 +324,8 @@ subsection={format=\raggedright,
         \textit{challenge} & \texttt{VARCHAR(2000)} &  &  & 挑战/研究问题 \\
         \hline
         \textit{focus} & \texttt{VARCHAR(100)} &  &  & 研究重点 \\
+        \hline
+        \textit{authors} & \texttt{text} &  &  & 作者 \\
         \hline
     \end{tabular}
     \caption{文章(\textit{article})表}
@@ -471,13 +479,15 @@ subsection={format=\raggedright,
 \end{table}
 
 \section{E-R 图}
+\label{sec:er}
+
 
 
 根据上述设计，我们绘制了数据库的 E-R 图，如图 \ref{fig:er} 所示。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{img/ER.png}
+    \includegraphics[width=0.8\textwidth]{img/ER.png}
     \caption{数据库 E-R 图}
     \label{fig:er}
 \end{figure}
@@ -485,6 +495,7 @@ subsection={format=\raggedright,
 其中，PK 表示主键，FK 表示外键。
 
 \section{\texttt{schema}}
+\label{sec:schema}
 
 根据上述设计，我们可以写出数据库的 \texttt{schema}，如下所示：
 
@@ -494,7 +505,7 @@ subsection={format=\raggedright,
     \hangindent=3em
     \it
     article(\uline{id}, title, abstract, doi, license, publish\_time, url, study\_type, addressed\_population,
-    challenge, focus)
+    challenge, focus, authors)
 
     author(\uline{name}, email, lab, institution, country, post\_code, settlement)
 
@@ -508,7 +519,7 @@ subsection={format=\raggedright,
 
     \hangafter=1
     \hangindent=2em
-    user(\uline{id}, nickname, email, password, avatar, motto, collage, subscribe\_email, save\_history)
+    user(\uline{id}, nickname, email, password, avatar, motto, collage, subscribe\_email, save\_history, role, salt)
 
     collect(\uline{user\_id}, \uline{article\_id})
 
@@ -574,6 +585,8 @@ subsection={format=\raggedright,
 
 \subsection{处理方式}
 
+\label{sec:dataProcessing}
+
 由于数据集较大，包含了大量无用信息，且格式不是我们期望的格式，我们需要对数据集进行预处理，提取出我们需要的信息，并插入数据库中。
 
 我们使用 \texttt{Python} 脚本进行处理，处理方式如下：
@@ -591,7 +604,8 @@ subsection={format=\raggedright,
             \item 提取文献引用信息，包括引用文献的标题、作者、期刊、发布时间等。
         \end{enumerate}
 
-        \item 将提取的信息存储到数据库中。
+        \item 将提取的信息存储到\texttt{.tbl}格式的本地文件中。
+        \item 将\texttt{.tbl}文件导入数据库中。
     \end{enumerate}
     \item 读取 \texttt{Kaggle/target\_tables/} 文件夹中的研究方向分类的文献元数据。
     
@@ -601,7 +615,8 @@ subsection={format=\raggedright,
     \end{enumerate}
 \end{enumerate}
 
-由于数据量较大而 \texttt{Python} 处理速度较慢，我们使用了数据库连接池与多线程来加速处理。
+起初，我们采取的方案是使用 \texttt{Python} 脚本直接读取数据集中的文件并进行处理，每处理一篇文献就插入一次数据库，并使用数据库连接池与多线程来加速处理。但在使用全部数据集进行测试时，我们发现随着数据的插入，数据库的性能会逐渐下降，导致处理速度变慢。因此，我们改变了策略，将数据处理与数据插入分开，先将数据处理后存储到本地文件中，再使用数据库的 \texttt{COPY} 命令批量插入数据，以提高性能。
+
 
 \section{数据量}
 
@@ -744,6 +759,7 @@ subsection={format=\raggedright,
 \end{figure}
 
 \chapter{\texttt{SQL}}
+\label{sec:sql}
 
 在此部分，我们将展示部分 \texttt{SQL} 语句，用于实现系统相关功能。
 
@@ -756,56 +772,59 @@ subsection={format=\raggedright,
 根据用户邮箱和密码进行注册:
 
 \begin{lstlisting}[language=SQL]
-INSERT INTO `user` (`email`, `password`) VALUES (?, ?);
+INSERT INTO "user" ("email", "password") VALUES (?, ?);
 \end{lstlisting}
 
 根据邮箱查询用户:
 
 \begin{lstlisting}[language=SQL]
-SELECT * FROM `user` WHERE email = ?;
+SELECT * FROM "user" WHERE email = ?;
 \end{lstlisting}
 
 根据用户传入的新密码和用户的id来修改密码:
 
 \begin{lstlisting}[language=SQL]
-UPDATE `user` SET `password` = ? WHERE `id`= ?;
+UPDATE "user" SET "password" = ? WHERE "id" = ?;
 \end{lstlisting}
 
 根据用户传入修改信息来对原信息进行修改:
 
 \begin{lstlisting}[language=SQL]
-UPDATE `user` SET `nickname` = ?, `avatar` = ?, `motto` = ?, 
-    `collage` = ?, `subscribe_email` = ? `save_history` = ? 
-    WHERE `id` = ?;
+UPDATE "user" SET "nickname" = ?, "avatar" = ?, "motto" = ?, 
+  "collage" = ?, "subscribe_email" = ? "save_history" = ? 
+  WHERE "id" = ?;
 \end{lstlisting}
 
 根据用户的ID和期刊的名称实现用户订阅感兴趣的期刊:
 
 \begin{lstlisting}[language=SQL]
-INSERT INTO `subscribe` VALUES(?,?);
+INSERT INTO "subscribe" VALUES(?,?);
 \end{lstlisting}
 
 根据用户的ID和文献的ID用户实现收藏感兴趣的文献:
 
 \begin{lstlisting}[language=SQL]
-INSERT INTO `collect` VALUES(?,?); 
+INSERT INTO "collect" VALUES(?,?); 
 \end{lstlisting}
 
 根据用户的ID来实现查看用户的浏览历史:
 
 \begin{lstlisting}[language=SQL]
-SELECT * FROM `history` WHERE `user_id` = ?;
+SELECT * FROM "history" WHERE "user_id" = ?;
 \end{lstlisting}
 
-\textbf{定时任务}——删除过期的浏览历史：
+\textbf{定时任务}——删除过期的浏览历史\footnote{需要安装\texttt{pg\_cron}插件}：
 
 \begin{lstlisting}[language=sql]
-CREATE EVENT daily_clean_history 
-ON SCHEDULE EVERY 1 day STARTS '2024-05-21 00:00:00'
-ON COMPLETION PRESERVE
-DO 
-    DELETE FROM `history` 
-    WHERE `time` < NOW() - INTERVAL 1 MONTH;
+CREATE EXTENSION pg_cron;
+SELECT cron.schedule(
+  'daily_clean_history',  
+  '0 0 * * *',
+  $$
+  DELETE FROM history
+  WHERE time < NOW() - INTERVAL '1 month';
+  $$
+);
 \end{lstlisting}
 
 
@@ -814,61 +833,61 @@ DO
 根据作者姓名（模糊）搜索作者信息：
 
 \begin{lstlisting}[language=sql]
-SELECT * FROM `author` WHERE `name` LIKE "%?%";
+SELECT * FROM "author" WHERE "name" LIKE "%?%";
 \end{lstlisting}
 
 根据作者姓名（模糊）搜索其撰写的文献：
 
 \begin{lstlisting}[language=sql]
-SELECT `author_name`, `id`, `title`, `abstract`,`doi`,
-    `license`, `publish_time`, `url` 
-FROM `write` JOIN `article` 
-ON `article_id` = `id` 
-WHERE `author_name` LIKE "%?%";
+SELECT "author_name", "id", "title", "abstract","doi",
+  "license", "publish_time", "url" 
+FROM "write" JOIN "article" 
+ON "article_id" = "id" 
+WHERE "author_name" LIKE "%?%";
 \end{lstlisting}
 
 根据文献标题（模糊）搜索文献：
 
 \begin{lstlisting}[language=sql]
-SELECT `id`, `title`, `abstract`, `doi`, `license`
+SELECT "id", "title", "abstract", "doi", "license"
 FROM (
-    SELECT * 
-    FROM `article`
-    WHERE `title` LIKE "%?%"
-) AS `art`
-JOIN `publish` ON `id`=`publish`.`article_id`
-JOIN `write` ON `id`=`write`.`article_id`;
+  SELECT * 
+  FROM "article"
+  WHERE "title" LIKE "%?%"
+) AS "art"
+JOIN "publish" ON "id"="publish"."article_id"
+JOIN "write" ON "id"="write"."article_id";
 \end{lstlisting}
 
 根据期刊名模糊搜索期刊：
 
 \begin{lstlisting}[language=sql]
 SELECT * 
-FROM `journal` 
-WHERE `journal`.`name` LIKE "%?%";
+FROM "journal" 
+WHERE "journal"."name" LIKE "%?%";
 \end{lstlisting}
 
 根据期刊名模糊搜索该期刊刊登的文章：
 \begin{lstlisting}[language=sql]
 SELECT * 
-FROM `publish` JOIN `article` ON `article_id` = `id`
-WHERE `journal_name` LIKE "%?%";
+FROM "publish" JOIN "article" ON "article_id" = "id"
+WHERE "journal_name" LIKE "%?%";
 \end{lstlisting}
 
 根据研究方向、研究对象和研究问题搜索文献：
 \begin{lstlisting}[language=sql]
-SELECT `id`, `title`, `abstract`, `doi`, `license`, 
-    `publish_time`, `url`, `journal_name`
+SELECT "id", "title", "abstract", "doi", "license", 
+  "publish_time", "url", "journal_name"
 FROM (
-    SELECT * 
-    FROM `article`
-    WHERE `study_type` LIKE "%?%"
-    OR `addressed_population` LIKE "%?%"
-    OR `challenge` LIKE "%?%"
-    OR `focus` LIKE "%?%"
-) AS `art`
-JOIN `publish` ON `id`=`publish`.`article_id`
-JOIN `write` ON `id`=`write`.`article_id`;
+  SELECT * 
+  FROM "article"
+  WHERE "study_type" LIKE "%?%"
+  OR "addressed_population" LIKE "%?%"
+  OR "challenge" LIKE "%?%"
+  OR "focus" LIKE "%?%"
+) AS "art"
+JOIN "publish" ON "id"="publish"."article_id"
+JOIN "write" ON "id"="write"."article_id";
 \end{lstlisting}
 
 
@@ -878,92 +897,745 @@ JOIN `write` ON `id`=`write`.`article_id`;
 根据文献ID查询文献的详细信息：
 
 \begin{lstlisting}[language=sql]
-SELECT `id`,`title`,`abstract`,`doi`,`license`,`publish_time`,`url`,`study_type`,
-`addressed_population`,`challenge`,`focus`,`journal_name`,`volume`,`pages`
-FROM `article` JOIN `publish` ON `id`=`article_id`
-WHERE `id` = ?;
+SELECT "id","title","abstract","doi","license","publish_time","url","study_type",
+"addressed_population","challenge","focus","journal_name","volume","pages"
+FROM "article" JOIN "publish" ON "id"="article_id"
+WHERE "id" = ?;
 \end{lstlisting}
 
 根据文献ID查询作者：
 
 \begin{lstlisting}[language=sql]
-SELECT `write`.author_name
-FROM `article` JOIN `write` ON article_id = `id`
-WHERE `id`= ?;
+SELECT "write".author_name
+FROM "article" JOIN "write" ON article_id = "id"
+WHERE "id"= ?;
 \end{lstlisting}
 
-\textbf{存储过程}——插入被引用的文献：
+\textbf{函数}——插入被引用的文献：
 
 \begin{lstlisting}[language=sql]
-CREATE DEFINER=`root`@`%` PROCEDURE `Insert_cited_art`(
-    IN aid VARCHAR(50),
-    IN in_title VARCHAR(2000),
-    IN in_doi VARCHAR(500),
-    IN in_publish_time DATETIME,
-    IN in_journal VARCHAR(500),
-    IN in_volume VARCHAR(50),
-    IN in_pages VARCHAR(500),
-    IN authors VARCHAR(2000)
+CREATE OR REPLACE FUNCTION "public"."insert_cited_art"(
+  "aid" varchar, 
+  "in_title" varchar, 
+  "in_doi" varchar, 
+  "in_publish_time" timestamptz, 
+  "in_journal" varchar, 
+  "in_volume" varchar, 
+  "in_pages" varchar, 
+  "authors" varchar
 )
+RETURNS "pg_catalog"."void" AS $BODY$
+DECLARE
+  cnt INT;
+  current_author VARCHAR;
+  position INT;
 BEGIN
-    DECLARE cnt INT;
-    DECLARE current_author VARCHAR(100);
-    DECLARE position INT;
-    SELECT COUNT(*) INTO cnt FROM article WHERE article.title = in_title;
-    IF (cnt = 0) THEN
-        SET position = 1;
-        WHILE POSITION(';' IN authors) > 0 DO
-            SET current_author = SUBSTRING_INDEX(authors,';',1);
-            INSERT IGNORE INTO author(name) VALUES(current_author); 
-            SET authors = SUBSTRING(authors,POSITION(';' IN authors)+1);
-        END WHILE;
-        SET current_author = authors;
-        INSERT IGNORE INTO author(name) VALUES(current_author);
-        INSERT IGNORE INTO article(`id`,title,doi,publish_time) 
-        VALUES(aid, in_title, in_doi, in_publish_time);
-        INSERT IGNORE INTO journal(name) VALUES (in_journal);
-        INSERT IGNORE INTO publish VALUES(in_journal, aid, in_volume, in_pages);
-    END IF;
+  SELECT COUNT(*) INTO cnt FROM article WHERE title = in_title;
+  IF cnt = 0 THEN  
+    BEGIN
+      INSERT INTO article(id, title, doi, publish_time) VALUES(aid, in_title, in_doi, in_publish_time)
+      ON CONFLICT (id) DO NOTHING;
+    EXCEPTION WHEN unique_violation THEN   
+    END;
+    position := 1;
+    WHILE POSITION(';' IN authors) > 0 LOOP
+      current_author := SUBSTRING(authors, 1, POSITION(';' IN authors) - 1);
+      BEGIN
+        INSERT INTO author(name) VALUES(current_author)
+        ON CONFLICT (name) DO NOTHING;
+      EXCEPTION WHEN unique_violation THEN 
+      END;
+      BEGIN
+        INSERT INTO write(author_name, article_id) VALUES(current_author, aid)
+        ON CONFLICT (author_name, article_id) DO NOTHING;
+      EXCEPTION WHEN unique_violation THEN 
+      END;
+      authors := SUBSTRING(authors, POSITION(';' IN authors) + 1);
+    END LOOP;
+    current_author := authors;
+    BEGIN
+      INSERT INTO author(name) VALUES(current_author)
+      ON CONFLICT (name) DO NOTHING;
+    EXCEPTION WHEN unique_violation THEN  
+    END;
+    BEGIN
+      INSERT INTO write(author_name, article_id) VALUES(current_author, aid)
+      ON CONFLICT (author_name, article_id) DO NOTHING;
+    EXCEPTION WHEN unique_violation THEN  
+    END;
+    BEGIN
+      INSERT INTO journal(name) VALUES(in_journal)
+      ON CONFLICT (name) DO NOTHING;
+    EXCEPTION WHEN unique_violation THEN    
+    END;
+    BEGIN
+      INSERT INTO publish(journal_name, article_id, volume, pages) VALUES(in_journal, aid, in_volume, in_pages)
+      ON CONFLICT (journal_name, article_id) DO NOTHING;
+    EXCEPTION WHEN unique_violation THEN  
+    END;
+  END IF;
 END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
 \end{lstlisting}
 
-\textbf{存储过程}——插入扩展文章：
+\textbf{函数}——插入扩展文章：
 
 \begin{lstlisting}[language=sql]
-CREATE DEFINER='root'@'%' PROCEDURE `Insert_extend_art`(
-    IN aid VARCHAR(50),
-    IN in_title VARCHAR(2000),
-    IN in_publish_time DATETIME,
-    IN in_url VARCHAR(800),
-    IN in_study_type VARCHAR(200),
-    IN in_addressed_population VARCHAR(1000),
-    IN in_challenge VARCHAR(2000),
-    IN in_focus VARCHAR(100),
-    IN in_journal VARCHAR(500)
+CREATE OR REPLACE FUNCTION "public"."insert_extend_art"(
+  "aid" varchar, 
+  "in_title" varchar, 
+  "in_publish_time" timestamptz, 
+  "in_url" varchar, 
+  "in_study_type" varchar, 
+  "in_addressed_population" varchar, 
+  "in_challenge" varchar, 
+  "in_focus" varchar, 
+  "in_journal" varchar
 )
+RETURNS "pg_catalog"."void" AS $BODY$
+DECLARE
+  cnt INT;
 BEGIN
-    DECLARE cnt INT;
-    SELECT COUNT(*) INTO cnt FROM article WHERE article.title = in_title;
-    IF (cnt = 0) THEN
-        INSERT IGNORE INTO article(`id`, title, publish_time, url, study_type, addressed_population, challenge,focus) 
-        VALUES(aid, in_title, in_publish_time, in_url, in_study_type, in_addressed_population, in_challenge, in_focus);
-        INSERT IGNORE INTO journal(name) VALUES (in_journal);
-        INSERT IGNORE INTO publish VALUES(in_journal, aid, NULL, NULL);
-    END IF;
+  SELECT COUNT(*) INTO cnt FROM article WHERE title = in_title;
+  IF cnt = 0 THEN
+    INSERT INTO article(id, title, publish_time, url, study_type, addressed_population, challenge, focus)
+    VALUES(aid, in_title, in_publish_time, in_url, in_study_type, in_addressed_population, in_challenge, in_focus)
+    ON CONFLICT (id) DO NOTHING;
+    INSERT INTO journal(name) VALUES (in_journal)
+    ON CONFLICT (name) DO NOTHING;
+    INSERT INTO publish(journal_name, article_id, volume, pages)
+    VALUES(in_journal, aid, NULL, NULL)
+    ON CONFLICT (journal_name, article_id) DO NOTHING;
+  END IF;
 END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100
 \end{lstlisting}
 
 \textbf{递归查询}——查询文献的直接引用和间接引用：
 
 \begin{lstlisting}[language=sql]
-WITH RECURSIVE `c` AS (
-    SELECT `citing_id`, `cited_id`, 0 AS `flag` FROM `cite`
-    WHERE `citing_id` = ?
-    UNION
-    SELECT `citing_id`, `id`, 1 AS `flag` FROM `c` JOIN `article`
-    ON `c`.`cited_id` = `article`.`id`
+WITH RECURSIVE "c" AS (
+  SELECT "citing_id", "cited_id", 0 AS "flag" FROM "cite"
+  WHERE "citing_id" = ?
+  UNION
+  SELECT "citing_id", "id", 1 AS "flag" FROM "c" JOIN "article"
+  ON "c"."cited_id" = "article"."id"
 ) 
-SELECT * FROM `c`;
+SELECT * FROM "c";
 \end{lstlisting}
+
+\chapter{测试与性能}
+\label{sec:performance}
+
+\section{测试语句}
+
+在导入了全部数据集后，我们选取了18条\texttt{SQL}语句进行测试，如下所示：
+
+\begin{enumerate}[label=\textbf{\arabic*}]
+  \item 根据邮箱和密码以及用户昵称注册
+  \begin{lstlisting}[language=sql]
+INSERT INTO "user" ("id", nickname, email, "password") VALUES (0, 'test_name', 'test_email', '13456');
+  \end{lstlisting}
+
+  \item 根据邮箱查询用户:
+  \begin{lstlisting}[language=sql]
+SELECT * FROM "user" WHERE email = 'test_email';
+  \end{lstlisting}
+
+  \item 根据用户传入的新密码和用户的 id 来修改密码:
+  \begin{lstlisting}[language=sql]
+UPDATE "user" SET "password" = '456789' WHERE id = 0;
+  \end{lstlisting}
+
+  \item 根据用户传入修改信息来对原信息进行修改:
+  \begin{lstlisting}[language=sql]
+UPDATE "user"
+SET nickname = 'test_name2', avatar = 'dsaw', motto = 'sadw',
+  collage = 'col', subscribe_email = 'true', save_history = true
+WHERE id = 0;
+  \end{lstlisting}
+
+  \item 根据用户的 ID 和期刊的名称实现用户订阅感兴趣的期刊:
+  \begin{lstlisting}[language=sql]
+INSERT INTO subscribe (user_id, journal_name) VALUES (0, 'Respir Res');
+  \end{lstlisting}
+
+  \item 根据用户的 ID 和文献的 ID 用户实现收藏感兴趣的文献:
+  \begin{lstlisting}[language=sql]
+INSERT INTO "collect" (user_id, article_id) VALUES (0, 'tn4ba9le');
+  \end{lstlisting}
+
+  \item 根据用户的 ID 来实现查看用户的浏览历史:
+  \begin{lstlisting}[language=sql]
+SELECT * FROM "history" WHERE user_id = 0;
+  \end{lstlisting}
+
+  \item 根据作者姓名（模糊）搜索作者信息：
+  \begin{lstlisting}[language=sql]
+SELECT * FROM author WHERE name LIKE '%' || 'aa' || '%';
+  \end{lstlisting}
+
+  \item 根据作者姓名（模糊）搜索其撰写的文献：
+  \begin{lstlisting}[language=sql]
+SELECT w.author_name, ar.id, ar.title, ar.abstract, ar.doi, ar.license, ar.publish_time, ar.url
+FROM "write" w
+JOIN article ar ON w.article_id = ar.id
+WHERE w.author_name LIKE '%' || 'aa' || '%';
+  \end{lstlisting}
+
+  \item 根据文献标题（模糊）搜索文献：
+  \begin{lstlisting}[language=sql]
+SELECT ar.id, ar.title, ar.abstract, ar.doi, ar.license
+FROM article ar
+JOIN publish p ON ar.id = p.article_id
+JOIN write w ON ar.id = w.article_id
+WHERE ar.title LIKE '%' || 'aa' || '%';
+  \end{lstlisting}
+
+  \item 根据期刊名模糊搜索期刊：
+  \begin{lstlisting}[language=sql]
+SELECT *
+FROM journal
+WHERE name LIKE '%' || 'Res' || '%';
+  \end{lstlisting}
+
+  \item 根据期刊名模糊搜索该期刊刊登的文章：
+  \begin{lstlisting}[language=sql]
+SELECT ar.*
+FROM publish p
+JOIN article ar ON p.article_id = ar.id
+WHERE p.journal_name LIKE '%' || 'aaa' || '%';
+  \end{lstlisting}
+
+  \item 根据文献 ID 查询文献的详细信息：
+  \begin{lstlisting}[language=sql]
+SELECT ar.id, ar.title, ar.abstract, ar.doi, ar.license, ar.publish_time, ar.url,
+  ar.study_type, ar.addressed_population, ar.challenge, ar.focus,
+  p.journal_name, p.volume, p.pages
+FROM article ar
+JOIN publish p ON ar.id = p.article_id
+WHERE ar.id = 'tn4ba9le';
+  \end{lstlisting}
+
+  \item 根据文献 ID 查询作者：
+  \begin{lstlisting}[language=sql]
+SELECT w.author_name
+FROM article ar
+JOIN write w ON ar.id = w.article_id
+WHERE ar.id = 'tn4ba9le';
+  \end{lstlisting}
+
+  \item 查询文献的直接引用和间接引用：
+  \begin{lstlisting}[language=sql]
+WITH RECURSIVE c AS (
+  SELECT citing_id, cited_id, 0 AS flag
+  FROM cite
+  UNION ALL
+  SELECT cite.citing_id, cite.cited_id, 1 AS flag
+  FROM c
+  JOIN cite ON c.cited_id = cite.citing_id
+)
+SELECT * FROM c;
+  \end{lstlisting}
+
+  \item 测试函数\texttt{insert\_cited\_art}:
+  \begin{lstlisting}[language=sql]
+SELECT insert_cited_art('test_id', 'test_title', 'test_doi', '2024/6/5', 'test_journal', 'test_volume', 'test_in_pages', '0;1');
+  \end{lstlisting}
+
+  \item 测试函数\texttt{insert\_extend\_art}:
+  \begin{lstlisting}[language=sql]
+SELECT insert_extend_art('test_id', 't_title', '2024/6/5', 't_url', 't_type', 't_addr', 't_cha', 't_focus', 't_journal');
+  \end{lstlisting}
+\end{enumerate}
+
+\section{测试结果}
+
+我们使用 \texttt{EXPALIN} 命令来查看每条 \texttt{SQL} 语句的执行计划，以评估其性能。我们将测试结果汇总如表 \ref{tab:performance} 所示。
+
+\begin{table}[H]
+  \caption{性能测试结果}
+  \centering
+\label{tab:performance}
+\begin{tabular}{cc}
+\toprule
+\textbf{序号} &  \textbf{执行时间/ms} \\ 
+\midrule
+1	&34 \\
+2	&32 \\
+3	&32 \\
+4	&32 \\
+5	&34 \\
+6	&32 \\
+7	&31 \\
+8	&389 \\
+9	&1028 \\
+10&	2063 \\
+11&	441 \\
+12&	362 \\
+13&	526 \\
+14&	158 \\
+15&	505 \\
+16&	36 \\
+17&	270.68 \\
+18&	270.865 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{性能分析与优化}
+
+从表 \ref{tab:performance} 中可以看出，大部分 \texttt{SQL} 语句的执行时间都在 1000ms 以内，性能较好。但是，有两条 \texttt{SQL} 语句的执行时间较长，分别为 2063ms 和 1028ms。这是因为这两条 \texttt{SQL} 语句中包含了多个表的连接查询，导致了性能下降。我们可以通过增加索引来提高性能。
+
+在增加了索引后，我们再次进行了测试，结果如表 \ref{tab:performance2} 所示。
+
+\begin{longtable}[c]{cc}
+  \caption{性能测试结果（优化后）} \label{tab:performance2} \\
+\toprule
+\textbf{序号} &  \textbf{执行时间/ms} \\
+\midrule
+\endfirsthead
+
+\caption[]{性能测试结果（优化后） (续表)} \\
+\toprule
+\textbf{序号} &  \textbf{执行时间/ms} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{2}{r}{续下页}
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+1	&36 \\
+2	&34 \\
+3	&37 \\
+4	&36 \\
+5	&38 \\
+6	&36 \\
+7	&36 \\
+8	&66 \\
+9	&956 \\
+10&	639 \\
+11&	350 \\
+12&	118 \\
+13&	417 \\
+14&	39 \\
+15&	35 \\
+16&	37 \\
+17&	3.27 \\
+18&	0.824 \\
+\end{longtable}
+
+从表 \ref{tab:performance2} 中可以看出，经过优化后，性能有一定的提升。其中，第 10 条 \texttt{SQL} 语句的执行时间从 2063ms 降低到 639ms。这说明增加索引对性能有一定的提升作用。改进后的性能已经可以满足系统的需求。
+
+两次测试的对比结果如下图所示。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{img/time.png}
+  \caption{性能测试结果对比}
+  \label{fig:performance}
+\end{figure}
+
+\chapter{平台}
+\label{sec:platform}
+
+\section{硬件环境}
+
+在项目进入开发后，我们使用了云服务器进行部署。我们选择并购置了一台阿里云的云服务器，具体配置如下：
+
+\begin{itemize}
+    \item 规格：ecs.e-c1m4.xlarge
+    \item CPU：4 cores (vCPU)
+    \item 内存：16GiB
+    \item 硬盘：100GiB ESSD Entry云盘 (2600 IOPS)
+    \item 网络：10Mbps 专有网络
+    
+\end{itemize}
+
+\section{软件环境}
+
+\subsection{操作系统}
+
+我们考虑使用Ubuntu作为操作系统，具体配置如下：
+
+\begin{itemize}
+    \item 系统：Ubuntu 22.04 64位
+    \item 内核：5.4.0-1045-aws
+    \item 架构：x86
+\end{itemize}
+
+\subsection{编程语言及库}
+
+我们采用数据处理、前端、后端分离的开发模式，以便于团队分工协作。具体使用的编程语言及库如下：
+
+\subsubsection{数据}
+
+在开发前期，我们使用了Python进行数据处理，并将SQL语句内嵌到后端代码中，以实现对数据进行增删改查。
+
+在编写SQL时，我们惊奇地发现即使是效率极大程度上优于MySQL的PostgreSQL，在面对千万级的数据集效率也显得十分低下。因此，我们考虑加入一些插件来提高PostgreSQL的效率，并拓展其功能。
+
+具体使用的插件如下：
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cc}
+    \toprule
+    \textbf{插件} &  \textbf{用途} \\ 
+    \midrule
+    pg\_cron & 用于定时任务的插件 \\
+    pg\_trgm & 用于模糊搜索的插件 \\
+    \bottomrule
+    \end{tabular}
+    \caption{PostgreSQL插件}
+\end{table}
+
+\subsubsection{前端}
+
+前端部分采用的编程语言为TypeScript，开发框架为React。
+
+前端部分的技术栈如下：
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cc}
+    \toprule
+    \textbf{库} &  \textbf{用途} \\ 
+    \midrule
+    ASP.NET Core & 用于构建Web应用程序的框架 \\
+    Entity Framework Core & 用于访问数据库的对象关系映射（ORM）框架 \\
+    AutoMapper & 用于对象映射的库 \\
+    JWT Token & 用于认证的令牌 \\
+    Swagger & 用于生成API文档的库 \\
+    MemoryCache & 用于缓存数据的库 \\
+    \bottomrule
+    \end{tabular}
+    \caption{前端技术栈}
+\end{table}
+
+\subsubsection{后端}
+
+后端部分采用的编程语言为C\#，开发框架为ASP.NET Core。
+
+后端部分的技术栈如下：
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cc}
+    \toprule
+    \textbf{库} &  \textbf{用途} \\ 
+    \midrule
+    ASP.NET Core & 用于构建Web应用程序的框架 \\
+    Entity Framework Core & 用于访问数据库的对象关系映射（ORM）框架 \\
+    AutoMapper & 用于对象映射的库 \\
+    JWT Token & 用于认证的令牌 \\
+    Swagger & 用于生成API文档的库 \\
+    MemoryCache & 用于缓存数据的库 \\
+    EmailSender & 用于发送邮件的库 \\
+    \bottomrule
+    \end{tabular}
+    \caption{后端技术栈}
+\end{table}
+
+\subsection{开发环境}
+
+我们主要采用的开发环境如下：
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cc}
+    \toprule
+    \textbf{工具} &  \textbf{用途} \\ 
+    \midrule
+    Visual Studio Code & 代码编辑器 \\
+    Git & 版本控制系统 \\
+    Docker & 应用程序平台 \\
+    PostgreSQL & 数据库管理系统 \\
+    Navicat & 数据库管理工具 \\
+    \bottomrule
+    \end{tabular}
+    \caption{开发环境}
+\end{table}
+
+
+\chapter{调优}
+\label{sec:tuning}
+
+\section{数据库调优}
+
+首先，我们对于表结构进行了优化。在我们设计数据库时，我们尽量避免了使用过多的冗余字段，以减少数据冗余。
+
+但是，对于\textit{article}表，我们采取了加入冗余字段来提高数据库的效率。\textit{article}表的设计起初是这样的：
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{字段名} & \textbf{类型} & \textbf{主键} & \textbf{外键} & \textbf{说明} \\
+        \hline
+        \textit{id} & \texttt{VARCHAR(50)} & 是 &  & 文章ID \\
+        \hline
+        \textit{title} & \texttt{VARCHAR(1000)} &  &  & 文章标题 \\
+        \hline
+        \textit{abstract} & \texttt{TEXT} &  &  & 摘要 \\
+        \hline
+        \textit{doi} & \texttt{VARCHAR(50)} &  &  & 数字对象唯一标识符 \\
+        \hline
+        \textit{license} & \texttt{VARCHAR(50)} &  &  & 许可 \\
+        \hline
+        \textit{publish\_time} & \texttt{DATETIME} &  &  & 发表时间 \\
+        \hline
+        \textit{url} & \texttt{VARCHAR(800)} &  &  & 文章URL \\
+        \hline
+        \textit{study\_type} & \texttt{VARCHAR(500)} &  &  & 研究类型 \\
+        \hline
+        \textit{addressed\_population} & \texttt{VARCHAR(1000)} &  &  & 研究对象人群 \\
+        \hline
+        \textit{challenge} & \texttt{VARCHAR(2000)} &  &  & 挑战/研究问题 \\
+        \hline
+        \textit{focus} & \texttt{VARCHAR(100)} &  &  & 研究重点 \\
+        \hline
+    \end{tabular}
+    \caption{文章(\textit{article})表}
+\end{table}
+
+考虑到\textit{article}表数据量较大($10^8$)，为了避免\textit{article}表与\textit{write}表\texttt{JOIN}时消耗过长的时间，我们考虑为\textit{article}加入冗余字段\textit{authors}。
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{字段名} & \textbf{类型} & \textbf{主键} & \textbf{外键} & \textbf{说明} \\
+        \hline
+        \textit{...} & \texttt{...} &  &  & ... \\
+        \hline
+        \textit{authors} & \texttt{TEXT} &  &  & 作者 \\
+        \hline
+    \end{tabular}
+    \caption{文章(\textit{article})续表}
+\end{table}
+
+在查询文章或作者时，只需要利用\texttt{LIKE}语句查询\textit{article}表，而不需要\texttt{JOIN}操作，从而期望提高查询效率。经过多次测试与验证，我们确信这样\textbf{以空间换时间}的方式是\textbf{十分有必要的}。
+
+其次，在编写查询文章的代码时，我们发现\texttt{LIKE}的效率较低，在全数据集上经常超时(超过30s)，建立相应的索引后，我们发现仍然不能改善这一问题。但进行模糊查询不可避免要使用到\texttt{LIKE}语句。这不得不让我们思考如何提高\texttt{LIKE}的效率。
+
+通过\texttt{EXPLAIN}语句检查这些语句的执行计划，发现它们采用顺序扫描而未曾使用索引。同时我们上网查询得知，\texttt{LIKE}语句确实采用顺序扫描而非索引检索的方式获取内容。经过一系列网络资料的查询后，我们最终确定导入\textit{trgm}插件，使用其提供的\texttt{GIN}索引来优化模糊查询。
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{表名} & \textbf{字段名} & \textbf{说明} \\
+        \hline
+        \textit{article} & \textit{authors} & 作者 \\
+        \hline
+        \textit{article} & \textit{title} & 文章标题 \\
+        \hline
+        \textit{author} & \textit{name} & 作者姓名 \\
+        \hline
+        \textit{journal} & \textit{name} & 期刊名 \\
+        \hline
+        \textit{publish} & \textit{journal\_name} & 期刊名 \\
+        \hline
+        \textit{write} & \textit{author\_name} & 作者姓名 \\
+        \hline
+    \end{tabular}
+    \caption{采用\texttt{GIN}索引的属性}
+\end{table}
+
+经过多次测试与验证，我们发现原本超时(超过30s)的SQL语句，经过\texttt{GIN}索引的优化后，查询时间缩短到了1s，效率得到了显著提高。因此，我们确信\textbf{采用\texttt{GIN}索引}的方式也是\textbf{很有必要的}。
+
+最后，我们对于数据库中各个表的不同字段都建立了不同的索引，以期优化查询效率。具体的索引如下表所示。
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{表名} & \textbf{字段名} & \textbf{索引方法} & \textbf{说明} \\
+        \hline
+        \textit{article} & \textit{id} & \texttt{btree} & 文章ID \\
+        \hline
+        \textit{article} & \textit{title} & \texttt{btree} & 文章标题 \\
+        \hline
+        \textit{article} & \textit{url} & \texttt{btree} & 文章URL \\
+        \hline
+        \textit{author} & \textit{name} & \texttt{btree} & 作者姓名 \\
+        \hline
+        \textit{cite} & \textit{cited\_id} & \texttt{btree} & 被引用的文章id \\
+        \hline
+        \textit{cite} & \textit{citing\_id} & \texttt{btree} & 引用的文章id \\
+        \hline
+        \textit{journal} & \textit{name} & \texttt{btree} & 期刊名 \\
+        \hline
+        \textit{publish} & \textit{article\_id} & \texttt{btree} & 文章ID \\
+        \hline
+        \textit{publish} & \textit{journal\_name} & \texttt{btree} & 期刊名 \\
+        \hline
+        \textit{write} & \textit{article\_id} & \texttt{btree} & 文章ID \\
+        \hline
+    \end{tabular}
+    \caption{所建立的索引}
+\end{table}
+
+显然，这些索引在提高查询效率方面起到了重要作用。
+
+\section{SQL语句优化}
+
+在开发过程中，我们对大量SQL语句进行了优化，以期提高查询效率。下面，我们将举例两个优化效果最显著的SQL语句进行说明。
+
+\subsection{LIKE语句优化}
+
+编写后端代码时，我们考虑将模糊查询文章标题、作者、期刊合并为同一个接口，这对我们的数据库查询带来了挑战。最初，我们采用原始的\texttt{LIKE}语句进行模糊查询，SQL语句如下：
+
+\begin{lstlisting}[language=sql]
+SELECT
+	article.*,
+	publish.* 
+FROM
+	article
+	JOIN publish ON article.ID = publish.article_id 
+WHERE
+	( article.title LIKE'%{?}%' OR article.authors LIKE'%{?}%' OR journal_name LIKE'%{?}%' ) 
+ORDER BY
+	publish_time DESC；
+\end{lstlisting}
+
+这一语句在全量数据集中的千万级表\textit{article}和千万级表\textit{publish}上执行时，效率较低，必然超时。我们考虑使用\texttt{GIN}索引优化语句，但效果不明显，结合\texttt{EXPALIN}语句分析我们推测是因为索引未被使用，通过上网查询证实了我们的猜想。由具体资料指出，\texttt{WHERE}子句中包含\texttt{OR}将导致语句不使用索引。因此，我们考虑采用UNION来代替实现or的功能，这样对于目标关键词的模糊查询将会使用索引，以期使效率提升。
+
+\begin{lstlisting}[language=sql]
+    SELECT
+    article.*,
+    publish.* 
+  FROM
+    article
+    JOIN publish ON article.ID = publish.article_id 
+  WHERE
+    article.title LIKE'%diabetes%' UNION
+  SELECT
+    article.*,
+    publish.* 
+  FROM
+    article
+    JOIN publish ON article.ID = publish.article_id 
+  WHERE
+    article.authors LIKE'%diabetes%' UNION
+  SELECT
+    article.*,
+    publish.* 
+  FROM
+    article
+    JOIN publish ON article.ID = publish.article_id 
+  WHERE
+    journal_name LIKE'%diabetes%' 
+  ORDER BY
+    publish_time DESC;
+\end{lstlisting}
+
+经过多次测试与验证，我们发现优化后的SQL语句成功正确使用了\texttt{GIN}索引，原本超时(超过30s)的SQL语句，经过索引及\texttt{UNION}的优化后，查询时间缩短到了1s，效率得到了显著提高，这证明我们的优化工作是成功的。
+
+\subsection{非空判断优化}
+
+在编写SQL时，我们对于一个属性是否为空的判断，我们采用了\texttt{IS NOT NULL}的方式。比如，在实现对文章url是否存在时，我们使用了如下面所示的代码：
+
+\begin{lstlisting}[language=sql]
+SELECT
+  article.*,
+  publish.* 
+FROM
+  article
+  JOIN publish ON article.ID = publish.article_id 
+WHERE
+  article.title LIKE {?} AND article.url IS NOT NULL;
+\end{lstlisting}
+
+但是，我们发现\texttt{IS NOT NULL}的效率较低，我们考虑使用\texttt{COALESCE}函数来代替\texttt{IS NOT NULL}，以期提高查询效率。我们修改为如下的代码：
+
+\begin{lstlisting}[language=sql]
+SELECT
+  article.*,
+  publish.* 
+FROM
+  article
+  JOIN publish ON article.ID = publish.article_id 
+WHERE
+  article.title LIKE {?} AND AND COALESCE(article.url, '111') <> '111';
+\end{lstlisting}
+
+经过多次测试与验证，我们发现优化后的SQL语句成功提高了将近$\frac{1}{3}$的效率，这证明我们对非空判断的优化工作是成功的。
+
+\chapter{总结}
+\label{sec:conclusion}
+
+在本次项目中，我们设计了一个有关Covid(新冠病毒)的论文查询网站，实现了对千万级别数据库的高效查询功能与用户的收藏订阅。我们首先设计了数据库，然后使用Python对数据进行处理，将数据导入到数据库中。数据库设计中，我们使用了PostgreSQL作为数据库，编写了数十个SQL查询语句，并使用pgSQL编写了存储过程和函数。开发方面，我们使用了C\#作为后端语言，集成了ASP.NET Core框架；使用TypeScript作为前端语言，集成了React框架。平台方面，我们使用了阿里云服务器进行部署，使用Ubuntu作为操作系统，使用Docker作为应用程序平台，成功将可执行文件发布到Docker Hub，并集成Github Actions实现自动化部署。调优方面，我们对数据库进行了调优，包括对表结构的优化、对SQL语句的优化、对索引的优化等，以提高查询效率。最终，我们成功高效实现了整个网站，并对其进行了合理的性能测试，达到了预期的效果。项目丰富了我们的数据库设计、数据处理、前后端开发、平台部署、调优等方面的经验，是一次十分有意义的实践。
+
+\newpage
+
+\appendix
+
+\chapter{所附代码文件概述}
+\label{appendix:code}
+
+随本报告所附代码文件结构如下：
+
+\begin{figure}[H]
+  \dirtree{%
+      .1 process\_data.
+      .2 archive/\DTcomment{图 \ref{fig:dataset} 所示的数据集}.
+      .2 output/.
+      .3 deduplicated/\DTcomment{去重后的数据}.
+      .2 article.py\DTcomment{文献所包含的类}.
+      .2 main.py\DTcomment{主程序}.
+      .2 requirements.txt\DTcomment{依赖}.
+  }
+  \caption{所附代码文件结构}
+  \label{fig:processData}
+\end{figure}
+
+使用方法：
+
+\begin{enumerate}
+  \item 下载数据集
+  \item 安装依赖：
+\begin{lstlisting}[language=bash]
+pip install -r requirements.txt
+\end{lstlisting}
+  \item 运行\texttt{main.py}。
+\begin{lstlisting}[language=bash]
+python main.py
+\end{lstlisting}
+\end{enumerate}
+
+\newpage
+
+\chapter{Milestone 2在Milestone 1基础的变化}
+
+\begin{enumerate}
+    \item 在 \ref{sec:overviewOfDatabaseDesign} 节中，我们更换了使用的数据库管理系统，从MySQL变为PostgreSQL。
+    \item 在 \ref{sec:dataProcessing} 节中，我们更改了数据处理的方式，先将数据处理后存储到本地文件中，再使用数据库的 \texttt{COPY} 命令批量插入数据，以提高性能。
+    \item 在第 \ref{sec:sql} 章中，我们修改了函数/存储过程的代码和部分 \texttt{SQL} 语句，以符合PostgreSQL的语法。
+    \item 增加了第 \ref{sec:performance} 章，对系统的性能进行了测试和分析。
+    \item 增加了附录\ref{appendix:code}，展示了所附代码文件的结构和使用方法。
+\end{enumerate}
+
+\newpage
+
+\chapter{Final Report在Milestone 2基础的变化}
+
+\begin{enumerate}
+    \item 在 \ref{sec:entities} 节中，我们为\textit{article}表增加了\textit{authors}属性以存储作者信息。
+    \item 在 \ref{sec:er} 节中，我们修改了ER图，增加了\textit{authors}属性。
+    \item 在 \ref{sec:schema} 节中，我们修改了\textit{article}表的模式，增加了\textit{authors}属性。
+    \item 增加了第 \ref{sec:platform} 章，展示了系统的硬件环境、软件环境和开发环境。
+    \item 增加了第 \ref{sec:tuning} 章，展示了数据库调优和SQL语句优化的过程。
+    \item 增加了第 \ref{sec:conclusion} 章，总结了本次项目。
+\end{enumerate}
+
 
 \end{document}
