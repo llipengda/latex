@@ -1,0 +1,332 @@
+\documentclass[UTF8,openany]{ctexbook}
+
+% 论文版面要求:
+% 统一按 word 格式A4纸（页面设置按word默认值）编排、打印、制作。
+% 正文内容字体为宋体；字号为小4号；字符间距为标准；行距为25磅(约0.88175cm)。
+
+%%%%% ===== 页面设置
+\usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=3.17cm,right=3.17cm,%
+            ]{geometry}
+            
+\setlength{\parindent}{2em}
+%默认的弹性间距会导致文中某些排版flush的时候，出现大量空白。
+\setlength{\parskip}{0.5em} %指定固定段后间距，默认为弹性间距。
+\setlength{\intextsep}{10pt} %固定浮浮动体前后间距。
+
+
+%%%%% =====章节 标题 设置
+%%%%% ===== 中英文字体
+\setmainfont{Times New Roman}
+%\setsansfont{Myriad Pro} % 无衬线字体 sans serif \sffamily
+%\setmonofont{Consolas}   % 等宽字体 typewriter \ttfamily
+%\newcommand{\Times}{\fontspec{Times New Roman}}
+%% 中文字体
+%\setCJKmainfont[BoldFont={Microsoft YaHei},ItalicFont={KaiTi}]{NSimSun}
+%\setCJKsansfont{Microsoft YaHei}
+%\setCJKmonofont{KaiTi}
+%\setCJKfamilyfont{STSong}{方正小标宋_GBK}\newcommand{\STSong}{\CJKfamily{STSong}}
+\setCJKfamilyfont{songti}{STZhongsong}\newcommand{\STSong}{\CJKfamily{STSong}}
+
+%%%%% ===== 常用宏包
+\usepackage{amsmath,amssymb,amsfonts,bm}
+\usepackage[amsmath,thref,thmmarks,hyperref]{ntheorem}
+\usepackage{graphicx,xcolor,float}
+\usepackage{fancyhdr}
+\usepackage{tocloft} % 设置目录中的条目间距
+
+
+\renewcommand\cftdot{\textsubscript{……}}
+\renewcommand\cftdotsep{0}
+
+\setlength{\cftbeforechapskip}{1pt}
+\renewcommand{\cftchapleader}{\cftdotfill{\cdot}}
+
+
+\usepackage{booktabs} % toprule, midrule, bottomrule
+\usepackage{varwidth} % 可变宽度的 parbox
+
+%%%%% ===== 参考文献与链接
+\usepackage[numbers,sort&compress,sectionbib, square]{natbib} %引用上标，禁用连续缩写。
+\newcommand{\upcite}[1]{\textsuperscript{\cite{#1}}}
+
+
+\usepackage[xetex,pagebackref]{hyperref}
+\hypersetup{CJKbookmarks=true,colorlinks=true,citecolor=blue,%
+            linkcolor=blue,urlcolor=blue,bookmarksnumbered=true,%
+	        bookmarksopen=true,breaklinks=true}
+	        
+	        
+	        
+\iffalse   % 调试时，可去掉，以用于显示引用位置。
+\renewcommand*{\backrefalt}[4]{%
+\ifcase #1 No citations.%
+\or Cited on page #2.%
+\else Cited on pages #2.%
+%\else #1 Cited on pages #2.%
+\fi
+}
+
+\else
+\renewcommand*{\backrefalt}[4]{}
+\fi
+
+%%%%% ===== 浮动图表的标题
+\usepackage[margin=2em,labelsep=space,skip=0.5em,font=normalfont]{caption}
+\DeclareCaptionFormat{mycaption}{{\heiti\color{blue} #1}#2{\kaishu #3}}
+\captionsetup{format=mycaption,tablewithin=chapter,figurewithin=chapter}%,belowskip=-10pt
+%\setlength{\belowcaptionskip}{-10pt}
+
+%%%%%% ===== 浮动图表的比例默认50%以下，否则无法浮动。
+\renewcommand\floatpagefraction{.9} %当浮动体小于页面90%时进行直接放置。
+\renewcommand\topfraction{.9}  
+\renewcommand\bottomfraction{.9}  
+\renewcommand\textfraction{.1}
+
+
+
+%%%%% ===== 算法
+\usepackage{algorithm,algpseudocode}
+
+%%%%% ===== 其他
+\usepackage{ulem}
+\def\ULthickness{1pt}
+
+
+
+
+%%%%%===== Code Style代码
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+  language=Python,
+  xleftmargin = 3em,xrightmargin = 3em, aboveskip = 1em,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  rulesepcolor= \color{gray},
+  frame = ltrb,
+  basicstyle={\normalsize\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+\newcommand{\mcc}[1]{\multicolumn{1}{c}{\underline{\makebox[10em][c]{#1}}}}
+\newcommand{\mce}[1]{\multicolumn{1}{c}{\underline{\makebox[15em][l]{#1}}}}
+
+
+\pagestyle{fancy}
+\fancyhf{}  % 清除以前对页眉页脚的设置
+
+\newcommand{\makeheadrule}{%% 定义页眉与正文间双隔线
+    \makebox[0pt][l]{\rule[.7\baselineskip]{\headwidth}{0.3pt}}%0.4
+    \rule[0.85\baselineskip]{\headwidth}{1.0pt}\vskip-.8\baselineskip}
+\makeatletter
+\renewcommand{\headrule}{%
+    % {\if@fancyplain\let\headrulewidth\plainheadrulewidth\fi\makeheadrule}}
+    {\makeheadrule}}
+\makeatother
+\renewcommand{\chaptermark}[1]{\markboth{\CTEXthechapter \ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection \ #1}{}}
+%\fancyhead[RO,LE]{{\small\songti\rightmark}}     % 节标题
+%\fancyhead[RE]{{\small\songti\leftmark}}      % 章标题
+\fancyhead[L]{《中国文化通论》课程作业}
+\fancyhead[R]{李鹏达 10225101460}
+% \fancyhead[RO,LE]{$\cdot$ {\small\thepage} $\cdot$}
+\fancyfoot[C]{{-\thepage-}}
+%\fancyfoot[CO,CE]{{\thepage}}
+
+\begin{document}
+
+\begin{center}
+    ~\\[0.5em]
+    \zihao{2}
+    \heiti{\textbf{金狮子}\\[0.5em]}
+    \zihao{-4}
+    \kaishu{李鹏达}\\[2em]
+\end{center}    
+
+大唐显庆二年\footnote{657年，李弘为唐高宗和武则天修建敬爱寺，“显庆二年。孝敬在春宫。为高宗武太后立之。以敬爱寺为名”\cite{bi:thy}。}，东都，敬爱寺。
+
+犀利的冷雨敲在头上，溶解了一个漫长的梦。第一次，我睁开双眼，注视着雨雾中的青石板路。雨水顺着我的脊背滑落，一道道金色的溪流与石板上的雨水汇成一片，映出我的身影。我看着自己的影子，却不知道自己是谁。雨滴从我的发尖落下，荡起一圈波纹，将思绪扰乱。我在这里站立多久了？我为何会在这里？
+
+雨势越来越大了，像是要刺进我的肌肤，却只能顺着我金色的毛发流下。我环顾四周，眺望远处，一层神秘的薄纱蒙住了雨中的洛阳城，若隐若现的屋檐、幽深的小巷、紧闭的木门，每一处都写满了未知。恍惚间，我好像忆起了什么，忆起了千锤百炼、黄金披身的痛，忆起了临别时老师傅的微笑。
+
+一阵脚步声将我从回忆中拉回，几个年轻人从雨中匆匆走来，他们身着青色的长衫，头戴方巾，口中还低声念叨着什么，听上去有些熟悉，却又无法理解。我眯起眼睛，试图听清他们的低语，却总觉得这是另一个世界的语言。雨水打湿了他们的长衫，让他们再次加快了脚步，从我的身边匆匆经过，进入我身后的大殿。
+
+一阵诵经声从大殿内传出，与雨声交织在一起，神秘而庄严。大殿内，烛光透过半开的门缝，投射出暖黄色的光芒，映得灰蒙的雨雾不再那般寒冷。两名香客从大殿中走出，站在屋檐下小声地说着话。我集中精神，隐约听到了“太子”“皇后”“孝顺”几个词，更多的声音淹没在了雨中。
+
+这寺庙大抵是太子为了孝敬皇后修建的吧？我一边思索，一边看着雨渐渐变小，任思绪在风中飘荡，想起老师傅在锻造我时每一锤的敲击对我灵魂的雕琢，想起黄金在身上流淌时的灼热。
+
+耳边的雨声与诵经声渐渐弱了，我注视着面前来往的僧人与香客，他们又有着什么愿望呢？我沉思着，试图从他们匆匆的脚步和深沉的眼神中找寻答案。一位老僧人，步履沉稳，面带宁静，他的眼神中透露出一种超脱，仿佛看穿了世间的一切，却又无法言说。一位年轻的香客，面露虔诚，手持香火，眼神中充满了对信仰的执着，仿佛只有这样才能找到心底的那个回答。
+
+我静静地立在那里，注视着他们来来往往，感受着他们从身旁走过时的气息，做着一只金狮子该做的事——旁观、守护、沉默。
+
+我不懂什么佛法，也听不懂他们口中的咒语。我只是看着、听着、感受着，这一切都是我生命中的一部分。雨渐渐停了，天空中露出了一丝阳光，洒在青石板路上，将我的影子拉得很长。
+
+我不由地又有些困倦。\\[0.5em]
+
+大周天授元年\footnote{690年9月，武则天在洛阳登基即位，改国号为周，改元天授。“九月九日壬午，革唐命，改国号为周。改元为天授”\cite{bi:jts}}，神都，敬爱寺。
+
+秋风卷起地面上干枯凋零的落叶，飘散在空中，又与地面相遇。凉风拂过我的脸庞，吹过我略有黯淡的毛发。我伫立在这里已经三十余年了。
+
+“你听说了吗？以后大唐要变成大周了！”一个童子一边用竹扫帚扫着落叶，一边小声地向另一个童子说着。
+
+“我刚刚听说，太后登基了，以后要叫圣神皇帝。”
+
+“之前听师父讲《大云经》说过，太后是弥勒菩萨化身下凡，应为天下之主\footnote{“言则天是弥勒下生，作阎浮提主，唐氏合微。”\cite{bi:jts2}}。”
+
+“四处都有祥瑞发生，太后登基是天意啊。”，两个童子兴奋地说着，一边扫着落叶，一边向大殿走去。
+
+秋风继续吹拂，夹杂着些许凉意。我注视着那两个童子，他们的身影渐行渐远，消失在大殿的深处。
+
+敬爱寺的钟声悠然回荡，宣告着一个新时代的来临。\\[1em]
+
+大周圣历二年\footnote{699年}，神都，佛授记寺。
+
+一个僧人从石板路的远处走来，他身披袈裟，双目微上扬，目光中透着宁静与智慧。他手持禅杖，步履沉稳，向大殿走去。
+
+走过我身旁时，他停下脚步，注视着我。我也看着他，他却微微一笑，继续向大殿走去。
+
+“贤首国师，您来了。”一个年轻的僧人走上前，向那位老僧行礼。
+
+贤首国师微笑着，拍了拍年轻僧人的肩膀，走进大殿。
+
+“今天，我们继续讲解《华严经》。”贤首国师的声音在大殿中回荡。
+
+“有十佛世界微尘数菩萨摩诃萨所共围绕\cite{bi:hyo}……”他的声音清晰而庄严。
+
+尽管我已立在这里近四十年，却依然觉得这些佛法晦涩难懂，这么多年来，我一直在这里，看着这里的人们来来往往，听着他们的佛法，也只是理解了一点点。
+
+“妙焰海大自在天王，得法界、虚空界寂静方便力解脱门\cite{bi:hyo}……”佛经的声音在耳边环绕，不由地让我有些疲倦。我慢慢闭上了眼睛。\\[1em]
+
+不知是睡了多久。几天？几个月？
+
+大殿依旧环绕着贤首国师讲经的声音，只是殿外不知为何站了许多卫兵，衬得这里更加庄严肃穆。
+
+我望向大殿，殿内除了贤首国师，只有一位女子。
+
+她身着华丽的锦袍，绣以精致的龙凤图案，头戴金冠，嵌以宝石，映着殿内的烛光。她翻着手中的经文，眉头微蹙，似乎在思索着什么。
+
+讲经的声音渐渐停了，贤首国师望向那女子，向她行礼。
+
+“可朕还是不懂，你所讲的‘十重玄门’”，女子抬起头，看着贤首国师。
+
+僧人眉头紧皱，在殿内踱步，烛光下，他的影子在墙上摇曳。
+
+“陛下，您看这殿外的金狮子”，贤首国师站在大殿门口，指着我，说道。
+
+“这是……”，女子抬起头，看向我。
+
+“工匠的制作，让金和狮子相生成了金狮子。金和狮子相是同时存在的，既没有先后顺序，也完全具备了金和狮子各自的特点。这就是‘同时具足相应门’\cite{bi:hy}。”
+
+女子听着贤首国师的解释，眼神中逐渐有了明悟。
+
+我看着他们，也不由地思索起来。
+
+“陛下，如果您用金狮子的眼去包容整个金狮子相，那金狮子会怎么样呢？”贤首国师问。
+
+女子沉思片刻，说道：“金狮子的眼，包容了整个金狮子，那么整个金狮子就纯粹都是眼。”
+
+“正是如此，如果用耳来包容，那么整个金狮子就纯粹都是耳。也就是说，随便选取一个器官，都包含了其他器官和整个狮子的特征。因此，金狮子的眼耳等各不相同，即‘一一皆杂’；同时，每个器官又能代表整个狮子，即‘一一皆纯’。这种纯杂相应，互不妨碍，圆满地具备一切，这就是‘诸藏纯杂具德门’\cite{bi:hy}。”
+
+女子看向我，思考良久后点了点头。
+
+“金和狮子都在金狮子中，各不相同，却又互相容受\cite{bi:hy}，这就是——”
+
+“‘一多相容不同门’。”女子说道。
+
+“如果我说，狮子的眼就是耳，耳就是鼻，鼻就是舌，舌就是身，身就是眼\cite{bi:hy}，陛下能否理解？”贤首国师又问。
+
+女子起身，走到我身边，注视着我思索着。为何会有这种道理？我甚是不解。
+
+“是因为金狮子的眼、耳、鼻等感觉器官和狮身上的每一根毛，都能以金包容整个金狮子的形象，这样对吗？”女子说道。
+
+“正是如此，这就是‘诸法相即自在门’。”贤首国师微笑道。
+
+我感受着自己的五官，感受着自己的身体，好像也明白了些什么。
+
+“如果从金狮子的形象来看，就只能看到狮子而看不到金；如果从金的视角来看，就只能看到金而看不到狮子\cite{bi:hy}。”
+
+“如果从以上两个视角观察，那狮子和金就都显现也都隐没。这就是‘秘密隐显俱成门’的含义吗？”女子问。
+
+贤首国师点了点头，女子也微笑。
+
+“金狮子的金和形相，可以隐没或显现，既可以是一，也可以是多。它们必定是纯的，也必定是杂的，可以有力显现或无力隐没，既是此又是彼，主角与陪伴互相辉映，理与事同时显现，互相容纳而不妨碍。即使是极微细的事物，也能包容其他极大的事物，这称为‘微细相容安立门’\cite{bi:hy}。”
+
+女子盯着我，沉思片刻，眼神中突然闪过亮光，向贤首国师点头。
+
+“金狮子的眼、耳、四肢关节以及每一根细小的毛中，都各自包含着金狮子的整体。无数根细小的毛中的狮子，又能同时融入到一根毛中。每根毛中都有无数的狮子，而每根毛又携带着无数狮子归还到一根毛中。如此交互涉入，重重无尽，如同帝释天宫殿中的豪华网珠，网线上的珠玉互相连络，珠光闪耀，彼此辉映，层层叠叠，无穷无尽\cite{bi:hy}。”
+
+“这就是‘因陀罗网境界门’。”女子说道。
+
+我看向身上的毛发，甚是不解，试图从毛发中看到自己的全貌，却总是无法看清。我沉思着，为什么说每根毛中都有无数的狮子？我又是如何包含在每根毛中的呢？
+
+思索甚久，仍是不解。
+
+待我回过神时，讲经已接近结束。
+
+“陛下，看来您已经理解了《华严经》的奥秘了。”贤首国师微笑着说。
+
+圣神皇帝站起身说道：“感谢国师的指点，寡人明白了。”
+
+僧人向她行礼，一同走出大殿。
+
+我看着他们离去，心中仍是疑惑。我看着自己的毛发，陷入了长久的沉思。\\[1em]
+
+不知过了多久。
+
+我再次睁开眼睛，心中终于有了明悟。
+
+殿内传来了讲经的声音。
+
+“今天，我们讲解《华严金师子章》……”
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
+\begin{thebibliography}{99}
+\bibitem{bi:thy} 
+王博.唐会要.卷四十八.上海古籍出版社. 2006
+
+\bibitem{bi:jts}
+刘{\CJKfontspec{宋体}{昫}}等.旧唐书.卷六.本纪第六.中华书局. 1975
+
+\bibitem{bi:jts2}
+刘{\CJKfontspec{宋体}{昫}}等.旧唐书.卷一百八十七.中华书局. 1975
+
+\bibitem{bi:hyo}
+高振农译.星云大师监修.华严经.东方出版社.北京.2016.
+
+\bibitem{bi:hy}
+方立天释译.星云大师监修.华严金师子章.东方出版社.北京.2016.
+\end{thebibliography}
+
+
+\end{document}
