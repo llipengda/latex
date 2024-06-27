@@ -1309,12 +1309,9 @@ SELECT insert_extend_art('test_id', 't_title', '2024/6/5', 't_url', 't_type', 't
     \toprule
     \textbf{库} &  \textbf{用途} \\ 
     \midrule
-    ASP.NET Core & 用于构建Web应用程序的框架 \\
-    Entity Framework Core & 用于访问数据库的对象关系映射（ORM）框架 \\
-    AutoMapper & 用于对象映射的库 \\
-    JWT Token & 用于认证的令牌 \\
-    Swagger & 用于生成API文档的库 \\
-    MemoryCache & 用于缓存数据的库 \\
+    React & 用于构建用户界面的库 \\
+    Material-UI & 用于构建UI组件的库 \\
+    Axios & 用于发送HTTP请求的库 \\
     \bottomrule
     \end{tabular}
     \caption{前端技术栈}
@@ -1573,7 +1570,7 @@ WHERE
 \chapter{总结}
 \label{sec:conclusion}
 
-在本次项目中，我们设计了一个有关Covid(新冠病毒)的论文查询网站，实现了对千万级别数据库的高效查询功能与用户的收藏订阅。我们首先设计了数据库，然后使用Python对数据进行处理，将数据导入到数据库中。数据库设计中，我们使用了PostgreSQL作为数据库，编写了数十个SQL查询语句，并使用pgSQL编写了存储过程和函数。开发方面，我们使用了C\#作为后端语言，集成了ASP.NET Core框架；使用TypeScript作为前端语言，集成了React框架。平台方面，我们使用了阿里云服务器进行部署，使用Ubuntu作为操作系统，使用Docker作为应用程序平台，成功将可执行文件发布到Docker Hub，并集成Github Actions实现自动化部署。调优方面，我们对数据库进行了调优，包括对表结构的优化、对SQL语句的优化、对索引的优化等，以提高查询效率。最终，我们成功高效实现了整个网站，并对其进行了合理的性能测试，达到了预期的效果。项目丰富了我们的数据库设计、数据处理、前后端开发、平台部署、调优等方面的经验，是一次十分有意义的实践。
+在此项目中，我们设计了一个有关Covid(新冠病毒)的论文查询网站，实现了对千万级别数据库的高效查询功能与用户的收藏订阅。我们首先设计了数据库，然后使用Python对数据进行处理，将数据导入到数据库中。数据库设计中，我们使用了PostgreSQL作为数据库，编写了数十个SQL查询语句，并使用pgSQL编写了存储过程和函数。开发方面，我们使用了C\#作为后端语言，集成了ASP.NET Core框架；使用TypeScript作为前端语言，集成了React框架。平台方面，我们使用了阿里云服务器进行部署，使用Ubuntu作为操作系统，使用Docker作为应用程序平台，成功将可执行文件发布到Docker Hub\footnote{\url{https://hub.docker.com/r/pdli/covidlit-search}}，并集成Github Actions实现自动化部署。调优方面，我们对数据库进行了调优，包括对表结构的优化、对SQL语句的优化、对索引的优化等，以提高查询效率。最终，我们成功高效实现了整个网站\footnote{\url{https://covidlit-search.pdli.site}}，并对其进行了合理的性能测试，达到了预期的效果。项目丰富了我们的数据库设计、数据处理、前后端开发、平台部署、调优等方面的经验，是一次十分有意义的实践。
 
 \newpage
 
@@ -1586,31 +1583,31 @@ WHERE
 
 \begin{figure}[H]
   \dirtree{%
-      .1 process\_data.
+      .1 DBProject.
       .2 archive/\DTcomment{图 \ref{fig:dataset} 所示的数据集}.
-      .2 output/.
-      .3 deduplicated/\DTcomment{去重后的数据}.
-      .2 article.py\DTcomment{文献所包含的类}.
-      .2 main.py\DTcomment{主程序}.
-      .2 requirements.txt\DTcomment{依赖}.
+      .2 data\_process.
+      .3 output/.
+      .4 deduplicated/\DTcomment{去重后的数据}.
+      .3 article.py\DTcomment{文献所包含的类}.
+      .3 main.py\DTcomment{主程序}.
+      .3 requirements.txt\DTcomment{依赖}.
+      .3 README.md\DTcomment{使用说明}.
+      .2 backend/\DTcomment{后端代码}.
+      .3 README.md\DTcomment{使用说明}.
+      .3 $\dots$.
+      .2 frontend/\DTcomment{前端代码}.
+      .3 README.md\DTcomment{使用说明}.
+      .3 $\dots$.
+      .2 test/\DTcomment{测试代码}.
+      .3 test-sample.sql.
+      .3 test-sample.out.
+      .3 test-production.sql.
+      .3 test-production.out.
+      .2 README.md\DTcomment{总使用说明}.
   }
   \caption{所附代码文件结构}
   \label{fig:processData}
 \end{figure}
-
-使用方法：
-
-\begin{enumerate}
-  \item 下载数据集
-  \item 安装依赖：
-\begin{lstlisting}[language=bash]
-pip install -r requirements.txt
-\end{lstlisting}
-  \item 运行\texttt{main.py}。
-\begin{lstlisting}[language=bash]
-python main.py
-\end{lstlisting}
-\end{enumerate}
 
 \newpage
 
