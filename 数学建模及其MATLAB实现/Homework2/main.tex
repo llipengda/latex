@@ -1,0 +1,215 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[a4paper, body={18cm,22cm}]{geometry}
+\usepackage{amsmath,amssymb,amstext,wasysym,enumerate,graphicx}
+\usepackage{float,abstract,booktabs,indentfirst,amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{diagbox}
+\renewcommand\arraystretch{1.4}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\usepackage{enumerate}
+\setmonofont{Consolas}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{tkz-euclide}
+\usepackage{pgfplots}
+\usepackage{amsmath}
+\usepackage{ulem}
+
+\setfontfamily{\timesfont}{Times New Roman}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+
+\begin{document}
+
+\begin{center}
+    \LARGE \textbf{\heiti 《数学建模及其{\timesfont MATLAB}实现》第二次课程作业} \\[0.5em]
+    \large 李鹏达 10225101460
+\end{center}
+
+~\\
+
+学校共1000名学生,235人住在A宿舍,333人住在B宿舍,432人住在C宿舍.学生们要组织一个10人委员会,试用下列办法分配各宿舍的委员数:
+
+\begin{enumerate}
+    \item 按比例分配取整数的名额后,剩下的名额按惯例分给小数部分较大者.
+    \item 书中的 $Q$ 值方法.
+    \item d'Hondt方法:将A, B, C各宿舍的人数用正整数相除，其商数如下表：
+    
+\begin{center}
+    \begin{tabular}{|ccccccc|}
+    \hline
+    & 1 & 2 & 3 & 4 & 5 & $\dots$ \\
+    \hline
+    A & \underline{235} & \underline{117.5} & 78.3 & 58.75 & $\dots$ & $\dots$ \\
+    B & \underline{333} & \underline{166.5} & \underline{111} & 83.25 & $\dots$ & $\dots$ \\
+    C & \underline{432} & \underline{216} & \underline{144} & \underline{108} & \underline{86.4} & $\dots$ \\
+    \hline
+    \end{tabular}
+\end{center}
+
+将所得商数从大到小取前在10个(10为席位数),数字下标以横线,表中A, B, C行有横线的数分别为2, 3, 5,这就是3个宿舍分配的席位.你能解释这种方法的道理吗?
+\end{enumerate}
+
+如果委员会从10人增至15人,用以上3种方法再分配名额.将3种方法两次分配的结果列表比较.\\
+
+\noindent{\heiti 解答:}\\
+
+\noindent(一)试用下列办法分配各宿舍的委员数.
+
+\begin{enumerate}
+    \item 按比例分配取整数的名额后,剩下的名额按惯例分给小数部分较大者.
+    
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    宿舍 & 学生人数 & 比例(\%) & 比例分配的席位 & 参照惯例的结果 \\
+    \hline
+    A & 235 & 23.5 & 2.35 & \red{3} \\
+    \hline
+    B & 333 & 33.3 & 3.33 & 3 \\
+    \hline
+    C & 432 & 43.2 & 4.32 & 4 \\
+    \hline
+    总和 & 1000 & 100 & 10 & 10 \\
+    \hline
+    \end{tabular}
+\end{center}
+
+按比例分配取整数的名额后, A, B, C三宿舍的席位为2, 3, 4, 小数部分 $0.35>0.33>0.32$, 所以将剩下的名额分给小数部分较大者, 即 A 宿舍增加一个名额, 最终结果为 3, 3, 4.
+
+\item 书中的 $Q$ 值方法.
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    宿舍 & 学生人数 & 比例(\%) & 比例分配的席位 & $Q$($Q_i=\frac{p_i^2}{n_i(n_i+1)}$) & 结果 \\
+    \hline
+    A & 235 & 23.5 & 2.35 & 9204.17 & 2 \\
+    \hline
+    B & 333 & 33.3 & 3.33 & 9240.75 & 3 \\
+    \hline
+    C & 432 & 43.2 & 4.32 & 9331.2 & \red{5} \\
+    \hline
+    总和 & 1000 & 100 & 10 & / & 10 \\
+    \hline
+    \end{tabular}
+\end{center}
+
+按比例分配取整数的名额后, A, B, C三宿舍的席位为2, 3, 4, 根据公式 $Q_i=\frac{p_i^2}{n_i(n_i+1)}$, 计算出 $Q$ 值分别作为 9204.17, 9240.75, 9331.2, 将剩余的席位分配给 $Q$ 值最大的宿舍C, 最终结果为 2, 3, 5.
+
+\item d'Hondt方法.
+
+这种方法在每一轮次中计算商数 $$quot = \frac{P}{s+1}$$
+
+其中, $P$ 为该宿舍的人数, $s$ 为该宿舍已拥有的席位数. 每一轮次中,将商数最大的宿舍分配一个席位,然后重新计算该宿舍的商数,进行下一轮次的分配. 重复这个过程,直到分配完所有的席位.
+
+比较显然的是,某个宿舍在获得一个席位后,其$s$会增加,从而导致下一轮次的商数减小,在下一轮次中更难获得席位. 
+
+在这种算法下,由于我们总是选择商数更大的宿舍,而 $s$ 不断增加,这种方法可以使最小的单位席位数代表的人数($\min_i{\frac{P}{s_i}}$)尽可能大,从而使得分配结果更加公平.
+
+这种方法不满足准则一,反例如下:
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    单位 & 人数 & 比例(\%) & 结果 \\
+    \hline
+    1 & 936 & \red{93.6} & \red{95} \\
+    \hline
+    2 & 47 & 4.7 & 4 \\
+    \hline
+    3 & 17 & 1.7 & 1 \\
+    \hline
+    总和 & 1000 & 100 & 100 \\
+    \hline
+    \end{tabular}
+\end{center}
+
+这种方法满足准则二,因为如果增加席位数,在分配时只会增加从大到小取商数的个数,不会出现比增加席位数之前分配的席位数更少的情况.
+
+\end{enumerate}
+
+\noindent (二)如果委员会从10人增至15人,用以上3种方法再分配名额.将3种方法两次分配的结果列表比较.
+
+\begin{enumerate}
+    \item 比例加惯例
+
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        宿舍 & 学生人数 & 比例(\%) & 比例分配的席位 & 参照惯例的结果 \\
+        \hline
+        A & 235 & 23.5 & 3.52 & \red{4} \\
+        \hline
+        B & 333 & 33.3 & 5 & 5 \\
+        \hline
+        C & 432 & 43.2 & 6.48 & 6 \\
+        \hline
+        总和 & 1000 & 100 & 15 & 15 \\
+        \hline
+        \end{tabular}
+    \end{center}
+    
+    \item $Q$ 值法
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        宿舍 & 学生人数 & 比例(\%) & 比例分配的席位 & $Q$($Q_i=\frac{p_i^2}{n_i(n_i+1)}$) & 结果 \\
+        \hline
+        A & 235 & 23.5 & 3.52 & 4602.08 & \red{4} \\
+        \hline
+        B & 333 & 33.3 & 5 & 3696.3 & 5 \\
+        \hline
+        C & 432 & 43.2 & 6.48 & 4443.43 & 6 \\
+        \hline
+        总和 & 1000 & 100 & 15 & / & 15 \\
+        \hline
+        \end{tabular}
+    \end{center}
+    \item d'Hondt方法
+    
+    \begin{center}
+        \begin{tabular}{|ccccccccc|c|}
+        \hline
+        & 1 & 2 & 3 & 4 & 5 & 6 &7& $\dots$ & 席位数 \\
+        \hline
+        A & \underline{235} & \underline{117.5} & \underline{78.3} & 58.75 & 47 & $\dots$ & $\dots$& $\dots$ & 3 \\
+        B & \underline{333} & \underline{166.5} & \underline{111} & \underline{83.25} & \underline{66.6} &55.5 & $\dots$& $\dots$ & 5 \\
+        C & \underline{432} & \underline{216} & \underline{144} & \underline{108} & \underline{86.4} & \underline{72} & \underline{61.71} & $\dots$ & \red{7} \\
+        \hline
+        \end{tabular}
+    \end{center}
+\end{enumerate}
+
+对比如下表所示:
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+    宿舍 & 学生人数 & 比例(\%)& \makecell{10 席\\比例席位} & \makecell{比例\\加惯例} & $Q$值法 & \makecell{d'Hondt\\方法} & \makecell{15 席\\比例席位} & \makecell{比例\\加惯例} & $Q$值法 & \makecell{d'Hondt\\方法} \\
+    \hline
+    A & 235 & 23.5 &2.35 & \red{3}&2 & 2&  3.52 & \red{4} & \red{4} & 3 \\
+    \hline
+    B & 333 & 33.3 &3.33 & 3&3 & 3&  5 & 5 & 5 & 5 \\
+    \hline
+    C & 432 & 43.2 & 4.32& 4& \red{5}&\red{5} &  6.48 & 6 & 6 & \red{7} \\
+    \hline
+    总和 & 1000 & 100 & 10& 10&10 &10 &  15 & 15 & 15 & 15 \\
+    \hline
+    \end{tabular}
+\end{center}
+
+值得注意的一点是, d'Hondt方法倾向于将剩余席位分配给人数更多的宿舍(事实上,这种分配方式在现实世界的选举中常用于分配议会席位,它对大党有利,可以鼓励团结,减少碎片化).
+
+\end{document}
