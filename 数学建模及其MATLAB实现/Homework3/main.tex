@@ -1,0 +1,210 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[a4paper, body={18cm,22cm}]{geometry}
+\usepackage{amsmath,amssymb,amstext,enumerate,graphicx}
+\usepackage{float,abstract,booktabs,indentfirst,amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{diagbox}
+\renewcommand\arraystretch{1.4}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\usepackage{enumerate}
+\setmonofont{Consolas}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{tkz-euclide}
+\usepackage{pgfplots}
+
+\setfontfamily{\timesfont}{Times New Roman}
+
+\begin{document}
+
+\newcommand{\titem}[1]{
+~\\
+\begin{itemize}
+    \item \heiti \large {#1}
+\end{itemize}
+}
+
+\newcommand{\bb}[1]{{\heiti {#1}}}
+
+\renewcommand{\d}{\mathrm{d}}
+
+\title{《数学建模及其MATLAB实现》第三次课程作业}
+\author{李鹏达}
+    
+
+\begin{center}
+    \LARGE \textbf{\heiti 《数学建模及其{\timesfont MATLAB}实现》第三次课程作业 \\ \Large {不买贵的\ 只买对的}} \\[0.5em]
+    \large 李鹏达 10225101460
+\end{center}
+
+\titem{效用函数}
+
+在经济学中,使用\bb{效用}来描述人们商品消费、服务消费所获得的生理、心理上的满足程度.我们使用\bb{效用函数} $U(x)$来表示某种商品数量$x$所带来的效用.效用函数$U(x)$的变化率$\frac{\mathrm{d} U(x)}{\mathrm{d} x}$称为\bb{边际效用},它表示商品数量$x$ 增加一个单位时效用函数的增量.
+
+式\ref{eq:1} 是一个典型的效用函数表达式.
+
+\begin{equation}
+    U(x) = ax^\alpha, a > 0, 0 < \alpha < 1
+    \label{eq:1}
+\end{equation}
+
+在理性消费的情况下,效用函数和边际效用有以下性质:
+
+\begin{enumerate}
+    \item \begin{equation}
+        \frac{\mathrm{d} U}{\mathrm{d} x} > 0
+    \end{equation}
+    \item \bb{边际效用递减} \begin{equation}
+        \frac{\mathrm{d}^2 U}{\mathrm{d} x^2} < 0
+    \end{equation}
+\end{enumerate}
+
+\titem{无差别曲线}
+
+我们可以用$U(x,y)$表示两种商品的组合效用函数,其中$x,y$分别表示两种商品的数量.在$x-y$平面上,将一系列$U(x,y)$相等的点连结,就得到了\bb{无差别曲线}.在同一条无差别曲线上,线上的所有点对应的效用函数都等于同一个常数$u$.
+
+两种商品的效用函数$U(x, y)$也具有效用函数和边际效用的性质.
+
+\begin{enumerate}
+    \item \begin{equation}
+        \frac{\partial U}{\partial x} > 0, \frac{\partial U}{\partial y} > 0
+    \end{equation}
+    \item \begin{equation}
+        \frac{\partial^2 U}{\partial x^2} < 0, \frac{\partial^2 U}{\partial y^2} < 0
+    \end{equation}
+\end{enumerate}
+
+式\ref{eq:2} 是一个典型的两种商品的效用函数表达式.
+
+\begin{equation}
+    U(x, y) = ax^\alpha y^\beta, a > 0, 0 < \alpha, \beta < 1
+    \label{eq:2}
+\end{equation}
+
+无差别曲线有以下性质:
+
+\begin{enumerate}
+    \item \bb{下降(斜率为负)}
+    
+    因为$U(x,y)=u$不变,所以\(x\) 增加时, \(y\) 必须减少,以保持效用不变. \(x\) 增加一个单位时, \(y\) 减少的单位数称为$x$对$y$的\bb{边际替代率}.
+
+    考虑无差别曲线上一点\( (x,y) \), 边际替代率可以用 \(-\frac{\Delta y}{\Delta x}\) 表示, 当 $ \Delta x \to 0 $ 时, $ \frac{\Delta y}{\Delta x} \to \frac{\d y}{\d x} $. 当使用 $ \Delta x $ 替换 $ -\Delta y $ 时, 效用不变,即 $ \frac{\partial U}{\partial x}\Delta x = - \frac{\partial U}{\partial y} \Delta y $,于是
+
+    \begin{equation}
+        \frac{\d y}{\d x} = -\frac{\partial U/\partial x}{\partial U/\partial y} < 0
+    \end{equation}
+
+    \item \bb{下凸(凸向原点)}
+    
+    随着$x$ 增加, $x$对$y$的边际替代率递减,即
+
+    \begin{equation}
+        \frac{\d}{\d x}\left( - \frac{\d y}{\d x} \right) < 0
+    \end{equation}
+
+    所以有
+
+    \begin{equation}
+        \frac{\d^2 y}{\d x^2} > 0
+    \end{equation}
+
+
+    \item \bb{互不相交}
+    
+    如果两条无差别曲线 $U(x,y)=u_1$ 和 $U(x,y)=u_2 (u_1 \ne u_2)$ 相交, 则在交点处, 两个效用函数相等,即 $u_1 = u_2$, 这与假设矛盾. 所以两条无差别曲线互不相交.
+    
+
+\end{enumerate}
+
+\titem{效用最大化模型}
+
+设有两种商品甲、乙,单价的分别为$p_1, p_2$,消费者准备付出的钱为$s$,效用函数为$U(x, y)$,则消费者的效用最大化模型可以表示为
+
+\begin{equation}
+    \begin{aligned}
+        &\max U(x, y) \\
+        &\text{s.t.} \quad p_1x + p_2y = s
+    \end{aligned}
+\end{equation}
+
+引入拉格朗日乘子$\lambda$,构造
+
+\begin{equation}
+    L(x, y, \lambda) = U(x, y) - \lambda(p_1x + p_2y - s)
+\end{equation}
+
+由
+
+\begin{equation}
+        \frac{\partial L}{\partial x} = 0, \quad \frac{\partial L}{\partial y} = 0, \quad \frac{\partial L}{\partial \lambda} = 0
+\end{equation}
+
+可以得到
+
+\begin{equation}
+        \frac{\partial U}{\partial x} - \lambda p_1 = 0, \quad \frac{\partial U}{\partial y} - \lambda p_2 = 0, \quad p_1x + p_2y = s
+\end{equation}
+
+解得
+
+\begin{equation}
+    \lambda = \frac{\partial U/\partial x}{p_1} = \frac{\partial U/\partial y}{p_2}
+\end{equation}
+
+所以当
+
+\begin{equation}
+    \frac{\partial U/ \partial x}{\partial U/ \partial y} = \frac{p_1}{p_2}
+\end{equation}
+
+时,可以取得最优解.此时,两种商品的边际效用比等于两种商品的价格比.
+
+这个模型可以推广到$n$种商品的情况,即
+
+\begin{equation}
+    \begin{aligned}
+        &\max U(x_1, x_2, \cdots, x_n) \\
+        &\text{s.t.} \quad p_1x_1 + p_2x_2 + \cdots + p_nx_n = s
+    \end{aligned}
+\end{equation}
+
+此时,效用最大化的条件为
+
+\begin{equation}
+    \frac{\partial U/ \partial x_1}{p_1} = \frac{\partial U/ \partial x_2}{p_2} = \cdots = \frac{\partial U/ \partial x_n}{p_n}
+\end{equation}
+
+\titem{不买贵的,只买对的}
+
+在实际问题中,我们需要确定消费者对各商品的效用函数或边际效用,进而使用效用最大化模型确定消费者的最优消费组合.我们可以通过两种方法确定消费者的效用函数或边际效用.
+
+第一种方法是基于效用函数的权重比例分配法.
+
+假设效用函数为 \( U(x_1, x_2, x_3) = a x_1^{\alpha} x_2^{\beta} x_3^{\gamma} \),其中各参数满足 \( a > 0 \) 且 \( 0 < \alpha, \beta, \gamma < 1 \).
+根据消费者对不同商品的偏好程度确定参数 \( \alpha, \beta, \gamma \),然后通过效用最大化条件,使得不同商品的边际效用与价格的比例相等,即满足
+\[
+p_1 x_1 : p_2 x_2 : p_3 x_3 = \alpha : \beta : \gamma.
+\]
+根据这个比例分配预算,从而确定各商品的购买量.
+
+第二种方法是基于边际效用递增分析法.
+
+首先确定消费者对每单位商品带来的效用增量,即计算边际效用,反映消费者的偏好程度.
+将每种商品的边际效用除以该商品的价格,用以衡量效用增加的性价比.
+然后通过这种性价比最大化原则分配预算,以实现效用最大化.
+
+
+
+\end{document}

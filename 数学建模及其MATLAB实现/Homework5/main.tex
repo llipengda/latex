@@ -1,0 +1,106 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[a4paper, body={18cm,22cm}]{geometry}
+\usepackage{amsmath,amssymb,amstext,enumerate,graphicx}
+\usepackage{float,abstract,booktabs,indentfirst,amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{diagbox}
+\renewcommand\arraystretch{1.4}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\usepackage{enumerate}
+\setmonofont{Consolas}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{makecell}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{tkz-euclide}
+\usepackage{pgfplots}
+\setfontfamily{\timesfont}{Times New Roman}
+
+\begin{document}
+
+\newcommand{\titem}[1]{
+~\\
+\begin{itemize}
+    \item \heiti \large {#1}
+\end{itemize}
+}
+
+\newcommand{\bb}[1]{{\heiti {#1}}}
+
+\renewcommand{\d}{\mathrm{d}}
+
+\newcommand{\cf}[1]{$^{#1}\textrm{C}$}
+
+\title{《数学建模及其MATLAB实现》第五次课程作业}
+\author{李鹏达}
+    
+
+\begin{center}
+    \LARGE \textbf{\heiti 《数学建模及其{\timesfont MATLAB}实现》第五次课程作业} \\[0.5em]
+    \large 李鹏达 10225101460
+\end{center}
+
+考古专家如何判定一件文物的年代？收藏家如何鉴别一件画作、字帖、艺术品等的真伪？
+通常使用放射性元素测年方法.
+
+请做一个调研，寻找一个艺术品或文物鉴别的案例，然后详细分析其中的微分方程建模及求解过程.
+
+\titem{案例}
+
+2021年3月23日上午，据央视新闻消息，四川省文物考古研究院联合北京大学对6个坑的73份炭屑样品使用碳14年代检测方法进行了分析，对年代分布区间进行了初步判定。其中K4坑年代最有可能是在公元前1199年至公元前1017年，也就是距今约3200年至3000年，这就印证了三星堆新发现的4号坑碳14检测的年代区间属于商代晚期。
+
+\titem{分析}
+
+\cf{14} 测年法的原理基于 \cf{14} 同位素的放射性衰变. \cf{14}测年法利用\cf{14}的放射性衰变原理来测定有机物的年龄. \cf{14}在生物体内与\cf{12}保持一定比例，但在生物死亡后，\cf{14}开始衰变成 $^{14}\textrm{N}$.通过测量样品中\cf{14}与\cf{12}的比值，结合\cf{14}的半衰期，可以推算出样品的年龄.
+
+放射性同位素衰变时，单位时间内衰变的同位素数量与同位素的数量成正比，这个关系可以用微分方程表示为
+\begin{equation*}
+    \frac{\d N}{\d t} = -\lambda N
+\end{equation*}
+
+其中， $N$ 为同位素的数量，$\lambda$ 为衰变常数.
+
+设 $N_0$ 为初始时刻的同位素数量，$N(t)$ 为 $t$ 时刻的同位素数量，那么该微分方程的解为
+\begin{equation*}
+    N(t) = N_0 e^{-\lambda t}
+\end{equation*}
+
+对于 \cf{14}，其半衰期为 5730 年，即 
+$$
+\begin{aligned}
+    N(5730) &= N_0 e^{-5730\lambda} = \frac{1}{2} N_0 \\
+    \lambda &= \frac{\ln 2}{5730}
+\end{aligned}
+$$
+
+假设被测样品的 \cf{14}/\cf{12} 原始比值与大气中的 \cf{14}/\cf{12} 比值 $r$ 相同，即 $N_{0}/N_{12} = r$，那么
+$$
+\begin{aligned}
+    N(t) &= N_0 e^{-\lambda t} \\
+    &= r N_{12} e^{-\lambda t} \\
+\end{aligned}
+$$
+
+即
+$$
+\begin{aligned}
+    \frac{N(t)}{N_{12}} &= r e^{-\lambda  t} \\
+    &= r e^{-\lambda t} \\
+    t &= -\frac{1}{\lambda} \ln \frac{N(t)}{r N_{12}} \\
+    &= \frac{5730}{\ln 2} \ln \frac{r N_{12}}{N(t)}
+\end{aligned}
+$$
+
+因此，通过测量样品中 \cf{14}/\cf{12} 的比值，结合大气中的 \cf{14}/\cf{12} 比值，可以推算出样品的年龄.
+
+\end{document}
