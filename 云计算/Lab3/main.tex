@@ -1,0 +1,1744 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage[a4paper, body={18cm,22cm}]{geometry}
+\usepackage{amsmath,amssymb,amstext,wasysym,enumerate,graphicx}
+\usepackage{float,abstract,booktabs,indentfirst,amsmath}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{subfigure}
+\usepackage[xetex,pagebackref]{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage{accsupp}
+\newcommand\emptyaccsupp[1]{\BeginAccSupp{ActualText={}}#1\EndAccSupp{}}
+\setlength{\parindent}{2em}
+\renewcommand\arraystretch{1.4}
+\setmonofont{DejaVu Sans Mono}
+\setCJKmonofont{黑体}
+% \usepackage{array}
+% \usepackage{booktabs}
+% \usepackage{url}
+% \usepackage{diagbox}
+% \usepackage{makecell}
+% \usepackage{tikz}
+% \usepackage{subcaption}
+% \usetikzlibrary{positioning, arrows.meta}
+\hypersetup{CJKbookmarks=true,colorlinks=true,citecolor=blue,%
+            linkcolor=blue,urlcolor=blue,bookmarksnumbered=true,%
+            bookmarksopen=true,breaklinks=true}
+\lstset{
+    % language = C,
+    xleftmargin = 3em,xrightmargin = 3em, aboveskip = 1em,
+	backgroundcolor = \color{white}, % 背景色
+	basicstyle = \small\ttfamily, % 基本样式 + 小号字体
+	rulesepcolor= \color{gray}, % 代码块边框颜色
+	breaklines = true, % 代码过长则换行
+	numbers = left, % 行号在左侧显示
+	numberstyle = \small\emptyaccsupp, % 行号字体
+    numbersep = -14pt, 
+    keywordstyle=\color{purple}\bfseries, % 关键字颜色
+    commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+    stringstyle = \color{red}, % 字符串颜色
+    morekeywords={ASSERT, int64_t, uint32_t},
+	frame = shadowbox, % 用(带影子效果)方框框住代码块
+	showspaces = false, % 不显示空格
+    showstringspaces = false,
+	columns = fixed, % 字间距固定
+    literate=
+        {^+}{{{\color{black}\textbf{+}}\colorbox{green!30}{\phantom{XX}}}}1
+        {+\t}{{{\color{black}\textbf{+}}\colorbox{green!30}{\phantom{XX}}}}1,
+}
+\newcommand{\notebox}[2][NOTE]{%
+    \begin{tcolorbox}[
+        colback=cyan!5!white,          
+        colframe=cyan!50!black,       
+        fonttitle=\bfseries\large,   
+        coltitle=white,               
+        title=#1,
+        rounded corners,              
+        boxrule=1.5pt,                
+        width=\textwidth,            
+        drop shadow=black!30,         
+        enhanced,                  
+    ]
+    #2
+    \end{tcolorbox}
+}
+\newenvironment{enum}{
+    \begin{enumerate}[label=(\arabic*), noitemsep]
+}{
+    \end{enumerate}
+}
+\newcommand{\img}[3][0.9]{%
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=#1\textwidth]{img/#2.png}
+        \caption{#3}
+    \end{figure}
+}
+\newcommand{\imgtwo}[4][0.45]{%
+    \begin{figure}[H]
+        \centering
+        \subfigure{
+            \includegraphics[width=#1\textwidth]{img/#2.png}
+        }
+        \subfigure{
+            \includegraphics[width=#1\textwidth]{img/#3.png}
+        }
+        \caption{#4}
+    \end{figure}
+}
+\newcommand{\imgthree}[6][0.9]{%
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=#1\textwidth]{img/#3.png}
+        \subfigure{
+            \includegraphics[width=#2\textwidth]{img/#4.png}
+            \includegraphics[width=#2\textwidth]{img/#5.png}
+        }
+        \caption{#6}
+    \end{figure}
+}
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}}
+\setcounter{secnumdepth}{4} 
+\setcounter{tocdepth}{4}
+%--------------------页眉--------------------%
+\pagestyle{fancy}
+\fancyhead[L]{}
+\fancyhead[R]{}
+\fancyhead[C]{华东师范大学软件工程学院实验报告}
+\fancyfoot[C]{-\thepage-}
+\renewcommand{\headrulewidth}{1.5pt}
+%--------------------标题--------------------%
+\begin{document}
+
+\newcommand{\courseName}{Cloud Computing}
+\newcommand{\labName}{Headoop 搭建}
+\newcommand{\studentName}{李鹏达}
+\newcommand{\studentID}{10225101460}
+\newcommand{\grade}{2022级}
+\newcommand{\labNo}{No. 3}
+\newcommand{\labDate}{2024年12月18日}
+\newcommand{\labTime}{第15 - 16周}
+
+\begin{center}
+    \LARGE{{\textbf{\heiti 华东师范大学软件工程学院实验报告}}}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{cp{3cm}<{\centering}ccp{3cm}<{\centering}ccp{3.5cm}<{\centering}}
+            实验课程:    & \courseName & \quad & 年\qquad 级: & \grade & \quad & 实验成绩: &  \\
+            \cline{2-2} \cline{5-5} \cline{8-8}
+            实验名称:    & \labName & \quad & 姓\qquad 名:    & \studentName & \quad & 实验日期: & \labDate
+            \\ \cline{2-2} \cline{5-5} \cline{8-8}
+            实验编号: &   \labNo   & \quad & 学\qquad 号: & \studentID & \quad & 实验时间: & \labTime\\ \cline{2-2} \cline{5-5} \cline{8-8}
+        \end{tabular}
+    \end{table}
+\end{center}
+\rule{\textwidth}{1pt}
+%--------------------正文--------------------%
+\section{实验内容}
+
+\begin{itemize}[noitemsep]
+    \item Linux系统安装及配置
+    \item Hadoop单例模式搭建
+    \item Hadoop伪分布式模式搭建
+    \item 虚拟机克隆及相关网络配置
+    \item 集群时间同步
+    \item Hadoop集群模式部署
+    \item MapReduce案例应用
+\end{itemize}
+
+\section{实验关键步骤}
+
+\subsection{Linux 系统的安装及配置}
+
+\subsubsection{安装Linux系统}
+
+\subsubsubsection{创建虚拟机}
+
+\notebox{
+    由于在实验一中已经安装了Oracle VirtualBox虚拟机平台，因此，我选择使用VirtualBox创建虚拟机，而不是实验手册中的VMware Workstation。
+}
+
+\begin{enum}
+    \item 新建一个虚拟机，名称为 \texttt{lipengda001}
+    \item 将虚拟光盘选择为预先下载好的 \texttt{CentOS7} 映像，勾选“跳过自动安装”。
+    \item 为虚拟机分配 2GB 内存，20GB 硬盘空间。
+\end{enum}
+
+\imgthree{0.45}{1.1.1.1}{1.1.1.2}{1.1.1.3}{创建虚拟机}
+
+\subsubsubsection{启动虚拟机}
+
+启动虚拟机，选择 \texttt{Install CentOS Linux 7} 安装系统。
+
+\img[0.5]{1.1.2.1}{安装系统(1)}
+
+在软件选择中，选择 “最小安装”。
+
+\notebox{
+    为减少资源占用并加快安装速度，我在此处选择了“最小安装”，而不是“带GUI的服务器”。
+}
+
+\img[0.5]{1.1.2.2}{安装系统(2)}
+
+设置 root 账户密码。
+
+\img[0.5]{1.1.2.3}{安装系统(3)}
+
+等待系统安装完成。
+
+\subsubsection{Linux 系统相关配置}
+
+\subsubsubsection{网络配置}
+
+\begin{enum}
+    \item 输入命令 \texttt{ip addr} 查看网络配置。
+    
+    \begin{lstlisting}[language=bash]
+    ip addr
+    \end{lstlisting}
+
+    \img{1.2.1.1}{查看网络配置}
+
+    可以看到，我的网卡名称叫 \texttt{enp0s3}。
+
+    \item 查看网卡 IP 信息的配置文件。
+    
+    \begin{lstlisting}[language=bash]
+    ls /etc/sysconfig/network-scripts/
+    \end{lstlisting}
+
+    \img{1.2.1.2}{查看配置文件}
+
+    可以看到，网卡配置文件为 \texttt{ifcfg-enp0s3}。
+
+    \item 查看网卡配置文件。
+    
+    \begin{lstlisting}[language=bash]
+    cat /etc/sysconfig/network-scripts/ifcfg-enp0s3
+    \end{lstlisting}
+
+    \img{1.2.1.3}{查看网卡配置文件}
+
+    \item 修改网卡配置文件，将 \texttt{ONBOOT} 的值改为 \texttt{yes}。
+    
+    \begin{lstlisting}[language=bash]
+    vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+    \end{lstlisting}
+
+    \img{1.2.1.4}{修改网卡配置文件}
+
+    \item 重启网络服务。
+    
+    \begin{lstlisting}[language=bash]
+    service network restart
+    \end{lstlisting}
+
+    \item 再次查看网络配置。
+    
+    \begin{lstlisting}[language=bash]
+    ip addr
+    \end{lstlisting}
+
+    \img{1.2.1.5}{查看网络配置}
+
+    可以看到，分配的 IP 地址为 \texttt{192.168.1.111}。
+
+    \item 再次修改网卡配置文件，将 \texttt{BOOTPROTO} 的值改为 \texttt{static}，并添加 \texttt{IPADDR}、\texttt{NETMASK}、\texttt{GATEWAY} 等字段，将IP地址设置为 \texttt{192.168.1.111}。
+    
+    \begin{lstlisting}[language=bash]
+    vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+    \end{lstlisting}
+
+    \img[0.8]{1.2.1.6}{修改网卡配置文件}
+
+    \item 重启网络服务。
+    
+    \begin{lstlisting}[language=bash]
+    service network restart
+    \end{lstlisting}
+
+    \item 查看网络配置，确认配置成功。
+    
+    \begin{lstlisting}[language=bash]
+    ip addr
+    \end{lstlisting}
+
+    \img[0.8]{1.2.1.7}{查看网络配置}
+
+    \item 测试网络连通性。
+    
+    \begin{lstlisting}[language=bash]
+    ping 192.168.1.111
+    \end{lstlisting}
+
+    \img{1.2.1.8}{测试网络连通性}
+\end{enum}
+
+\subsubsubsection{修改主机名}
+
+\begin{enum}
+    \item 查看主机名。
+    
+    \begin{lstlisting}[language=bash]
+    hostname
+    \end{lstlisting}
+
+    \img{1.2.2.1}{查看主机名}
+
+    \item 修改主机名。
+    
+    \begin{lstlisting}[language=bash]
+    vi /etc/sysconfig/network
+    \end{lstlisting}
+
+    设置 \texttt{NETWORKING} 为 \texttt{yes}，\texttt{HOSTNAME} 为 \texttt{lipengda001}。
+
+    \img{1.2.2.2}{修改主机名}
+
+    \begin{lstlisting}[language=bash]
+    hostnamectl set-hostname lipengda001
+    \end{lstlisting}
+
+    \notebox{
+        此处实验手册有误，在 \texttt{CentOS7} 中，\texttt{/etc/sysconfig/network} 文件中的 \texttt{HOSTNAME} 字段已经被废弃。该项配置已经被移动到 \texttt{/etc/hostname} 文件中。使用 \texttt{hostnamectl} 命令修改主机名是一个更好的选择。
+
+        \img{1.2.2.3}{\texttt{/usr/share/doc/initscripts-9.49.53/sysconfig.txt}中的说明}
+    }
+
+    \item 重启虚拟机。
+    
+    \begin{lstlisting}[language=bash]
+    reboot
+    \end{lstlisting}
+
+    \item 查看主机名是否修改成功。
+
+    \begin{lstlisting}[language=bash]
+    hostname
+    \end{lstlisting}
+
+    使用 \texttt{ping} 命令进行验证。
+
+    \begin{lstlisting}[language=bash]
+    ping lipengda001
+    \end{lstlisting}
+
+    \img{1.2.2.4}{验证主机名修改成功}
+\end{enum}
+
+\subsubsubsection{建立IP地址与虚拟机名称的对应关系}
+
+修改域名解析映射文件，使得后续可以直接通过主机名访问。
+
+\begin{lstlisting}[language=bash]
+    vi /etc/hosts
+\end{lstlisting}
+
+在文件中添加 \texttt{192.168.1.111 lipengda001}。
+
+\img{1.2.3.1}{修改域名解析映射文件}
+
+\subsubsubsection{Linux系统与Windows系统进行网络通讯}
+
+\begin{enum}
+    \item 在 Windos 系统中，使用 \texttt{ping} 命令测试与 Linux 系统的网络连通性。
+    
+    \begin{lstlisting}[language=bash]
+    ping 192.168.1.111
+    \end{lstlisting}
+
+    \img{1.2.4.1}{Windows系统与Linux系统网络连通性测试}
+
+    \item 在 Windos 端，尝试 \texttt{ping} 主机名 \texttt{lipengda001}。
+    
+    \begin{lstlisting}[language=bash]
+    ping lipengda001
+    \end{lstlisting}
+
+    显示无法解析主机名。
+
+    \img{1.2.4.2}{Windows系统无法解析主机名}
+
+    因此，需要在 Windows 系统中修改 \texttt{hosts} 文件(位于
+    \texttt{C:\textbackslash Windows\textbackslash System32\textbackslash drivers\textbackslash etc})，添加 \texttt{192.168.1.111 lipengda001}。
+
+    \img{1.2.4.3}{修改Windows系统hosts文件}
+
+    再次尝试 \texttt{ping} 主机名 \texttt{lipengda001}。
+
+    \begin{lstlisting}[language=bash]
+    ping lipengda001
+    \end{lstlisting}
+
+    \img{0.1.2.4.4}{Windows系统解析主机名成功}
+\end{enum}
+
+\subsection{Hadoop 单例模式搭建}
+
+\subsubsection{安装JDK}
+
+\subsubsubsection{下载解压}
+
+\begin{enum}
+    \item 创建一个文件夹 \texttt{app}
+    
+    \begin{lstlisting}[language=bash]
+    mkdir app
+    \end{lstlisting}
+
+    \item 检查系统是否存在openjdk
+    
+    \begin{lstlisting}[language=bash]
+    rpm -qa | grep java
+    \end{lstlisting}
+
+    \img{2.1.1.1}{检查系统是否存在openjdk}
+
+    此处没有输出，说明系统中没有安装openjdk。
+
+    \item 下载JDK
+    
+    \begin{lstlisting}[language=bash]
+    curl -L -C - -b "oraclelicense=accept-securebackup-cookie" -O http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
+    \end{lstlisting}
+
+    \img{2.1.1.2}{下载JDK}
+
+    \item 解压JDK
+    
+    \begin{lstlisting}[language=bash]
+    tar -zxvf jdk-8u131-linux-x64.tar.gz -C .
+    \end{lstlisting}
+
+    \img{2.1.1.3}{解压JDK}
+
+    \item 检验JDK是否安装成功
+    
+    \begin{lstlisting}[language=bash]
+    cd jdk1.8.0_131
+    ./bin/java -version
+    \end{lstlisting}
+
+    \img{2.1.1.4}{检验JDK是否安装成功}
+\end{enum}
+
+\subsubsection{配置环境变量}
+
+\begin{enum}
+    \item 编辑 \texttt{/etc/profile} 文件
+    
+    \begin{lstlisting}[language=bash]
+    vi /etc/profile
+    \end{lstlisting}
+
+    在文件末尾添加以下内容 
+
+    \begin{lstlisting}[language=bash]
+    export JAVA_HOME=/root/app/jdk1.8.0_131
+    export PATH=$JAVA_HOME/bin:$PATH
+    \end{lstlisting}
+
+    \img[0.75]{2.2.1}{编辑/etc/profile文件}
+
+    \item 使配置生效
+    
+    \begin{lstlisting}[language=bash]
+    source /etc/profile
+    \end{lstlisting}
+
+    \item 检验环境变量是否配置成功
+    
+    \begin{lstlisting}[language=bash]
+    java -version
+    \end{lstlisting}
+
+    \img{2.2.2}{检验环境变量是否配置成功}
+
+    编写一个简单的Java程序，检验JDK是否配置成功。
+
+    \begin{lstlisting}[language=bash]
+    mkdir workspace
+    cd workspace
+    vi HelloWorld.java
+    \end{lstlisting}
+
+    输入以下内容
+
+    \begin{lstlisting}[language=java]
+    public class HelloWorld {
+        public static void main(String[] args) {
+            System.out.println("Hello World!");
+        }
+    }
+    \end{lstlisting}
+
+    编译运行
+
+    \begin{lstlisting}[language=bash]
+    javac HelloWorld.java
+    java HelloWorld
+    \end{lstlisting}
+
+    \img{2.2.3}{Java程序运行结果}
+\end{enum}
+
+\subsubsection{安装Hadoop}
+
+\subsubsubsection{下载Hadoop}
+
+下载 Hadoop。
+
+\begin{lstlisting}[language=bash]
+    curl -O https://archive.apache.org/dist/hadoop/common/hadoop-2.5.0/hadoop-2.5.0.tar.gz
+\end{lstlisting}
+
+解压 Hadoop。
+
+\begin{lstlisting}[language=bash]
+    tar -zxvf hadoop-2.5.0.tar.gz -C .
+\end{lstlisting}
+
+\img{2.3.1.1}{下载解压Hadoop}
+
+\subsubsubsection{配置环境变量}
+
+\label{subsubsubsection:config-hadoop-env}
+
+\begin{enum}
+    \item 编辑 \texttt{/etc/profile} 文件
+    
+    \begin{lstlisting}[language=bash]
+    vi /etc/profile
+    \end{lstlisting}
+
+    在文件末尾添加以下内容 
+
+    \begin{lstlisting}[language=bash]
+    export HADOOP_HOME=/root/app/hadoop-2.5.0
+    export PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+    \end{lstlisting}
+
+    \img[0.65]{2.3.2.1}{编辑/etc/profile文件}
+
+    \item 使配置生效
+    
+    \begin{lstlisting}[language=bash]
+    source /etc/profile
+    \end{lstlisting}
+
+    \item 检验环境变量是否配置成功
+    
+    \begin{lstlisting}[language=bash]
+    hadoop
+    \end{lstlisting}
+
+    \img[0.8]{2.3.2.2}{检验环境变量是否配置成功}
+\end{enum}
+
+\subsubsubsection{配置\texttt{hadoop-env.sh}}
+
+\label{subsubsubsection:hadoop-env.sh}
+
+修改 \texttt{hadoop-env.sh} 文件。
+
+\begin{lstlisting}[language=bash]
+    vi $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+\end{lstlisting}
+
+将 \texttt{JAVA\_HOME} 配置为 \texttt{/root/app/jdk1.8.0\_131}。
+
+\img{2.3.3.1}{修改\texttt{hadoop-env.sh}文件}
+
+\subsubsubsection{测试}
+
+通过单词统计案例测试 Hadoop 是否配置成功。
+
+进入 workspace 目录。
+
+\begin{lstlisting}[language=bash]
+    cd ~/app/workspace
+\end{lstlisting}
+
+运行 Hadoop。
+
+\begin{lstlisting}[language=bash]
+    hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar wordcount ./HelloWorld.java ./out
+\end{lstlisting}
+
+\img{2.3.4.1}{运行Hadoop测试案例}
+
+查看结果。
+
+\begin{lstlisting}[language=bash]
+    cd out
+    ls
+    cat part-r-00000
+\end{lstlisting}
+
+\img{0.2.3.4.2}{查看结果}
+
+\subsection{Hadoop 伪分布式模式搭建}
+
+\subsubsection{修改配置文件}
+
+进入 \texttt{Hadoop} 配置文件目录。
+
+\begin{lstlisting}[language=bash]
+    cd $HADOOP_HOME/etc/hadoop
+\end{lstlisting}
+
+\subsubsubsection{配置\texttt{hadoop-env.sh}}
+
+在 \ref{subsubsubsection:hadoop-env.sh} 中已经配置过 \texttt{hadoop-env.sh} 文件。
+
+\subsubsubsection{配置\texttt{core-site.xml}}
+
+\begin{lstlisting}[language=bash]
+    vi core-site.xml
+\end{lstlisting}
+
+添加以下内容。
+
+\begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>fs.default.name</name>
+            <value>hdfs://lipengda001:9000</value>
+        </property>
+    </configuration>
+\end{lstlisting}
+
+\img{3.1.2.1}{配置\texttt{core-site.xml}}
+
+\subsubsubsection{配置\texttt{hdfs-site.xml}}
+
+\begin{enum}
+    \item 配置 hadoop 公共目录。
+    
+    在 \texttt{Hadoop} 的配置文件目录下创建 \texttt{data} 目录。
+    在 \texttt{data} 目录下创建 \texttt{namenode}、\texttt{datanode} 和 \texttt{tmp} 目录。
+
+    \begin{lstlisting}[language=bash]
+    cd $HADOOP_HOME
+    mkdir data
+    mkdir data/namenode
+    mkdir data/datanode
+    mkdir data/tmp
+    \end{lstlisting}
+
+    \img{3.1.3.1}{配置hadoop公共目录}
+
+    \item 修改配置文件
+    
+    \begin{lstlisting}[language=bash]
+    cd $HADOOP_HOME/etc/hadoop
+    vi hdfs-site.xml
+    \end{lstlisting}
+    
+    在 \texttt{hdfs-site.xml} 文件中添加以下内容。
+
+    \begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>dfs.name.dir</name>
+            <value>/root/app/hadoop-2.5.0/data/namenode</value>
+        </property>
+        <property>
+            <name>dfs.data.dir</name>
+            <value>/root/app/hadoop-2.5.0/data/datanode</value>
+        </property>
+        <property>
+            <name>dfs.tmp.dir</name>
+            <value>/root/app/hadoop-2.5.0/data/tmp</value>
+        </property>
+        <property>
+            <name>dfs.replication</name>
+            <value>1</value>
+        </property>
+    </configuration>
+    \end{lstlisting}
+
+    \img{3.1.3.2}{修改配置文件}
+
+\end{enum}
+
+\subsubsubsection{配置\texttt{mapred-site.xml}}
+
+\begin{lstlisting}[language=bash]
+    mv mapred-site.xml.template mapred-site.xml
+    vi mapred-site.xml
+\end{lstlisting}
+
+在 \texttt{mapred-site.xml} 文件中添加以下内容。
+
+\begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>mapreduce.framework.name</name>
+            <value>yarn</value>
+        </property>
+    </configuration>
+\end{lstlisting}
+
+\img{3.1.4.1}{配置\texttt{mapred-site.xml}}
+
+\subsubsubsection{配置\texttt{yarn-site.xml}}
+
+\begin{lstlisting}[language=bash]
+    vi yarn-site.xml
+\end{lstlisting}
+
+在 \texttt{yarn-site.xml} 文件中添加以下内容。
+
+\begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>yarn.resourcemanager.hostname</name>
+            <value>lipengda001</value>
+        </property>
+        <property>
+            <name>yarn.nodemanager.aux-services</name>
+            <value>mapreduce_shuffle</value>
+        </property>
+    </configuration>
+\end{lstlisting}
+
+\img{3.1.5.1}{配置\texttt{yarn-site.xml}}
+
+\subsubsubsection{配置\texttt{slaves}}
+
+\begin{lstlisting}[language=bash]
+    vi slaves
+\end{lstlisting}
+
+将 \texttt{localhost} 改为 \texttt{lipengda001}。
+
+\img{3.1.6.1}{配置\texttt{slaves}}
+
+\subsubsubsection{配置环境变量 \texttt{PATH}}
+
+在 \ref{subsubsubsection:config-hadoop-env} 中已经配置过环境变量。
+
+\subsubsection{启动}
+
+\subsubsubsection{namenode 格式化}
+
+\begin{lstlisting}[language=bash]
+    hdfs namenode -format
+\end{lstlisting}
+
+\img{3.2.1.1}{namenode格式化}
+
+\subsubsubsection{启动}
+
+\begin{lstlisting}[language=bash]
+    start-dfs.sh
+    start-yarn.sh
+\end{lstlisting}
+
+输入 \texttt{jps} 查看进程。
+
+\begin{lstlisting}[language=bash]
+    jps
+\end{lstlisting}
+
+出现以下进程，说明启动成功。
+
+\begin{itemize}[noitemsep]
+    \item NameNode
+    \item DataNode
+    \item SecondaryNameNode
+    \item ResourceManager
+    \item NodeManager
+\end{itemize}
+
+\img{0.3.2.2.1}{启动Hadoop}
+
+\subsection{虚拟机克隆及相关网络配置}
+
+\notebox{
+    由于虚拟机中未安装后续步骤需要的 \texttt{ntp}，为减少重复工作，先在 \texttt{lipengda001} 虚拟机中安装 \texttt{ntp}后再进行克隆。
+}
+    
+\notebox{
+    由于 CentOS7 在 2024年6月30日已经停止维护，因此 \texttt{yum} 源已经失效。为了解决这个问题，需要先将 \texttt{yum} 源更换为 \texttt{CentOS Vault} 源。
+}
+
+\begin{lstlisting}[language=bash]
+    sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+    sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+    sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+    yum clean all
+    yum makecache
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+    yum install -y ntp
+\end{lstlisting}
+
+\notebox{
+    为方便后续主机名和IP地址的配置，我选择先创建一个 \texttt{sh} 脚本，将主机名和IP地址的配置写入脚本中，将来再在克隆的虚拟机中执行该脚本。
+}
+
+\begin{lstlisting}[language=bash]
+    vi ~/config.sh
+\end{lstlisting}
+
+内容如下。
+
+\begin{lstlisting}[language=bash]
+    #!/bin/bash
+
+    if [ $# -ne 2 ]; then
+        echo "Usage: $0 hostname ip"
+        exit 1
+    fi
+
+    hostnamectl set-hostname $1
+    sed -i "s/HOSTNAME=.*/HOSTNAME=$1/g" /etc/sysconfig/network
+
+    echo "$2 $1" >> /etc/hosts
+
+    sed -i "s/IPADDR=.*/IPADDR=$2/g" /etc/sysconfig/network-scripts/ifcfg-enp0s3
+
+    service network restart
+
+    hostname
+    ip addr
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+    chmod +x ~/config.sh
+\end{lstlisting}
+
+\subsubsection{虚拟机克隆}
+
+在 VirtualBox 中选择 \texttt{lipengda001} 虚拟机，右键，然后点击 \texttt{复制}。
+
+\img{4.1.1}{虚拟机克隆(1)}
+
+克隆两台虚拟机，分别命名为 \texttt{lipengda002} 和 \texttt{lipengda003}。
+
+\imgtwo{4.1.2}{4.1.3}{虚拟机克隆(2)}
+
+\subsubsection{相关网络配置}
+
+在 \texttt{lipengda002} 和 \texttt{lipengda003} 虚拟机中执行 \texttt{config.sh} 脚本。
+
+\begin{lstlisting}[language=bash]
+    ./config.sh lipengda002 192.168.1.222
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+    ./config.sh lipengda003 192.168.1.233
+\end{lstlisting}
+
+\img{4.2.1}{002相关网络配置}
+
+\img{4.2.2}{003相关网络配置}
+
+修改 Windows 系统中的 \texttt{hosts} 文件。
+
+\img{4.2.3}{修改Windows系统hosts文件}
+
+在 Windows 系统中测试网络连通性。
+
+\begin{lstlisting}[language=bash]
+    ping lipengda001
+    ping lipengda002
+    ping lipengda003
+\end{lstlisting}
+
+\img{4.2.4}{Windows系统测试网络连通性}
+
+
+\subsection{SSH 免密码登录}
+
+\subsubsection{创建公钥/私钥}
+
+在 \texttt{lipengda001} 虚拟机中创建公钥/私钥。
+
+\begin{lstlisting}[language=bash]
+    cd ~/.ssh
+    ssh-keygen -t rsa
+\end{lstlisting}
+
+\img[0.8]{5.1.1}{创建公钥/私钥}
+
+在 \texttt{lipengda002} 和 \texttt{lipengda003} 虚拟机中进行同样的操作。
+
+\subsubsection{对虚拟机自己实行免密码登录}
+
+\begin{lstlisting}[language=bash]
+    ssh-copy-id lipengda001
+\end{lstlisting}
+
+\img[0.8]{5.2.1}{对虚拟机自己实行免密码登录}
+
+尝试免密码登录。
+
+\begin{lstlisting}[language=bash]
+    ssh lipengda001
+\end{lstlisting}
+
+\img{5.2.2}{尝试免密码登录}
+
+在 \texttt{lipengda002} 和 \texttt{lipengda003} 虚拟机中进行同样的操作。
+
+\subsubsection{虚拟机之间相互通讯}
+
+\subsubsubsection{虚拟机1访问虚拟机2和3}
+
+\begin{enum}
+    \item 通过IP地址
+    
+    \begin{lstlisting}[language=bash]
+    ssh-copy-id 192.168.1.222
+    ssh 192.168.1.222
+    \end{lstlisting}
+
+    \img[0.8]{5.3.1.1}{通过IP地址访问虚拟机2}
+
+    \begin{lstlisting}[language=bash]
+    ssh-copy-id 192.168.1.233
+    ssh 192.168.1.233
+    \end{lstlisting}
+
+    \img[0.8]{5.3.1.2}{通过IP地址访问虚拟机3}
+
+    对虚拟机2和3进行同样的操作。
+
+    \item 通过主机名
+    
+    编辑 \texttt{hosts} 文件。
+
+    \begin{lstlisting}[language=bash]
+    vi /etc/hosts
+    \end{lstlisting}
+
+    添加以下内容。
+
+    \begin{lstlisting}[language=bash]
+    192.168.1.222 lipengda002
+    192.168.1.233 lipengda003
+    \end{lstlisting}
+
+    \img[0.8]{5.3.1.3}{编辑\texttt{hosts}文件}
+
+    尝试使用主机名访问。
+
+    \begin{lstlisting}[language=bash]
+    ssh lipengda002
+    ssh lipengda003
+    \end{lstlisting}
+
+    \img[0.8]{5.3.1.4}{通过主机名访问虚拟机2和3}
+\end{enum}
+
+在 \texttt{lipengda002} 和 \texttt{lipengda003} 虚拟机中进行同样的操作。
+
+\subsection{集群时间同步}
+
+\subsubsection{设置时间}
+
+\subsubsubsection{查看虚拟机中是否安装了ntp}
+
+\begin{lstlisting}[language=bash]
+    rpm -qa | grep ntp
+\end{lstlisting}
+
+\img{6.1.1.1}{查看是否安装了ntp}
+
+出现内容说明已经安装了ntp。
+
+\subsubsubsection{配置ntpd}
+
+\begin{lstlisting}[language=bash]
+    vi /etc/sysconfig/ntpd
+\end{lstlisting}
+
+添加以下内容
+
+\begin{lstlisting}[language=bash]
+    SYNC_HWCLOCK=yes
+\end{lstlisting}
+
+\img{6.1.2.1}{配置ntpd}
+
+\subsubsubsection{开启ntpd服务}
+
+\begin{lstlisting}[language=bash]
+    service ntpd status
+    service ntpd start
+    chkconfig ntpd on
+\end{lstlisting}
+
+\img{6.1.3.1}{开启ntpd服务}
+
+\subsubsubsection{修改ntp配置}
+
+\begin{lstlisting}[language=bash]
+    vi /etc/ntp.conf
+\end{lstlisting}
+
+取消注释以下内容
+
+\begin{lstlisting}[language=bash]
+    #restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+\end{lstlisting}
+
+注释以下内容
+
+\begin{lstlisting}[language=bash]
+    server 0.centos.pool.ntp.org iburst
+    server 1.centos.pool.ntp.org iburst
+    server 2.centos.pool.ntp.org iburst
+    server 3.centos.pool.ntp.org iburst
+\end{lstlisting}
+
+在 \texttt{\#crypto} 下添加以下内容
+
+\begin{lstlisting}[language=bash]
+    server 127.127.1.0
+    fudge  127.127.1.0 stratum 10
+\end{lstlisting}
+
+\notebox{
+    此处实验手册遗漏了重启ntpd服务。
+}
+
+\begin{lstlisting}[language=bash]
+    service ntpd restart
+\end{lstlisting}
+
+\img{6.1.4.1}{修改ntp配置}
+
+\subsubsubsection{设置具体时间}
+
+随便设置一个时间。
+
+\begin{lstlisting}[language=bash]
+    date -s 2024-12-01
+    date -s 12:00:00
+    date
+\end{lstlisting}
+
+\img{6.1.5.1}{设置具体时间}
+
+\subsubsection{脚本同步}
+
+\subsubsubsection{编写脚本}
+
+在其他虚拟机上写一个脚本与虚拟机1的时间同步，设置为每10分钟同步一次时间。
+
+\begin{lstlisting}[language=bash]
+    crontab -e
+\end{lstlisting}
+
+输入以下内容。
+
+\begin{lstlisting}[language=bash]
+    0-59/10 * * * * /usr/sbin/ntpdate lipengda001
+\end{lstlisting}
+
+\subsubsubsection{同步}
+
+输入命令立刻进行一次时间同步。
+
+\begin{lstlisting}[language=bash]x
+    /usr/sbin/ntpdate lipengda001
+\end{lstlisting}
+
+\notebox{
+    如果同步失败，可以尝试关闭 \texttt{lipengda001} 虚拟机的防火墙。 \\
+    \texttt{service firewalld stop}
+}
+
+\img{6.2.2.1}{时间同步}
+
+\subsection{Hadoop 集群模式部署}
+
+\subsubsection{主节点部署}
+
+\subsubsubsection{重新解压}
+
+进入app目录下，重新解压一个hadoop文件到其他文件夹。
+
+\begin{lstlisting}[language=bash]
+    cd ~/app
+    tar -zxvf hadoop-2.5.0.tar.gz -C /tmp
+\end{lstlisting}
+
+了与之前的hadoop伪分布式模式区分,将其重命名为 \texttt{hadoop}。
+
+\begin{lstlisting}[language=bash]
+    mv /tmp/hadoop-2.5.0 ~/app/hadoop
+\end{lstlisting}
+
+\img{7.1.1.1}{重新解压}
+
+\subsubsubsection{修改配置文件}
+
+进入\texttt{hadoop/etc/hadoop}目录。
+
+\begin{lstlisting}[language=bash]
+    cd ~/app/hadoop/etc/hadoop
+\end{lstlisting}
+
+\begin{enum}
+    \item 配置 \texttt{hadoop-env.sh}
+    
+    \begin{lstlisting}[language=bash]
+    vi hadoop-env.sh
+    \end{lstlisting}
+    
+    修改 \texttt{JAVA\_HOME} 为 \texttt{/root/app/jdk1.8.0\_131}。
+
+    \img{7.1.2.1}{配置\texttt{hadoop-env.sh}}
+
+    \item 配置 \texttt{core-site.xml}
+    
+    \begin{lstlisting}[language=bash]
+    vi core-site.xml
+    \end{lstlisting}
+
+    添加以下内容。
+
+    \begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>fs.default.name</name>
+            <value>hdfs://lipengda001:9000</value>
+        </property>
+
+        <property>
+            <name>hadoop.tmp.dir</name>
+            <value>/root/app/hadoop/data/tmp</value>
+        </property>
+
+        <property>
+            <name>fs.trash.interval</name>
+            <value>420</value>
+        </property>
+    </configuration>
+    \end{lstlisting}
+
+    \img{7.1.2.2}{配置\texttt{core-site.xml}}
+
+    并在 \texttt{/root/app/hadoop} 目录下创建 \texttt{data/tmp} 目录。
+
+    \begin{lstlisting}[language=bash]
+    mkdir -p /root/app/hadoop/data/tmp
+    \end{lstlisting}
+
+    \item 配置 \texttt{hdfs-site.xml}
+    
+    \begin{lstlisting}[language=bash]
+    vi hdfs-site.xml
+    \end{lstlisting}
+
+    添加以下内容。
+
+    \begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>dfs.namenode.secondary.http-address</name>
+            <value>lipengda003:50090</value>
+        </property>
+    </configuration>
+    \end{lstlisting}
+
+    \img{7.1.2.3}{配置\texttt{hdfs-site.xml}}
+
+    \item 配置 \texttt{mapred-site.xml}
+    
+    \begin{lstlisting}[language=bash]
+    mv mapred-site.xml.template mapred-site.xml
+    vi mapred-site.xml
+    \end{lstlisting}
+
+    添加以下内容。
+
+    \begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>mapreduce.framework.name</name>
+            <value>yarn</value>
+        </property>
+
+        <property>
+            <name>mapreduce.jobhistory.address</name>
+            <value>lipengda001:10020</value>
+        </property>
+
+        <property>
+            <name>mapreduce.jobhistory.webapp.address</name>
+            <value>lipengda001:19888</value>
+        </property>
+    </configuration>
+    \end{lstlisting}
+
+    \img{7.1.2.4}{配置\texttt{mapred-site.xml}}
+
+    \item 配置 \texttt{yarn-site.xml}
+    
+    \begin{lstlisting}[language=bash]
+    vi yarn-site.xml
+    \end{lstlisting}
+
+    添加以下内容。
+
+    \begin{lstlisting}[language=xml]
+    <configuration>
+        <property>
+            <name>yarn.resourcemanager.hostname</name>
+            <value>lipengda002</value>
+        </property>
+
+        <property>
+            <name>yarn.nodemanager.aux-services</name>
+            <value>mapreduce_shuffle</value>
+        </property>
+
+        <property>
+            <name>yarn.log-aggregation-enable</name>
+            <value>true</value>
+        </property>
+
+        <property>
+            <name>yarn.log-aggregation.retain-seconds</name>
+            <value>420</value>
+        </property>
+    </configuration>
+    \end{lstlisting}
+
+    \img{7.1.2.5}{配置\texttt{yarn-site.xml}}
+
+    \item 配置 \texttt{slaves}
+    
+    \begin{lstlisting}[language=bash]
+    vi slaves
+    \end{lstlisting}
+
+    添加以下内容。
+
+    \begin{lstlisting}[language=bash]
+    lipengda001
+    lipengda002
+    lipengda003
+    \end{lstlisting}
+
+    \img{7.1.2.6}{配置\texttt{slaves}}
+
+    \subsubsection{集群节点分发与启动}
+
+    \subsubsubsection{修改\texttt{/etc/profile}文件与分发}
+
+    \begin{lstlisting}[language=bash]
+    vi /etc/profile
+    \end{lstlisting}
+
+    注释掉 \texttt{HADOOP\_HOME} 和 相关\texttt{PATH} 的配置。
+
+    \img{7.1.2.7}{修改\texttt{/etc/profile}文件}
+
+    \begin{lstlisting}[language=bash]
+    source /etc/profile
+    \end{lstlisting}
+
+    同步到其他虚拟机。
+
+    \begin{lstlisting}[language=bash]
+    scp -r /etc/profile lipengda002:/etc/profile
+    scp -r /etc/profile lipengda003:/etc/profile
+    \end{lstlisting}
+
+    \img{7.1.2.8}{同步\texttt{/etc/profile}文件}
+
+    在其他虚拟机上执行 \texttt{source /etc/profile}。
+
+    将hadoop发送到其他两台虚拟机。
+
+    为方便传输，先将文件夹压缩。
+
+    \begin{lstlisting}[language=bash]
+    tar -zcvf hadoop.tar.gz hadoop/
+    \end{lstlisting}
+
+    \begin{lstlisting}[language=bash]
+    scp -r ~/app/hadoop.tar.gz lipengda002:~/app
+    scp -r ~/app/hadoop.tar.gz lipengda003:~/app
+    \end{lstlisting}
+
+    \img{7.1.2.9}{发送hadoop文件}
+
+    然后在其他两台虚拟机上解压。
+
+    \begin{lstlisting}[language=bash]
+    tar -zxvf hadoop.tar.gz -C .
+    \end{lstlisting}
+\end{enum}
+
+\subsubsubsection{格式化}
+
+\begin{lstlisting}[language=bash]
+    bin/hdfs namenode -format
+\end{lstlisting}
+
+出现以下内容说明格式化成功。
+
+\img{7.2.2.1}{格式化}
+
+\subsubsubsection{启动}
+
+\begin{enum}
+    \item 在 \texttt{lipengda001} 虚拟机上启动。
+    
+    \begin{lstlisting}[language=bash]
+    sbin/start-dfs.sh
+    \end{lstlisting}
+
+    在三台虚拟机上分别输入 \texttt{jps} 查看进程。
+
+    \img{7.2.3.1}{启动(1)(\texttt{lipengda001})}
+    \img{7.2.3.2}{启动(1)(\texttt{lipengda002})}
+    \img{7.2.3.3}{启动(1)(\texttt{lipengda003})}
+
+    \item 在 \texttt{lipengda002} 虚拟机上启动 \texttt{yarn}。
+    
+    \begin{lstlisting}[language=bash]
+    sbin/start-yarn.sh
+    \end{lstlisting}
+
+    在三台虚拟机上分别输入 \texttt{jps} 查看进程。
+
+    \img{7.2.3.4}{启动(2)(\texttt{lipengda002})}
+    \img{7.2.3.5}{启动(2)(\texttt{lipengda001})}
+    \img{7.2.3.6}{启动(2)(\texttt{lipengda003})}
+
+    
+    \item 在 \texttt{lipengda001} 虚拟机上启动 historyserver。
+    
+    \begin{lstlisting}[language=bash]
+    sbin/mr-jobhistory-daemon.sh start historyserver
+    \end{lstlisting}
+
+    在三台虚拟机上分别输入 \texttt{jps} 查看进程。
+
+    \img{7.2.3.7}{启动(3)(\texttt{lipengda001})}
+    \img{7.2.3.8}{启动(3)(\texttt{lipengda002})}
+    \img{7.2.3.9}{启动(3)(\texttt{lipengda003})}
+\end{enum}
+
+\subsection{分布式离线计算框架---MapReduce}
+
+\subsubsection{安装Linux版本的eclipse}
+
+\notebox{
+    由于我安装的是最小安装的CentOS，没有安装图形化界面，因此无法安装eclipse。跳过此步骤。
+}
+
+\subsubsection{MapReduce实例——单词统计}
+
+\begin{enum}
+\item 创建一个Java项目TestHadoop
+
+\begin{lstlisting}[language=bash]
+    mkdir ~/app/workspace/TestHadoop
+    cd ~/app/workspace/TestHadoop
+\end{lstlisting}
+
+\item 导入jar包
+
+创建一个 \texttt{libs} 文件夹.
+
+\begin{lstlisting}[language=bash]
+    mkdir ~/libs
+\end{lstlisting}
+
+将 Hadoop的 \texttt{jar} 包拷贝到 \texttt{libs} 文件夹。
+
+\begin{lstlisting}[language=bash]
+    cp ~/app/hadoop/share/hadoop/common/*.jar ~/libs
+    cp ~/app/hadoop/share/hadoop/hdfs/*.jar ~/libs
+    cp ~/app/hadoop/share/hadoop/mapreduce/*.jar ~/libs
+    cp ~/app/hadoop/share/hadoop/yarn/*.jar ~/libs
+    cp ~/app/hadoop/share/hadoop/common/lib/*.jar ~/libs
+    cp ~/app/hadoop/share/hadoop/hdfs/lib/*.jar ~/libs
+    cp ~/app/hadoop/share/hadoop/mapreduce/lib/*.jar ~/libs
+    cp ~/app/hadoop/share/hadoop/yarn/lib/*.jar ~/libs
+\end{lstlisting}
+
+\item 创建一个文本文件word.txt做测试文件
+
+\begin{lstlisting}[language=bash]
+    vi word.txt
+\end{lstlisting}
+
+输入以下内容。
+
+\begin{lstlisting}[language=bash]
+    hello java
+    java hadoop
+    spark hbase
+    hello hadoop
+    hello word
+\end{lstlisting}
+
+\item 创建包 \texttt{com.hadoop.mapreduce}
+
+\begin{lstlisting}[language=bash]
+    mkdir -p src/com/hadoop/mapreduce
+\end{lstlisting}
+
+\item 创建 \texttt{WordCountMapper.java} 文件
+
+\begin{lstlisting}[language=bash]
+    cd src/com/hadoop/mapreduce
+    vi WordCountMapper.java
+\end{lstlisting}
+
+输入以下内容。
+
+\begin{lstlisting}[language=java]
+    package com.hadoop.mapreduce;
+
+    import java.io.IOException;
+    import org.apache.hadoop.io.LongWritable;
+    import org.apache.hadoop.io.NullWritable;
+    import org.apache.hadoop.io.Text;
+    import org.apache.hadoop.mapreduce.Mapper;
+
+    public class WordCountMapper extends Mapper<LongWritable, Text, NullWritable, LongWritable> {
+        @Override
+        protected void map(LongWritable key, Text value,Mapper<LongWritable, Text, NullWritable, LongWritable>.Context context) throws IOException, InterruptedException {
+            String line = value.toString();
+            //用空格进行分割
+            String words[] = line.split(" ");
+            context.write(NullWritable.get(), new LongWritable(words.length));
+        }
+    }
+\end{lstlisting}
+
+\item 创建 \texttt{WordCountReduce.java} 文件
+
+\begin{lstlisting}[language=bash]
+    vi WordCountReduce.java
+\end{lstlisting}
+
+输入以下内容。
+
+\begin{lstlisting}[language=java]
+    package com.hadoop.mapreduce;
+
+    import java.io.IOException;
+    import org.apache.hadoop.io.LongWritable;
+    import org.apache.hadoop.io.NullWritable;
+    import org.apache.hadoop.mapreduce.Reducer;
+
+    public class WordCountReduce extends Reducer<NullWritable, LongWritable, NullWritable, LongWritable> {
+        //数组分组合并输出
+        @Override
+        protected void reduce(NullWritable key, Iterable<LongWritable> v2s, Reducer<NullWritable, LongWritable, NullWritable, LongWritable>.Context context) throws IOException, InterruptedException {
+            long counter = 0;
+            for(LongWritable v:v2s){
+                counter += v.get();
+            }
+            context.write(NullWritable.get(), new LongWritable(counter));
+        }
+    }
+\end{lstlisting}
+
+\item 创建 \texttt{WordCount.java} 文件
+
+\begin{lstlisting}[language=bash]
+    vi WordCount.java
+\end{lstlisting}
+
+输入以下内容。
+
+\begin{lstlisting}[language=java]
+    package com.hadoop.mapreduce;
+
+    import org.apache.hadoop.conf.Configuration;
+    import org.apache.hadoop.fs.Path;
+    import org.apache.hadoop.io.LongWritable;
+    import org.apache.hadoop.io.NullWritable;
+    import org.apache.hadoop.mapreduce.Job;
+    import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+    import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+    public class WordCount {
+        
+        public static void main(String[] args) throws Exception{
+            Configuration conf = new Configuration();
+            Job job = Job.getInstance(conf);
+            job.setJarByClass(WordCount.class);
+            // Mapper方法名
+            job.setMapperClass(WordCountMapper.class);
+            // Reducer方法名
+            job.setReducerClass(WordCountReduce.class);
+            // Map输出的key类型
+            job.setMapOutputKeyClass(NullWritable.class);
+            // Map输出的value类型
+            job.setMapOutputValueClass(LongWritable.class);
+            // Reduce输出的key类型
+            job.setOutputKeyClass(NullWritable.class);
+            // Reduce 输出的value类型
+            job.setOutputValueClass(LongWritable.class);
+            // 读取的文件位置
+            FileInputFormat.setInputPaths(job, new Path("file:///root/app/workspace/TestHadoop/word.txt"));
+            // 处理完之后的数据存放位置，注意输出的文件夹如果已经存在会报错
+            FileOutputFormat.setOutputPath(job, new Path("file:///root/app/workspace/TestHadoop/out"));
+            job.waitForCompletion(true);
+        }
+    }
+\end{lstlisting}
+
+\item 编译运行
+
+\begin{lstlisting}[language=bash]
+    cd ~/app/workspace/TestHadoop
+    javac -cp ~/libs/*: src/com/hadoop/mapreduce/*.java -d .
+    java -cp ~/libs/*: com.hadoop.mapreduce.WordCount
+\end{lstlisting}
+
+\item 查看结果
+
+\begin{lstlisting}[language=bash]
+    cd out
+    ls
+    cat part-r-00000
+\end{lstlisting}
+
+\img{8.2.1}{查看结果}
+
+\end{enum}
+
+\subsubsection{MapReduce实例——温度统计}
+
+根据MapReduce的原理，结合单词统计案例，实现温度统计。
+需求：找出每年每月的2个最低温度时刻并进行升序排列。
+
+\begin{enum}
+    \item 创建一个Java项目TemperatureStats
+    
+    \begin{lstlisting}[language=bash]
+    mkdir ~/app/workspace/TemperatureStats
+    cd ~/app/workspace/TemperatureStats
+    \end{lstlisting}
+    
+    \item 创建一个文本文件temperature.txt做测试文件
+    
+    \begin{lstlisting}[language=bash]
+    vi temperature.txt
+    \end{lstlisting}
+    
+    输入以下内容。
+    
+    \begin{lstlisting}[language=bash]
+    2017-10-05 12:15:30     26
+    2017-11-12 09:36:54     23
+    2017-11-16 15:12:12     29
+    2017-11-17 10:30:59     30
+    2017-11-23 11:23:15     19
+    2018-05-16 18:23:23     28
+    2018-05-21 12:56:30     33
+    2018-06-03 08:16:15     26
+    2018-10-15 16:15:20     25
+    2019-04-09 21:25:26     18
+    2019-07-16 13:15:16     34
+    2019-07-22 22:16:56     16
+    2019-07-23 05:26:11     11
+    \end{lstlisting}
+    
+    \item 创建包 \texttt{com.hadoop.temperature}
+    
+    \begin{lstlisting}[language=bash]
+    mkdir -p src/com/hadoop/temperature
+    \end{lstlisting}
+    
+    \item 创建 \texttt{TemperatureMapper.java} 文件
+    
+    \begin{lstlisting}[language=bash]
+    cd src/com/hadoop/temperature
+    vi TemperatureMapper.java
+    \end{lstlisting}
+    
+    输入以下内容。
+    
+    \begin{lstlisting}[language=java]
+    package com.hadoop.temperature;
+
+    import java.io.IOException;
+    import org.apache.hadoop.io.Text;
+    import org.apache.hadoop.mapreduce.Mapper;
+
+    public class TemperatureMapper extends Mapper<Object, Text, Text, Text> {
+        @Override
+        protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String line = value.toString();
+            String[] parts = line.split("\\s+");
+            if (parts.length == 3) {
+                String date = parts[0];
+                String time = parts[1];
+                String temperature = parts[2];
+
+                String yearMonth = date.substring(0, 7);
+                String fullRecord = date + " " + time + " " + temperature;
+
+                Text outputKey = new Text();
+                Text outputValue = new Text();
+
+                outputKey.set(yearMonth);
+                outputValue.set(fullRecord);
+
+                context.write(outputKey, outputValue);
+            }
+        }
+    }
+    \end{lstlisting}
+    
+    \item 创建 \texttt{TemperatureReducer.java} 文件
+    
+    \begin{lstlisting}[language=bash]
+    vi TemperatureReducer.java
+    \end{lstlisting}
+    
+    输入以下内容。
+    
+    \begin{lstlisting}[language=java]
+    package com.hadoop.temperature;
+
+    import java.io.IOException;
+    import java.util.ArrayList;
+    import java.util.Collections;
+    import java.util.Comparator;
+    import java.util.PriorityQueue;
+    import org.apache.hadoop.io.Text;
+    import org.apache.hadoop.mapreduce.Reducer;
+
+    public class TemperatureReducer extends Reducer<Text, Text, Text, Text> {
+        @Override
+        protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            ArrayList<String> records = new ArrayList<>();
+
+            for (Text value : values) {
+                records.add(value.toString());
+            }
+
+            Collections.sort(records, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    int temp1 = Integer.parseInt(o1.split("\\s+")[2]);
+                    int temp2 = Integer.parseInt(o2.split("\\s+")[2]);
+                    return Integer.compare(temp1, temp2);
+                }
+            });
+
+            Text outputValue = new Text();
+
+            int limit = Math.min(2, records.size());
+            for (int i = 0; i < limit; i++) {
+                outputValue.set(records.get(i));
+                context.write(null, outputValue);
+            }
+        }
+    }
+    \end{lstlisting}
+    
+    \item 创建 \texttt{TemperatureStats.java} 文件
+    
+    \begin{lstlisting}[language=bash]
+    vi TemperatureStats.java
+    \end{lstlisting}
+    
+    输入以下内容。
+    
+    \begin{lstlisting}[language=java]
+    package com.hadoop.temperature;
+
+    import org.apache.hadoop.conf.Configuration;
+    import org.apache.hadoop.fs.Path;
+    import org.apache.hadoop.io.Text;
+    import org.apache.hadoop.mapreduce.Job;
+    import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+    import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+    public class TemperatureStats {
+        public static void main(String[] args) throws Exception {
+            Configuration conf = new Configuration();
+            Job job = Job.getInstance(conf, "Temperature Stats");
+            job.setJarByClass(TemperatureStats.class);
+            job.setMapperClass(TemperatureMapper.class);
+            job.setReducerClass(TemperatureReducer.class);
+            job.setOutputKeyClass(Text.class);
+            job.setOutputValueClass(Text.class);
+
+            FileInputFormat.addInputPath(job, new Path("file:///root/app/workspace/TemperatureStats/temperature.txt"));
+            FileOutputFormat.setOutputPath(job, new Path("file:///root/app/workspace/TemperatureStats/out"));
+
+            System.exit(job.waitForCompletion(true) ? 0 : 1);
+        }
+    }
+    \end{lstlisting}
+    
+    \item 编译运行
+    
+    \begin{lstlisting}[language=bash]
+    cd ~/app/workspace/TemperatureStats
+    javac -cp ~/libs/*: src/com/hadoop/temperature/*.java -d .
+    java -cp ~/libs/*: com.hadoop.temperature.TemperatureStats
+    \end{lstlisting}
+    
+    \item 查看结果
+    
+    \begin{lstlisting}[language=bash]
+    cd out
+    ls
+    cat part-r-00000
+    \end{lstlisting}
+    
+    \img{8.3.1}{查看结果}
+    
+    \end{enum}
+    
+
+\section{实验结果}
+
+\subsection{成功安装虚拟机，并于Windows通信}
+\img{0.1.2.4.4}{Windows Ping 虚拟机}
+
+\subsection{成功运行Hadoop单例模式}
+\img{0.2.3.4.2}{查看Hadoop单例模式运行结果}
+
+\subsection{成功运行Hadoop伪分布式模式}
+\img{0.3.2.2.1}{启动Hadoop伪分布式模式}
+
+\subsection{成功克隆虚拟机并与Windows通信}
+\img{4.2.4}{Windows ping 三个虚拟机}
+
+\subsection{成功运行Hadoop集群模式}
+\img{7.2.3.7}{集群模式(\texttt{lipengda001})}
+\img{7.2.3.8}{集群模式(\texttt{lipengda002})}
+\img{7.2.3.9}{集群模式(\texttt{lipengda003})}
+
+\subsection{成功使用MapReduce框架进行单词统计}
+\img{8.2.1}{MapReduce单词统计结果}
+
+\subsection{成功使用MapReduce框架进行温度统计}
+\img{8.3.1}{MapReduce温度统计结果}
+
+\section{实验总结}
+
+在本次实验中，我完成了Linux虚拟机的配置、Hadoop的单例、伪分布式和集群模式的搭建，以及MapReduce框架的使用。在实验过程中，我学会了如何配置Linux虚拟机网络、ssh与时钟同步，学习了搭建Hadoop集群，以及使用MapReduce框架进行了单词统计。通过本次实验，我对Hadoop有了更深入的了解，也对云计算有了更多的认识。
+
+在实验中，我遇到的问题及解决方法、一些与实验手册不同的地方和我自己的思考，我记录在了蓝色“NOTE”框中。
+
+\end{document}
