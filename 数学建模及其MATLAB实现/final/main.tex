@@ -1,0 +1,267 @@
+\documentclass{article}
+\usepackage{fancyhdr}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage[a4paper, body={18cm,22cm}]{geometry}
+\usepackage{amsmath,amssymb,amstext,wasysym,enumerate,graphicx}
+\usepackage{float,abstract,booktabs,indentfirst,amsmath}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{subfigure}
+\usepackage[most]{tcolorbox}
+\usepackage{accsupp}
+\usepackage[backend=biber,style=numeric]{biblatex}
+\usepackage[xetex]{hyperref}
+\usetikzlibrary{arrows.meta}
+\newcommand\emptyaccsupp[1]{\BeginAccSupp{ActualText={}}#1\EndAccSupp{}}
+\setlength{\parindent}{2em}
+\renewcommand\arraystretch{1.4}
+\setmonofont{FiraCode Nerd Font}
+\setCJKmonofont{黑体}
+\setmainfont{Times New Roman}
+\hypersetup{CJKbookmarks=true,colorlinks=true,citecolor=blue,%
+            linkcolor=blue,urlcolor=blue,bookmarksnumbered=true,%
+            bookmarksopen=true,breaklinks=true}
+\lstset{
+    % language = C,
+    xleftmargin = 3em,xrightmargin = 3em, aboveskip = 1em,
+	backgroundcolor = \color{white}, % 背景色
+	basicstyle = \small\ttfamily, % 基本样式 + 小号字体
+	rulesepcolor= \color{gray}, % 代码块边框颜色
+	breaklines = true, % 代码过长则换行
+	numbers = left, % 行号在左侧显示
+	numberstyle = \small\emptyaccsupp, % 行号字体
+    numbersep = -14pt, 
+    keywordstyle=\color{purple}\bfseries, % 关键字颜色
+    commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+    stringstyle = \color{red}, % 字符串颜色
+    morekeywords={ASSERT, int64_t, uint32_t},
+	frame = shadowbox, % 用(带影子效果)方框框住代码块
+	showspaces = false, % 不显示空格
+    showstringspaces = false,
+	columns = fixed, % 字间距固定
+    literate=
+        {^+}{{{\color{black}\textbf{+}}\colorbox{green!30}{\phantom{XX}}}}1
+        {+\t}{{{\color{black}\textbf{+}}\colorbox{green!30}{\phantom{XX}}}}1,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addbibresource{references.bib}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% contstants
+\newcommand{\course}{《数学建模及其MATLAB实现》课程报告}
+\newcommand{\titleText}{人工智能对就业率有多大影响？}
+\newcommand{\authorName}{李鹏达}
+\newcommand{\authorID}{10225101460}
+\newcommand{\yearMonth}{2024年12月}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\titleText}
+\author{\authorName}
+
+% 页眉页脚设置
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\course}
+\fancyhead[R]{\titleText}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+% title
+\begin{titlepage}
+    \title{\titleText}
+    \author{\authorName}
+    \thispagestyle{fancy}
+    \fancyfoot{}
+    \begin{center}
+        \phantom{ }
+        \vspace{5cm}
+        \\
+        \includegraphics[width=0.9\textwidth]{img/ecnu.png}
+        \vspace{1cm}
+        \\
+        \textbf{\fontsize{22}{36}\selectfont{\heiti \course}} 
+        \vspace{2cm}
+        \\
+        \textbf{\fontsize{20}{26}\selectfont{\heiti \titleText}}  
+        \vspace{2cm}
+        \\
+        \large
+        \begin{tabular}{cp{4cm}<{\centering}}
+            姓\quad 名：& \authorName \\
+            \cline{2-2} \\[-2em]
+            学\quad 号：& \authorID \\
+            \cline{2-2} \\
+        \end{tabular}
+        \vspace{2cm}
+        \\
+        \large \yearMonth
+    \end{center}
+\end{titlepage}
+
+% abstract
+\newpage
+\centerline{\zihao{-3}\heiti \textbf{摘\quad 要}}
+\addcontentsline{toc}{chapter}{摘要}
+\pagenumbering{Roman}
+
+\linespread{1.1}\zihao{-4} 
+\bigskip
+\kaishu
+摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。
+\bigskip
+
+\noindent{\heiti \textbf{关键词:}}
+人工智能，就业率
+
+\songti
+\vspace{2cm}
+
+\noindent{\textit{Abstract---}}%
+Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. 
+
+\bigskip
+\noindent{\textit{Keywords---}}%
+Artificial Intelligence, Employment Rate
+
+% 正文
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{引言}
+
+近年，随着生成式人工智能的飞速发展和以ChatGPT为代表的大语言模型的诞生，人工智能技术已经在各个领域得到了广泛的应用。在此过程中，``人类是否会被人工智能取代？''这个问题也再次成为了人们关注的焦点。
+
+人工智能的对劳动力市场产生的影响已经成为了一个不可回避的话题。国际货币基金组织的一项报告\cite{imf2024ai}指出，人工智能将影响全球近40\%的工作，取代其中一些岗位，而对另一些岗位起到补充作用。在发达经济体中，这一比例甚至高达60\%。
+
+就业率作为衡量劳动力市场健康状况的重要指标，将受到人工智能技术发展的直接影响。因此，我们有必要对人工智能对就业率的影响进行深入研究。
+
+\section{相关工作}
+
+\subsection{失业问题的研究}
+
+经过长期的研究和探索，经济学家对就业问题（或失业问题）形成了很多行之
+有效的理论。1958年，A. W. Phillips提出了著名的“菲利普斯曲线”理论\cite{phillips1958relation}，指出通货膨胀率与失业率存在交替关系。1963年，Arthur Okun \cite{okun1963potential} 描述了失业率和实际经济增长率之间的关系，表明经济增长不足时失业率会上升。Peter Diamond 等提出了“搜索理论”\cite{diamond1982aggregate} \cite{mortensen1982property}，指出劳动市场存在摩擦，招聘和求职的过程需要时间和资源，解释了为什么即使在经济繁荣时期，也会有大量的失业现象。Milton Friedman 等提出了“自然失业率”理论\cite{friedman1995role}，认为失业率有一个自然的、不可避免的水平，称为自然失业率。这个失业率是由劳动力市场的结构性和摩擦性因素决定的，并且无法通过短期的政策干预永久性地降低。
+
+这些理论为我们理解失业问题提供了重要的参考，但能否将人工智能技术的发展纳入这些理论框架中，仍然需要进一步的研究。
+
+\subsection{人工智能、自动化与就业}
+
+在此前的一些研究中，学者们已经对人工智能或自动化对就业的影响进行了一些探讨。E. Brynjolfsson 和 A. McAfee 提出了“第二次机器时代”\cite{brynjolfsson2014second}的概念，讨论了技术如何改变生产力、就业和收入分配。C. B. Frey 和 M. A. Osborne\cite{frey2017future} 利用机器学习算法对美国的就业岗位进行了分类，发现47\%的美国就业岗位面临被自动化取代的风险。高技能、创造性岗位的自动化风险相对较低，而低技能的重复性岗位面临较高的威胁。IMF的调查\cite{imf2024ai}指出，在发达经济体、新兴市场和发展中国家，受到人工智能影响的工作岗位预计分别占60\%、40\%和26\%。并且，在大多数情况下，人工智能很可能会加剧总体不平等状况，可能导致劳动者因能否利用人工智能而产生两极分化。2020年，世界经济论坛发布了《未来就业报告》\cite{wef2020futureofjobs}，指出到2025年，全球劳动力市场将有8500万个工作岗位被自动化取代，但同时也会创造9700万个新的工作岗位。
+
+这些研究为我们提供了一些关于人工智能对就业的影响的初步认识——人工智能将取代一些重复性、低技能的工作，但也会创造新的工作机会。然而，这些研究大多是基于统计数据和机器学习算法的分析，对于人工智能技术对就业率的影响机制，仍然需要进一步的研究。
+
+\section{问题分析}
+
+为了研究人工智能对就业率的影响，我们需要在现有的就业（失业）率模型的基础上，引入人工智能技术因素，建立新的模型。在此过程中，我们需要考虑以下几个问题：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item 人工智能技术的发展对就业率的影响机制是什么？
+    \item 人工智能对就业率会产生什么程度的影响？这种影响是正向的还是负向的？
+    \item 人工智能对就业率的影响是否具有普遍性？不同国家、不同行业的情况是否有所不同？
+\end{enumerate}
+
+\section{建模的假设}
+
+为了简化问题，我们做出以下假设：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item 均质性假设：我们假设劳动力市场是均质的，所有劳动者具有相同的技能和素质；所有的工作岗位也是均质的，不考虑不同行业、不同岗位之间的差异。
+    \item 市场紧张度假设：职位空缺与失业者比率是均一且统一的，即不存在区域性或行业性的差异。 
+    \item 工资议价规则假设：工资由纳什议价公式决定，且双方的议价力量（劳动者和雇主）是固定的，不随时间或政策变化。
+\end{enumerate}
+
+\section{符号说明}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{cccc}
+        \toprule
+        符号 & 说明 & 符号 & 说明 \\
+        \midrule
+        $u$ & 失业率 & $\mu$ & 职业匹配效率 \\
+        $s$ & 离职率 & $\alpha$ & 职业匹配弹性 \\
+        $L$ & 劳动力总量 & $v$ & 职位空缺率 \\
+        $U$ & 失业者数量 & $\theta$ & 劳动力市场的紧张度 \\
+        $M$ & 成功匹配数 & $f$ & 匹配率\\
+        $V$ & 职位空缺数量 & $g$ & 职位填补率 \\
+        $\kappa$ & 职位创造率 & $\delta$ & 职位销毁率 \\
+        \bottomrule
+    \end{tabular}
+    \caption{符号说明}
+\end{table}
+
+\section{数学模型建立}
+
+\subsection{简化的Diamond-Mortensen-Pissarides失业率模型}
+
+Diamond-Mortensen-Pissarides（DMP）模型\cite{diamond1982aggregate}\cite{mortensen1982property}是一种经典的劳动力市场模型，用于解释失业率的形成机制。首先，我们建立一个简化的DMP模型，用于描述在未引入人工智能技术的情况下，劳动力市场的运行机制。
+
+在 DMP 模型中，劳动力市场由两类经济主体组成：劳动者和雇主。劳动者在劳动力市场中寻找工作，而雇主则提供工作岗位。
+失业者$U$与职位空缺$V$之间的匹配可以通过以下方程描述：
+\begin{equation}
+    M(U, V) = \mu U^\alpha V^{1-\alpha}
+\end{equation}
+其中，$M(U, V)$ 表示成功匹配的数量，$\mu$ 是职业匹配效率，$\alpha$ 是职业匹配弹性，失业者数量 $U = L u$，职位空缺数量 $V = L v$，$L$ 是劳动力总量。
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[
+        node distance=4cm,
+        every path/.style={thick, ->, >=Stealth}
+    ]
+    \node[fill=blue!20, circle, draw] (unemployed) {Unemployed $U$};
+    \node[fill=green!20, right of=unemployed, circle, draw] (employed) {Employed};
+    \draw[->, bend left=30, text width=3.7cm, align=center] (unemployed) to node[midway, above=1em, font=\large] {Finding a job ($f(\theta)$) in Vacancy $V$} (employed);
+    \draw[->, bend left=30] (employed) to node[midway, below=1em, font=\large] {Job separation ($s$)} (unemployed);
+    \end{tikzpicture}
+    \caption{简化的Diamond-Mortensen-Pissarides模型}
+    \label{fig:dmp}
+\end{figure}
+如图 \ref{fig:dmp} 所示，劳动者在失业状态和就业状态之间转换，失业者在职位空缺中找到工作的概率由 $f(\theta)$ 表示，职位得到填补的概率由 $g()\theta)$ 表示。定义市场的紧张度 $\theta = V / U = v / u$，则有：
+\begin{equation}
+    f(\theta) = \frac{M(U, V)}{U} = \mu U^{\alpha-1} V^{1-\alpha} = \mu \theta^{1-\alpha}
+\end{equation}
+\begin{equation}
+    g(\theta) = \frac{M(U, V)}{V} = \mu U^\alpha V^{-\alpha} = \mu \theta^{-\alpha}
+\end{equation}
+失业率 $u$ 的变化由离职率 $s$ 和失业者找到工作的概率 $f$ 两部分决定，可以由以下微分方程描述：
+\begin{equation}
+    \dot{u} = s(1 - u) - f(\theta) u
+\end{equation}
+而职位空缺率 $v$ 的变化由离职率 $s$ 、职位得到填补的概率 $g$ 、职位创造率 $\kappa$和职位销毁率 $\delta$决定，可以由以下微分方程描述：
+\begin{equation}
+    \dot{v} = s(1 - u) - g(\theta) v + \kappa (1 - u) - \delta v
+\end{equation}
+由此，可写出劳动力市场的动态方程组：
+\begin{equation}
+    \begin{cases}
+        \dot{u}= s(1 - u) - \mu \theta^{1-\alpha} u \\
+        \dot{v}= s(1 - u) - \mu \theta^{-\alpha} v + \kappa (1 - u) - \delta v
+    \end{cases}
+    \label{eq:dmp}
+\end{equation}
+
+考察微分方程组 \eqref{eq:dmp} 的平衡点，即 $\dot{u} = \dot{v} = 0$，可得：
+\begin{equation}
+    \begin{cases}
+        u^* = \frac{s}{s + \mu \theta^{1-\alpha}} \\
+        v^* = \frac{\mu \theta \left(\kappa + s\right)}{\delta \mu \theta + \delta s \theta^{\alpha} + \mu^{2} \theta^{1 - \alpha} + \mu s}
+    \end{cases}
+\end{equation}
+
+\subsection{引入人工智能技术的DMP模型}
+
+
+
+\printbibliography[title={参考文献}]
+
+
+\end{document}
+
