@@ -106,9 +106,9 @@
 \end{titlepage}
 
 % abstract
-\newpage
+\phantomsection
 \centerline{\zihao{-3}\heiti \textbf{摘\quad 要}}
-\addcontentsline{toc}{chapter}{摘要}
+\addcontentsline{toc}{section}{摘要}
 \pagenumbering{Roman}
 
 \linespread{1.1}\zihao{-4} 
@@ -173,9 +173,8 @@ Artificial Intelligence, Employment Rate
 为了简化问题，我们做出以下假设：
 
 \begin{enumerate}[label=(\arabic*)]
-    \item 均质性假设：我们假设劳动力市场是均质的，所有劳动者具有相同的技能和素质；所有的工作岗位也是均质的，不考虑不同行业、不同岗位之间的差异。
-    \item 市场紧张度假设：职位空缺与失业者比率是均一且统一的，即不存在区域性或行业性的差异。 
-    \item 工资议价规则假设：工资由纳什议价公式决定，且双方的议价力量（劳动者和雇主）是固定的，不随时间或政策变化。
+    \item 均质性假设：我们假设劳动力市场是均质的，所有劳动者具有相同的技能和素质.
+    \item 市场紧张度假设：职位空缺与失业者比率是均一且统一的，即不存在区域性的差异。 
 \end{enumerate}
 
 \section{符号说明}
@@ -192,7 +191,9 @@ Artificial Intelligence, Employment Rate
         $U$ & 失业者数量 & $\theta$ & 劳动力市场的紧张度 \\
         $M$ & 成功匹配数 & $f$ & 匹配率\\
         $V$ & 职位空缺数量 & $g$ & 职位填补率 \\
-        $\kappa$ & 职位创造率 & $\delta$ & 职位销毁率 \\
+        $\eta$ & 人工智能应用程度 & $\rho$ & 人工智能替代率 \\
+        $k$ & 人工智能职业匹配效率参数 & $\gamma$ & 人工智能新职位创造参数 \\
+        $\epsilon$ & 人工智能离职参数 & & \\
         \bottomrule
     \end{tabular}
     \caption{符号说明}
@@ -209,7 +210,7 @@ Diamond-Mortensen-Pissarides（DMP）模型\cite{diamond1982aggregate}\cite{mort
 \begin{equation}
     M(U, V) = \mu U^\alpha V^{1-\alpha}
 \end{equation}
-其中，$M(U, V)$ 表示成功匹配的数量，$\mu$ 是职业匹配效率，$\alpha$ 是职业匹配弹性，失业者数量 $U = L u$，职位空缺数量 $V = L v$，$L$ 是劳动力总量。
+其中，$M(U, V)$ 表示成功匹配的数量，$\mu$ 是职业匹配效率，$\alpha$ 是职业匹配弹性。
 \begin{figure}[htbp]
     \centering
     \begin{tikzpicture}[
@@ -224,42 +225,89 @@ Diamond-Mortensen-Pissarides（DMP）模型\cite{diamond1982aggregate}\cite{mort
     \caption{简化的Diamond-Mortensen-Pissarides模型}
     \label{fig:dmp}
 \end{figure}
-如图 \ref{fig:dmp} 所示，劳动者在失业状态和就业状态之间转换，失业者在职位空缺中找到工作的概率由 $f(\theta)$ 表示，职位得到填补的概率由 $g()\theta)$ 表示。定义市场的紧张度 $\theta = V / U = v / u$，则有：
+如图 \ref{fig:dmp} 所示，劳动者在失业状态和就业状态之间转换，失业者在职位空缺中找到工作的概率由 $f(\theta)$ 表示，职位得到填补的概率由 $g(\theta)$ 表示。定义市场的紧张度 $\theta = U / V$，则有：
 \begin{equation}
-    f(\theta) = \frac{M(U, V)}{U} = \mu U^{\alpha-1} V^{1-\alpha} = \mu \theta^{1-\alpha}
+    f(\theta) = \frac{M(U, V)}{U} = \mu U^{\alpha-1} V^{1-\alpha} = \mu \theta^{\alpha-1}
 \end{equation}
 \begin{equation}
-    g(\theta) = \frac{M(U, V)}{V} = \mu U^\alpha V^{-\alpha} = \mu \theta^{-\alpha}
+    g(\theta) = \frac{M(U, V)}{V} = \mu U^\alpha V^{-\alpha} = \mu \theta^{\alpha}
 \end{equation}
 失业率 $u$ 的变化由离职率 $s$ 和失业者找到工作的概率 $f$ 两部分决定，可以由以下微分方程描述：
 \begin{equation}
-    \dot{u} = s(1 - u) - f(\theta) u
-\end{equation}
-而职位空缺率 $v$ 的变化由离职率 $s$ 、职位得到填补的概率 $g$ 、职位创造率 $\kappa$和职位销毁率 $\delta$决定，可以由以下微分方程描述：
-\begin{equation}
-    \dot{v} = s(1 - u) - g(\theta) v + \kappa (1 - u) - \delta v
-\end{equation}
-由此，可写出劳动力市场的动态方程组：
-\begin{equation}
-    \begin{cases}
-        \dot{u}= s(1 - u) - \mu \theta^{1-\alpha} u \\
-        \dot{v}= s(1 - u) - \mu \theta^{-\alpha} v + \kappa (1 - u) - \delta v
-    \end{cases}
+    \dot{u} = s(1 - u) - f(\theta) u = s(1 - u) - \mu \theta^{\alpha-1} u
     \label{eq:dmp}
 \end{equation}
 
-考察微分方程组 \eqref{eq:dmp} 的平衡点，即 $\dot{u} = \dot{v} = 0$，可得：
+考察微分方程 \eqref{eq:dmp} 的平衡点，即 $\dot{u} = 0$，可得：
 \begin{equation}
-    \begin{cases}
-        u^* = \frac{s}{s + \mu \theta^{1-\alpha}} \\
-        v^* = \frac{\mu \theta \left(\kappa + s\right)}{\delta \mu \theta + \delta s \theta^{\alpha} + \mu^{2} \theta^{1 - \alpha} + \mu s}
-    \end{cases}
+    u^* = \frac{s}{s + \mu \theta^{\alpha-1}}
+\end{equation}
+令 $F(u) = s(1 - u) - f(\theta) u$，则有 $F'(u^*) = -s - f(\theta) < 0$，即 $u^*$ 是一个稳定的平衡点。这说明，在此模型中，失业率 $u$ 最终会在一个稳定的水平上波动，受到离职率 $s$ 和市场紧张度 $\theta$ 的影响。
+
+\subsection{引入人工智能参数的简化DMP模型}
+
+在上述简化的DMP模型的基础上，我们引入人工智能技术参数，建立新的模型。
+
+设 $\eta$ 为人工智能应用程度，随着人工智能应用程度的增加，劳动力市场的职业匹配效率 $\mu$ 会发生变化。我们假设 $\mu'$ 与 $\eta$ 之间的关系为：
+\begin{equation}
+    \mu' = (1 + k\eta)\mu
+\end{equation}
+其中，$k$ 是人工智能职业匹配效率参数，$k > 0$ 表示人工智能技术的应用会提高劳动力市场的职业匹配效率。
+
+在人工智能引入后，空余岗位数量 $V$ 会发生变化，一方面，人工智能技术会取代一部分工作，导致空余岗位数量减少；另一方面，人工智能技术也会创造新的工作机会，增加空余岗位数量。
+我们假设人工智能替代率为 $\rho$，则有：
+\begin{equation}
+    V' = (1 - \rho\eta)(1 + \gamma\eta) V
+\end{equation}
+其中，$\gamma$ 是人工智能新职位创造参数，$\gamma > 0$ 表示人工智能技术的应用会增加劳动力市场的空余岗位数量。此外，市场的紧张度 $\theta$ 也会发生变化：
+\begin{equation}
+    \theta' = \frac{U}{V'} = \frac{U}{(1 - \rho\eta)(1 + \gamma\eta) V} = \frac{\theta}{(1 - \rho\eta)(1 + \gamma\eta)}
 \end{equation}
 
-\subsection{引入人工智能技术的DMP模型}
+人工智能技术的应用也会影响劳动力市场的离职率 $s$，人工智能对工作的替代会导致一部分劳动者失去工作，从而增加离职率。我们假设离职率 $s'$ 与人工智能应用程度 $\eta$ 之间的关系为：
+\begin{equation}
+    s' = (1 + \epsilon\eta)s
+\end{equation}
 
+在引入人工智能参数后，失业率 $u$ 的变化由以下微分方程描述：
+\begin{equation}
+    \dot{u} = s'(1 - u) - f(\theta') u = (1 + \epsilon\eta)s(1 - u) - (1 + k\eta)\mu \left(\frac{\theta}{(1 - \rho\eta)(1 + \gamma\eta)}\right)^{\alpha-1} u 
+\end{equation}
+其稳定平衡点为：
+\begin{equation}
+    u^* = \frac{(1 + \epsilon\eta)s}{(1 + \epsilon\eta)s + (1 + k\eta)\mu \left(\frac{\theta}{(1 - \rho\eta)(1 + \gamma\eta)}\right)^{\alpha-1}}
+\end{equation}
 
+\subsection{人工智能对单一国家就业率的影响}
 
+在上述模型的基础上，我们可以进一步考虑人工智能对国家就业率的影响。我们假设国家不同行业的劳动力市场的参数不同，即 $\mu$、$s$、$\rho$、$\gamma$、$k$、$\epsilon$ 等参数在不同行业之间存在差异。
+
+设 $u_i$ 为第 $i$ 个行业的失业率，$L_i$ 为第 $i$ 个行业的劳动力总量，$U_i$ 为第 $i$ 个行业的失业者数量，$V_i$ 为第 $i$ 个行业的职位空缺数量，$\theta_i$ 为第 $i$ 个行业的市场紧张度。则有：
+\begin{equation}
+    \dot{u_i} = (1 + \epsilon_i\eta)s_i(1 - u_i) - (1 + k_i\eta)\mu_i \left(\frac{\theta_i}{(1 - \rho_i\eta)(1 + \gamma_i\eta)}\right)^{\alpha-1} u_i
+\end{equation}
+国家平均失业率 $\bar{u}$ 可以由各行业失业率的加权平均得到：
+\begin{equation}
+    \bar{u} = \frac{\sum_{i=1}^n L_i u_i}{\sum_{i=1}^n L_i}
+\end{equation}
+
+\section{结果与比较}
+
+在建立的模型中，我们可以通过数值模拟的方法，研究人工智能对就业率的影响。
+
+\subsection{简化的DMP模型}
+
+在简化的DMP模型中，考虑不同的市场紧张度 $\theta$ 对失业率的影响。如图 \ref{fig:simple_dmp} 所示，分别取 $\theta = 0.01, 0.1, 0.5, 1.0, 1.5, 2.0$，可以看到，市场紧张度 $\theta$ 越大，失业率 $u$ 越高。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{img/simple_dmp.png}
+\caption{简化的DMP模型中失业率随市场紧张度的变化}
+\label{fig:simple_dmp}
+\end{figure}
+
+\phantomsection
+\addcontentsline{toc}{section}{参考文献}
 \printbibliography[title={参考文献}]
 
 
