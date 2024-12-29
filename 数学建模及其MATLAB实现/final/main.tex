@@ -55,7 +55,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % contstants
 \newcommand{\course}{《数学建模及其MATLAB实现》课程报告}
-\newcommand{\titleText}{人工智能对就业率有多大影响？}
+\newcommand{\titleText}{人工智能与就业率}
 \newcommand{\authorName}{李鹏达}
 \newcommand{\authorID}{10225101460}
 \newcommand{\yearMonth}{2024年12月}
@@ -114,21 +114,21 @@
 \linespread{1.1}\zihao{-4} 
 \bigskip
 \kaishu
-摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。摘要还没写。
+近年来，人工智能技术的迅速发展和应用对就业率产生了深远影响。本文以经典的Diamond-Mortensen-Pissarides（DMP）失业率模型为基础，结合人工智能技术的影响因素，对劳动力市场的动态平衡进行了建模和分析。研究引入了人工智能职业匹配效率、替代率、新职位创造率等关键参数，构建了包含人工智能因素的失业率模型。通过理论推导和数值模拟，本文探讨了人工智能技术对就业率的正负面影响，以及不同参数组合下劳动力市场的可能演化趋势。研究表明，人工智能技术既可能通过提升职业匹配效率和创造新岗位促进就业，也可能通过岗位替代效应加剧失业。本文为理解人工智能对劳动力市场的长期影响及制定相关政策提供了理论基础和实践参考。
 \bigskip
 
 \noindent{\heiti \textbf{关键词:}}
-人工智能，就业率
+人工智能，就业率，就业市场，DMP模型
 
 \songti
 \vspace{2cm}
 
 \noindent{\textit{Abstract---}}%
-Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. Not written yet. 
+The rapid development and application of artificial intelligence (AI) have profoundly impacted employment rates. Based on the classical Diamond-Mortensen-Pissarides (DMP) unemployment model, this paper incorporates key AI-related factors to analyze the dynamic equilibrium of the labor market. By introducing parameters such as AI-driven job matching efficiency, substitution rate, and new job creation rate, a modified unemployment model is proposed. Through theoretical derivation and numerical simulation, this study explores the positive and negative effects of AI on employment and examines potential labor market trajectories under different parameter settings. The results indicate that AI can both promote employment by enhancing job matching efficiency and creating new opportunities, while exacerbating unemployment through job displacement. This research provides a theoretical foundation and practical insights for understanding the long-term impact of AI on the labor market and for shaping relevant policy measures.
 
 \bigskip
 \noindent{\textit{Keywords---}}%
-Artificial Intelligence, Employment Rate
+Artificial intelligence, unemployment model, labor market, DMP model
 
 % 正文
 \newpage
@@ -175,6 +175,7 @@ Artificial Intelligence, Employment Rate
 \begin{enumerate}[label=(\arabic*)]
     \item 均质性假设：我们假设劳动力市场是均质的，所有劳动者具有相同的技能和素质.
     \item 市场紧张度假设：职位空缺与失业者比率是均一且统一的，即不存在区域性的差异。 
+    \item 二元状态假设：劳动者只有两种状态，即就业状态和失业状态。就业率可以简单地用失业率来表示。
 \end{enumerate}
 
 \section{符号说明}
@@ -191,9 +192,8 @@ Artificial Intelligence, Employment Rate
         $U$ & 失业者数量 & $\theta$ & 劳动力市场的紧张度 \\
         $M$ & 成功匹配数 & $f$ & 匹配率\\
         $V$ & 职位空缺数量 & $g$ & 职位填补率 \\
-        $\eta$ & 人工智能应用程度 & $\rho$ & 人工智能替代率 \\
+        $\epsilon$ & 人工智能离职参数 & $\rho$ & 人工智能替代率 \\
         $k$ & 人工智能职业匹配效率参数 & $\gamma$ & 人工智能新职位创造参数 \\
-        $\epsilon$ & 人工智能离职参数 & & \\
         \bottomrule
     \end{tabular}
     \caption{符号说明}
@@ -248,34 +248,34 @@ Diamond-Mortensen-Pissarides（DMP）模型\cite{diamond1982aggregate}\cite{mort
 
 在上述简化的DMP模型的基础上，我们引入人工智能技术参数，建立新的模型。
 
-设 $\eta$ 为人工智能应用程度，随着人工智能应用程度的增加，劳动力市场的职业匹配效率 $\mu$ 会发生变化。我们假设 $\mu'$ 与 $\eta$ 之间的关系为：
+随着人工智能应用程度的增加，人工智能辅助的职业匹配将使劳动力市场的职业匹配效率 $\mu$ 会发生变化。我们假设 $\mu'$ 为：
 \begin{equation}
-    \mu' = (1 + k\eta)\mu
+    \mu' = (1 + k)\mu
 \end{equation}
 其中，$k$ 是人工智能职业匹配效率参数，$k > 0$ 表示人工智能技术的应用会提高劳动力市场的职业匹配效率。
 
 在人工智能引入后，空余岗位数量 $V$ 会发生变化，一方面，人工智能技术会取代一部分工作，导致空余岗位数量减少；另一方面，人工智能技术也会创造新的工作机会，增加空余岗位数量。
 我们假设人工智能替代率为 $\rho$，则有：
 \begin{equation}
-    V' = (1 - \rho\eta)(1 + \gamma\eta) V
+    V' = (1 - \rho)(1 + \gamma) V
 \end{equation}
 其中，$\gamma$ 是人工智能新职位创造参数，$\gamma > 0$ 表示人工智能技术的应用会增加劳动力市场的空余岗位数量。此外，市场的紧张度 $\theta$ 也会发生变化：
 \begin{equation}
-    \theta' = \frac{U}{V'} = \frac{U}{(1 - \rho\eta)(1 + \gamma\eta) V} = \frac{\theta}{(1 - \rho\eta)(1 + \gamma\eta)}
+    \theta' = \frac{U}{V'} = \frac{U}{(1 - \rho)(1 + \gamma) V} = \frac{\theta}{(1 - \rho)(1 + \gamma)}
 \end{equation}
 
-人工智能技术的应用也会影响劳动力市场的离职率 $s$，人工智能对工作的替代会导致一部分劳动者失去工作，从而增加离职率。我们假设离职率 $s'$ 与人工智能应用程度 $\eta$ 之间的关系为：
+人工智能技术的应用也会影响劳动力市场的离职率 $s$，人工智能对工作的替代会导致一部分劳动者失去工作，从而增加离职率。我们假设离职率 $s'$ 为：
 \begin{equation}
-    s' = (1 + \epsilon\eta)s
+    s' = (1 + \epsilon)s
 \end{equation}
 
 在引入人工智能参数后，失业率 $u$ 的变化由以下微分方程描述：
 \begin{equation}
-    \dot{u} = s'(1 - u) - f(\theta') u = (1 + \epsilon\eta)s(1 - u) - (1 + k\eta)\mu \left(\frac{\theta}{(1 - \rho\eta)(1 + \gamma\eta)}\right)^{\alpha-1} u 
+    \dot{u} = s'(1 - u) - f(\theta') u = (1 + \epsilon)s(1 - u) - (1 + k)\mu \left(\frac{\theta}{(1 - \rho)(1 + \gamma)}\right)^{\alpha-1} u 
 \end{equation}
 其稳定平衡点为：
 \begin{equation}
-    u^* = \frac{(1 + \epsilon\eta)s}{(1 + \epsilon\eta)s + (1 + k\eta)\mu \left(\frac{\theta}{(1 - \rho\eta)(1 + \gamma\eta)}\right)^{\alpha-1}}
+    u^* = \frac{(1 + \epsilon)s}{(1 + \epsilon)s + (1 + k)\mu \left(\frac{\theta}{(1 - \rho)(1 + \gamma)}\right)^{\alpha-1}}
 \end{equation}
 
 \subsection{人工智能对单一国家就业率的影响}
@@ -284,7 +284,7 @@ Diamond-Mortensen-Pissarides（DMP）模型\cite{diamond1982aggregate}\cite{mort
 
 设 $u_i$ 为第 $i$ 个行业的失业率，$L_i$ 为第 $i$ 个行业的劳动力总量，$U_i$ 为第 $i$ 个行业的失业者数量，$V_i$ 为第 $i$ 个行业的职位空缺数量，$\theta_i$ 为第 $i$ 个行业的市场紧张度。则有：
 \begin{equation}
-    \dot{u_i} = (1 + \epsilon_i\eta)s_i(1 - u_i) - (1 + k_i\eta)\mu_i \left(\frac{\theta_i}{(1 - \rho_i\eta)(1 + \gamma_i\eta)}\right)^{\alpha-1} u_i
+    \dot{u_i} = (1 + \epsilon_i)s_i(1 - u_i) - (1 + k_i)\mu_i \left(\frac{\theta_i}{(1 - \rho_i)(1 + \gamma_i)}\right)^{\alpha-1} u_i
 \end{equation}
 国家平均失业率 $\bar{u}$ 可以由各行业失业率的加权平均得到：
 \begin{equation}
@@ -297,18 +297,119 @@ Diamond-Mortensen-Pissarides（DMP）模型\cite{diamond1982aggregate}\cite{mort
 
 \subsection{简化的DMP模型}
 
-在简化的DMP模型中，考虑不同的市场紧张度 $\theta$ 对失业率的影响。如图 \ref{fig:simple_dmp} 所示，分别取 $\theta = 0.01, 0.1, 0.5, 1.0, 1.5, 2.0$，可以看到，市场紧张度 $\theta$ 越大，失业率 $u$ 越高。
+在简化的DMP模型中，考虑不同的市场紧张度 $\theta$和离职率 $s$ 对失业率的影响。如图 \ref{fig:simple_dmp} 所示，可以看到，市场紧张度 $\theta$ 或离职率 $s$ 越大，失业率 $u$ 越高。
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{img/simple_dmp.png}
-\caption{简化的DMP模型中失业率随市场紧张度的变化}
+\caption{简化的DMP模型中失业率随市场紧张度和离职率的变化}
 \label{fig:simple_dmp}
 \end{figure}
 
+\subsection{引入人工智能参数的简化DMP模型}
+
+在引入人工智能参数的简化DMP模型中，我们可以考虑不同的人工智能参数对失业率的影响。根据不同参数的影响，我们可以将职业按照特点分成以下几类：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item AI替代型职业
+    
+    \begin{itemize}
+        \item 特点：人工智能技术的应用会大量取代工作，同时并不能提供新就业岗位，$\rho$ 较大, $\gamma$ 较小；因逐渐被人工智能取代，离职率增加，$\epsilon$ 较大；行业收缩， 职业匹配效率下降，$k$ 为负数。
+        \item 示例：数据录入员，快递分拣员
+    \end{itemize}
+
+    \item AI驱动型新兴职业
+    
+    \begin{itemize}
+        \item 特点：人工智能技术的应用创造大量工作机会，AI驱动型产业，替代率极低，$\rho$ 极小, $\gamma$ 较大；离职率降低，$\epsilon$ 为负数；职业匹配效率提升，$k$ 较大。
+        \item 示例：AI工程师，数据科学家
+    \end{itemize}
+    
+    \item 适应性变革型职业
+    
+    \begin{itemize}
+        \item 特点：人工智能技术的应用会取代部分工作，但也会创造新的工作机会，$\rho$ 和 $\gamma$ 均为中等水平；离职率增加，$\epsilon$ 较大；职业匹配效率提升，$k$ 较大。
+        \item 示例：销售员，客服人员
+    \end{itemize}
+
+    \item 低AI影响职业
+    
+    \begin{itemize}
+        \item 特点：人工智能技术的应用对工作影响较小，$\rho$ 和 $\gamma$ 均为极小；离职率无显著变化，$\epsilon$ 接近0；劳动市场稳定，职业匹配效率提升，$k$ 较大。
+        \item 示例：厨师，保洁员
+    \end{itemize}
+
+    \item AI辅助型职业
+    
+    \begin{itemize}
+        \item 特点：人工智能技术的应用会提高工作效率，但难以取代工作，$\rho$ 较小, $\gamma$ 中等；离职率较低，$\epsilon$ 较小；职业匹配效率提升，$k$ 较大。
+        \item 示例：医生，律师
+    \end{itemize}
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/dmp_ai.png}
+    \caption{引入人工智能参数的简化DMP模型中不同类型职业的失业率及比较}
+    \label{fig:dmp_ai}
+\end{figure}
+
+如图 \ref{fig:dmp_ai} 所示，不同类型的职业在引入人工智能参数后，失业率的变化情况。可以看到，AI替代型职业由于人工智能技术的应用，失业率显著增加；AI驱动型新兴职业由于人工智能技术的创新，失业率显著降低；适应性变革型职业和AI辅助型职业的失业率变化较小；低AI影响职业的失业率保持稳定。
+
+\subsection{人工智能对单一国家就业率的影响}
+
+在考虑不同行业的劳动力市场参数后，我们可以进一步研究人工智能对单一国家就业率的影响。
+
+以美国为例，根据美国经济分析局2023年GDP数据\cite{bea2023gdp}，我们可以将美国劳动力市场的各行业按照其对人工智能的依赖程度分为不同类型，如表 \ref{tab:gdp_classification} 所示。
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{p{5cm}p{6cm}p{2cm}}
+    \toprule
+    \textbf{职业分类} & \textbf{对应行业} & \textbf{GDP占比} \\
+    \midrule
+    AI替代型职业 & 零售贸易、运输和仓储 & 9.9\% \\
+    AI驱动型新兴职业 & 信息、专业和商业服务 & 18.4\% \\
+    适应性变革型职业 & 制造业、艺术、娱乐、住宿和食品服务 & 14.8\% \\
+    低AI影响职业 & 农业、林业、渔业和狩猎、教育服务、医疗保健和社会援助 & 9.5\% \\
+    AI辅助型职业 & 金融、保险、不动产、租赁和租赁，政府，建筑 & 36.5\% \\
+    \bottomrule
+    \end{tabular}
+    \caption{美国各职业分类对应行业及其GDP占比}
+    \label{tab:gdp_classification}
+\end{table}
+
+根据我们先前建立的模型和对各行业的分类，在没有足量数据拟合的情况下，我们可以简单地进行定性分析——人工智能带来的技术变革将在最终稳定后对美国整体就业率产生一定的积极影响，但在此之前，由于技术的不断变革和恐慌情绪的蔓延，失业率将会有所波动。
+
+\section{结论}
+本文通过扩展经典的Diamond-Mortensen-Pissarides（DMP）失业率模型，尝试研究人工智能技术对就业率的影响机制。基于简化的模型，我们引入了人工智能相关的参数，包括职业匹配效率参数、替代率和新职位创造参数，并分析了这些参数对劳动力市场动态的影响。
+
+研究表明，人工智能技术的发展对就业率的影响具有双重性。一方面，人工智能通过提高职业匹配效率和创造新职位，能够促进劳动力市场的流动性，从而降低失业率；另一方面，人工智能的替代效应可能导致部分劳动者失业，进而增加整体失业率的风险。这种影响的具体程度取决于人工智能技术的应用深度、行业分布以及劳动力市场的适应能力。
+
+未来的研究可以进一步结合具体行业或地区的数据，通过深度学习等方法拟合本文模型，并探索更多影响人工智能与就业关系的潜在因素，为制定相关政策提供科学依据。
+
+\section{问题}
+
+在研究过程中，我们发现以下新的问题和模型的改进空间：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item 政策与市场调节的作用未纳入
+    
+    政府政策、社会保障体系和劳动者再培训机制等对人工智能技术冲击的缓解作用在本研究中未被充分考虑。这些政策变量在现实中可能显著影响失业率的变化趋势，未来研究可以进一步将政策干预的动态效应纳入模型分析。
+
+    \item 数据驱动模型的引入
+    
+    人工智能的大范围应用距今时间较短，相关数据的收集和整理工作尚未完全完成。本研究主要基于理论模型推导，缺乏真实数据的支撑。未来研究可以结合实际经济数据，利用机器学习技术构建数据驱动的混合模型，验证理论模型的有效性并优化参数设定。
+
+    \item 二元状态假设的拓展
+    
+    本研究中，我们假设劳动者只有就业和失业两种状态，未考虑劳动力市场中其他可能存在的状态。未来研究可以进一步拓展模型，引入更多状态变量，如劳动力市场的灵活就业、自由职业等状态，以更全面地分析人工智能对就业率的影响。
+\end{enumerate}
+
+\newpage
 \phantomsection
 \addcontentsline{toc}{section}{参考文献}
-\printbibliography[title={参考文献}]
+\printbibliography[title={\zihao{-3} \heiti \centering 参\ 考\ 文\ 献}]
 
 
 \end{document}
