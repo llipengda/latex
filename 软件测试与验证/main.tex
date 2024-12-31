@@ -256,7 +256,7 @@ EvoSuite${}_{FSOn}$生成的\flakyTest 数量与EvoSuite${}_{FSOff}$生成的数
 
 结合分析，作者建议EvoSuite用户开启Flakiness抑制机制，并调整标志参数和移除特定脚手架文件，而Pynguin用户应设置随机数种子，从而尽可能地减少随机性带来的Flakiness。这些建议为目前部分已知根本原因的问题提供了有效解决方案。
 
-\subsection{总结反思}
+\section{总结反思}
 
 \flakyTest s是软件测试中常见且棘手的现象。在此研究中，研究团队证明了不稳定性不仅会影响开发者编写的测试，且 \flakyTest 在生成的测试中比在开发者编写的测试中更为常见。EvoSuite的Flakiness抑制机制能够有效降低测试的Flakiness，但也可能会引入新类别的 \flakyTest。生成的测试与开发者编写的测试具有相同的根本原因，但这些原因的分布有所不同：开发者编写的\flakyTest 通常由并发和网络操作引起，而生成的\flakyTest 则往往是由随机性和未指定行为导致的。 
 
