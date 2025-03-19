@@ -1,0 +1,213 @@
+\documentclass{article}[12pt, a4paper]
+\usepackage{amsmath, amssymb}
+
+\title{Exercise 4}
+\author{LI, Pengda \\ 10225101460}
+\date{}
+
+\linespread{1.2}
+
+\newcounter{problemname}
+\newenvironment{problem}{\stepcounter{problemname}\par\noindent\textsc{\arabic{problemname}.}}{\\\par}
+\newenvironment{solution}{\par\noindent\textsc{Solution. }}{\\\\\par}
+
+\begin{document}
+\maketitle
+
+\begin{problem}
+    Show that the matrix \( H_n \) is unitary and that quantum initialisation (1) is given by \( H_n \delta_0 \).
+\end{problem}
+
+\begin{solution}
+    The matrix \( H_n \) is defined as
+    \[
+    H_{2^n} = 2^{-n/2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}^{\otimes n}.
+    \]
+    We can prove that \( H_n \) is unitary by reduction.
+    When $n=2$,
+    $$
+    H_2 = 2^{-1/2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}, 
+    H_2^{\dagger} = 2^{-1/2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}。
+    $$
+    Then
+    $$
+    H_2 H_2^{\dagger} = H_2^{\dagger} H_2 = 2^{-1} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} = 2^{-1} \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix} = I_2.
+    $$
+    Thus, \( H_2 \) is unitary.
+    Suppose that \( H_n \) is unitary, then
+    $$
+    H_{2n} = H_n \otimes H_2 = 2^{-1/2}\begin{pmatrix}
+        H_n & H_n \\
+        H_n & -H_n
+    \end{pmatrix},
+    H_{2n}^{\dagger} = 2^{-1/2}\begin{pmatrix}
+        H_n^{\dagger} & H_n^{\dagger} \\
+        H_n^{\dagger} & -H_n^{\dagger}
+    \end{pmatrix}.
+    $$
+    $$
+    \begin{aligned}
+        H_{2n} H_{2n}^{\dagger} = H_{2n}^{\dagger} H_{2n} &= 2^{-1}\begin{pmatrix}
+            H_n & H_n \\
+            H_n & -H_n
+        \end{pmatrix} \begin{pmatrix}
+            H_n^{\dagger} & H_n^{\dagger} \\
+            H_n^{\dagger} & -H_n^{\dagger}
+        \end{pmatrix} \\
+        &= 2^{-1}\begin{pmatrix}
+            2H_n H_n^{\dagger} & 0 \\
+            0 & -2H_n H_n^{\dagger}
+        \end{pmatrix} \\
+        &= 2^{-1}\begin{pmatrix}
+            2I_n & 0 \\
+            0 & -2I_n
+        \end{pmatrix} \\
+        &= I_{2n}.
+    \end{aligned}
+    $$
+    Thus, \( H_{2n} \) is unitary.
+    Therefore, \( H_n \) is unitary.
+
+    Then we prove that quantum initialisation (1) is given by \( H_n \delta_0 \).
+    
+    For \( n = 2 \),
+    \[
+    H_2 \delta_0 = 2^{-1/2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} \begin{pmatrix} 1 \\ 0  \end{pmatrix} = 2^{-1/2} \begin{pmatrix} 1 \\ 1 \end{pmatrix}.
+    \]
+
+    Suppose that $H_{2^n} \delta_0 = 2^{-n/2} \begin{pmatrix} 1 \\ 1 \\ \vdots \\ 1 \end{pmatrix}$ holds, then
+    \[
+    H_{2^{n+1}} \delta_0 = 2^{-1/2} \begin{pmatrix}
+        H_{2^n} & H_{2^n} \\
+        H_{2^n} & -H_{2^n}
+    \end{pmatrix} \begin{pmatrix} 1 \\ 0 \\ \vdots \\ 0 \end{pmatrix} = 2^{-1/2} \begin{pmatrix} H_{2^n} \\ H_{2^n} \end{pmatrix} = 2^{-(n+1)/2} \begin{pmatrix} 1 \\ 1 \\ \vdots \\ 1 \end{pmatrix},
+    \]
+    which is the initialization of a $(n+1)$-qubit quantum system.
+
+    Thus, quantum initialization (1) is given by \( H_n \delta_0 \).
+\end{solution}
+
+\begin{problem}
+    Check that the matrix \( \Phi_{\phi} \) for phase shift is unitary.
+\end{problem}
+
+\begin{solution}
+    $$
+    \Phi_{\phi} = \begin{pmatrix}
+        1 & 0 \\
+        0 & \mathrm{e}^{\mathrm{i}\phi}
+    \end{pmatrix},
+    \Phi_{\phi}^{\dagger} = \begin{pmatrix}
+        1 & 0 \\
+        0 & \mathrm{e}^{-\mathrm{i}\phi}
+    \end{pmatrix}.
+    $$
+    Then we have
+    $$
+    \begin{aligned}
+        \Phi_{\phi} \Phi_{\phi}^{\dagger} &= \begin{pmatrix}
+            1 & 0 \\
+            0 & \mathrm{e}^{\mathrm{i}\phi}
+        \end{pmatrix} \begin{pmatrix}
+            1 & 0 \\
+            0 & \mathrm{e}^{-\mathrm{i}\phi}
+        \end{pmatrix} \\
+        &= \begin{pmatrix}
+            1 & 0 \\
+            0 & \mathrm{e}^{\mathrm{i}\phi} \mathrm{e}^{-\mathrm{i}\phi}
+        \end{pmatrix} \\
+        &= \begin{pmatrix}
+            1 & 0 \\
+            0 & 1
+        \end{pmatrix} \\
+        &= I_2, \\
+    \end{aligned}
+    $$
+    and
+    $$
+    \begin{aligned}
+        \Phi_{\phi}^{\dagger} \Phi_{\phi} &= \begin{pmatrix}
+            1 & 0 \\
+            0 & \mathrm{e}^{-\mathrm{i}\phi}
+        \end{pmatrix} \begin{pmatrix}
+            1 & 0 \\
+            0 & \mathrm{e}^{\mathrm{i}\phi}
+        \end{pmatrix} \\
+        &= \begin{pmatrix}
+            1 & 0 \\
+            0 & \mathrm{e}^{-\mathrm{i}\phi} \mathrm{e}^{\mathrm{i}\phi}
+        \end{pmatrix} \\
+        &= \begin{pmatrix}
+            1 & 0 \\
+            0 & 1
+        \end{pmatrix} \\
+        &= I_2.
+    \end{aligned}
+    $$
+
+    Thus, the matrix \( \Phi_{\phi} \) for phase shift is unitary.
+\end{solution}
+
+\begin{problem}
+    Recall the operator \( T_f \). Identify \( T_{\oplus} \), for exclusive or, and show that it is unitary.
+\end{problem}
+
+\begin{solution}
+    $$
+    T_{\oplus} \rightsquigarrow \begin{pmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & -1 & 0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 & 0 & 1
+    \end{pmatrix},
+    T_{\oplus}^{\dagger} = \begin{pmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & -1 & 0 & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 & 0 & 1
+    \end{pmatrix}.
+    $$
+    Then
+    $$
+    \begin{aligned}
+        T_{\oplus} T_{\oplus}^{\dagger} = T_{\oplus}^{\dagger} T_{\oplus} &= \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & -1 & 0 & 0 \\
+            0 & 0 & -1 & 0 \\
+            0 & 0 & 0 & 1
+        \end{pmatrix} \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & -1 & 0 & 0 \\
+            0 & 0 & -1 & 0 \\
+            0 & 0 & 0 & 1
+        \end{pmatrix} \\
+        &= \begin{pmatrix}
+            1 & 0 & 0 & 0 \\
+            0 & 1 & 0 & 0 \\
+            0 & 0 & 1 & 0 \\
+            0 & 0 & 0 & 1
+        \end{pmatrix} \\
+        &= I_4,
+    \end{aligned}
+    $$
+
+    So the operator \( T_{\oplus} \) is unitary.
+\end{solution}
+
+\begin{problem}
+    What is the result of including in the program for the random bit, evolution by
+    \[
+    2^{-1/2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}?
+    \]
+\end{problem}
+
+\begin{solution}
+    It turns a normal state into a quantum state with equal probability of being in the 0 state and the 1 state since
+    \[
+    2^{-1/2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} \begin{pmatrix} 1 \\ 0 \end{pmatrix} = 2^{-1/2} \begin{pmatrix} 1 \\ 1 \end{pmatrix},
+    \]
+    \[
+    2^{-1/2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = 2^{-1/2} \begin{pmatrix} 1 \\ -1 \end{pmatrix}.
+    \]
+\end{solution}
+\end{document}

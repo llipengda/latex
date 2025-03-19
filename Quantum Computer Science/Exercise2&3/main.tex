@@ -1,0 +1,196 @@
+\documentclass{article}[12pt, a4paper]
+\usepackage{amsmath, amssymb}
+
+\title{Exercise 2 \& 3}
+\author{LI, Pengda \\ 10225101460}
+\date{}
+
+\linespread{1.2}
+
+\newcounter{problemname}
+\newenvironment{problem}{\stepcounter{problemname}\par\noindent\textsc{\arabic{problemname}.}}{\\\par}
+\newenvironment{solution}{\par\noindent\textsc{Solution. }}{\\\\\par}
+
+\begin{document}
+\maketitle
+
+\section*{Exercise 2}
+
+\begin{problem}
+If Schrödinger’s cat happens to be in state 
+    \(
+    \frac{1}{\sqrt{2}} (-1, -1)
+    \)
+    on the unit circle, what is the observed result?
+\end{problem}
+
+\begin{solution}
+Let \(\chi = \frac{1}{\sqrt{2}} (-1, -1) \), then $\left| \langle \chi, \delta_0 \rangle \right| = \frac{1}{2}$ and $\left| \langle \chi, \delta_1 \rangle \right| = \frac{1}{2}$, where $\delta_0 = (1, 0)$ and $\delta_1 = (0, 1)$. So the observed result is $50\%$ in state alive and $50\%$ in state dead.
+\end{solution}
+
+\begin{problem}
+    What about in state \( (0, -1) \)?
+\end{problem}
+
+\begin{solution}
+Assume $\delta_0 = (1, 0)$ means ``alive'' and $\delta_1 = (0, 1)$ means ``dead''.
+Let \(\chi = (0, -1) \), then $\left| \langle \chi, \delta_0 \rangle \right| = 0$ and $\left| \langle \chi, \delta_1 \rangle \right| = 1$. So the observed result is $100\%$ in state dead. The state $(0, -1)$ is same as the state $(0, 1)$, since the square of their projections on the axes are the same. 
+\end{solution}
+
+\begin{problem}
+Suppose that instead of the unit circle in the plane, the quantum state of Schrödinger’s cat, a qubit, is represented as the set of complex numbers with modulus 1,
+    \[
+    \{ z : \mathbb{C} \mid z = \mathrm{e}^{\mathrm{i}\theta}, 0 \leq \theta \leq 2\pi \}
+    \]
+    so \( \theta \) is in radians. How are the states in the first two questions represented? What results if the cat is observed in state \( \mathrm{e}^{\mathrm{i} 3.0} \)?
+\end{problem}
+
+\begin{solution}
+$\frac{1}{\sqrt{2}} (-1, -1)$ can be represented as $\frac{1}{\sqrt{2}}(-1 - i)$. It is equivalent to $\mathrm{e}^{\mathrm{i}\frac{3\pi}{4}}$, according to Euler's formula. So the state in question 1 is $\mathrm{e}^{\mathrm{i}\frac{3\pi}{4}}$.
+
+In the same way, $(0, -1)$ can be represented as $\mathrm{e}^{\mathrm{i}\frac{3\pi}{2}}$.
+
+$\mathrm{e}^{\mathrm{i}3.0} = \cos{3.0} + \mathrm{i}\sin{3.0}$ represents the state $(\cos{3.0}, \sin{3.0})$. So the observed result is dead of probability $\sin^2{3.0} (\approx 0.02)$ and alive of probability $\cos^2{3.0} (\approx 0.98)$. (Assume $(1, 0)$ means alive and $(0, 1)$ means dead.)
+\end{solution}
+
+\section*{Exercise 3}
+\setcounter{problemname}{0}
+
+\begin{problem}
+    Show how to construct the standard basis of $\mathbb{R}^8$ from the standard basis of $\mathbb{R}^2$ using tensor product.
+\end{problem}
+
+\begin{solution}
+    The standard basis of $\mathbb{R}^2$ is 
+    \[
+    \delta_0 = \begin{pmatrix} 1 \\ 0 \end{pmatrix}, \quad \delta_1 = \begin{pmatrix} 0 \\ 1 \end{pmatrix}
+    \]
+    \newcommand{\deltazero}{\begin{pmatrix} 1 \\ 0 \end{pmatrix}}
+    \newcommand{\deltaone}{\begin{pmatrix} 0 \\ 1 \end{pmatrix}}
+    Then the standard basis of $\mathbb{R}^8$ is
+    $$
+    \begin{aligned}
+    \deltazero \otimes \deltazero \otimes \deltazero &= \begin{pmatrix}
+        1 \\ 0 \\ 0 \\ 0
+    \end{pmatrix} \otimes \deltazero = \begin{pmatrix}
+        1 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+    \end{pmatrix}^T \\
+    \deltazero \otimes \deltazero \otimes \deltaone &= \begin{pmatrix}
+        1 \\ 0 \\ 0 \\ 0
+    \end{pmatrix} \otimes \deltaone = \begin{pmatrix}
+        0 & 1 & 0 & 0 & 0 & 0 & 0 & 0
+    \end{pmatrix}^T \\
+    \deltazero \otimes \deltaone \otimes \deltazero &= \begin{pmatrix}
+        0 \\ 1 \\ 0 \\ 0
+    \end{pmatrix} \otimes \deltazero = \begin{pmatrix}
+        0 & 0 & 1 & 0 & 0 & 0 & 0 & 0
+    \end{pmatrix}^T \\
+    \deltazero \otimes \deltaone \otimes \deltaone &= \begin{pmatrix}
+        0 \\ 1 \\ 0 \\ 0
+    \end{pmatrix} \otimes \deltaone = \begin{pmatrix}
+        0 & 0 & 0 & 1 & 0 & 0 & 0 & 0
+    \end{pmatrix}^T \\
+    \deltaone \otimes \deltazero \otimes \deltazero &= \begin{pmatrix}
+        0 \\ 0 \\ 1 \\ 0
+    \end{pmatrix} \otimes \deltazero = \begin{pmatrix}
+        0 & 0 & 0 & 0 & 1 & 0 & 0 & 0
+    \end{pmatrix}^T \\
+\end{aligned}
+$$
+$$
+\begin{aligned}
+    \deltaone \otimes \deltazero \otimes \deltaone &= \begin{pmatrix}
+        0 \\ 0 \\ 1 \\ 0
+    \end{pmatrix} \otimes \deltaone = \begin{pmatrix}
+        0 & 0 & 0 & 0 & 0 & 1 & 0 & 0
+    \end{pmatrix}^T \\
+    \deltaone \otimes \deltaone \otimes \deltazero &= \begin{pmatrix}
+        0 \\ 0 \\ 0 \\ 1
+    \end{pmatrix} \otimes \deltazero = \begin{pmatrix}
+        0 & 0 & 0 & 0 & 0 & 0 & 1 & 0
+    \end{pmatrix}^T \\
+    \deltaone \otimes \deltaone \otimes \deltaone &= \begin{pmatrix}
+        0 \\ 0 \\ 0 \\ 1
+    \end{pmatrix} \otimes \deltaone = \begin{pmatrix}
+        0 & 0 & 0 & 0 & 0 & 0 & 0 & 1
+    \end{pmatrix}^T
+    \end{aligned}
+    $$
+\end{solution}
+
+
+\begin{problem}
+    Let $I_n$ be the identity matrix of dimension $n$. What is $I_2 \otimes I_2$? And $I_2 \otimes I_2 \otimes I_2$?
+\end{problem}
+
+\begin{solution}
+    $$
+        I_2 = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \\ 
+    $$
+    $$
+        I_2 \otimes I_2 = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \otimes \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix} = I_4 \\
+    $$
+    $$
+        I_2 \otimes I_2 \otimes I_2 = \begin{pmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix} \otimes \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} = \begin{pmatrix} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \end{pmatrix} = I_8
+    $$
+    $$
+    \begin{matrix}
+        \underbrace{I_2 \otimes I_2 \otimes \cdots \otimes I_2} \\
+        n \text{ times}
+    \end{matrix}
+    = I_{2^n}
+    $$
+\end{solution}
+
+\begin{problem}
+    Let $H_2 := \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$. What is $H_2 \otimes H_2$? $H_2 \otimes H_2 \otimes H_2$?
+\end{problem}
+
+\begin{solution}
+$$
+H_2 \otimes H_2 = \frac{1}{2} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} \otimes \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} = \frac{1}{2} \begin{pmatrix} 1 & 1 & 1 & 1 \\ 1 & -1 & 1 & -1 \\ 1 & 1 & -1 & -1 \\ 1 & -1 & -1 & 1 \end{pmatrix}
+$$
+$$
+\begin{aligned}
+    H_2 \otimes H_2 \otimes H_2 &= \frac{1}{2} \begin{pmatrix} 1 & 1 & 1 & 1 \\ 1 & -1 & 1 & -1 \\ 1 & 1 & -1 & -1 \\ 1 & -1 & -1 & 1 \end{pmatrix} \otimes \frac{1}{\sqrt{2}} \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} \\
+    &= \frac{1}{2\sqrt{2}} \begin{pmatrix} 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\ 1 & -1 & 1 & -1 & 1 & -1 & 1 & -1 \\ 1 & 1 & -1 & -1 & 1 & 1 & -1 & -1 \\ 1 & -1 & -1 & 1 & 1 & -1 & -1 & 1 \\ 1 & 1 & 1 & 1 & -1 & -1 & -1 & -1 \\ 1 & -1 & 1 & -1 & -1 & 1 & -1 & 1 \\ 1 & 1 & -1 & -1 & -1 & -1 & 1 & 1 \\ 1 & -1 & -1 & 1 & -1 & 1 & 1 & -1 \end{pmatrix}
+\end{aligned}
+$$
+\end{solution}
+
+\begin{problem}
+    Show that quantum states are orthogonal if they are antipodal, i.e., diametrically opposite, on the Bloch sphere (like $\delta_0$ and $\delta_1$).
+\end{problem}
+
+\begin{solution}
+    Let $\psi_1 = (\theta, \phi)$ be a state on the Bloch sphere. Then the antipodal state is $\psi_2 = (\pi - \theta, \phi + \pi)$. $\psi_1 = (\theta, \phi)$ can be represented as $\cos{\frac{\theta}{2}}\delta_0+\sin{\frac{\theta}{2}}\mathrm{e}^{\phi \mathrm{i}}\delta_1$(I learned this from the internet). Then $\psi_2 = \cos{\frac{\pi-\theta}{2}}\delta_0+\mathrm{e}^{(\phi + \pi)\mathrm{i}}\sin\frac{\pi - \theta}{2}\delta_1 = \sin{\frac{\theta}{2}}\delta_0 - \mathrm{e}^{\phi \mathrm{i}}\cos{\frac{\theta}{2}}$. Their inner product is
+    $$
+    \begin{aligned}
+        \langle \psi_1, \psi_2 \rangle &= \sin{\frac{\theta}{2}}\cos{\frac{\theta}{2}} - \sin{\frac{\theta}{2}}\cos{\frac{\theta}{2}} \mathrm{e}^{(\phi - \phi)\mathrm{i}} \\
+        &= \sin{\frac{\theta}{2}}\cos{\frac{\theta}{2}} - \sin{\frac{\theta}{2}}\cos{\frac{\theta}{2}} \\
+        &= 0
+    \end{aligned}
+    $$
+    So they are orthogonal.
+
+    (Actually, I do not really understand this problem. I used some knowledge I learned from the internet to solve it.)
+\end{solution}
+
+\begin{problem}
+    Show how to initialise the system consisting of a pair of Schrödinger cats. What is the result after evolution by $H_2 \otimes H_2$?
+\end{problem}
+
+\begin{solution}
+    A Schrödinger's cat can be represented as $\frac{1}{\sqrt{2}}(1, 1)$. Then a pair of Schrödinger's cats can be represented as 
+    $$
+    \frac{1}{\sqrt{2}}(1, 1) \otimes \frac{1}{\sqrt{2}}(1, 1) = \frac{1}{2}(1, 1, 1, 1)
+    $$
+    After evolution by $H_2 \otimes H_2$, the state becomes
+    $$
+    \frac{1}{2} \begin{pmatrix}
+        1& 1& 1& 1
+    \end{pmatrix}
+    \frac{1}{2} \begin{pmatrix} 1 & 1 & 1 & 1 \\ 1 & -1 & 1 & -1 \\ 1 & 1 & -1 & -1 \\ 1 & -1 & -1 & 1 \end{pmatrix} = \begin{pmatrix} 1 & 0 & 0 & 0 \end{pmatrix}
+    $$
+\end{solution}
+\end{document}
