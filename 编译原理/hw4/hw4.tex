@@ -1,0 +1,421 @@
+\documentclass[a4paper, body={18cm,22cm}]{article}
+\usepackage{ctex}
+\usepackage{amsmath}
+\usepackage{forest}
+
+
+\title{Homework 4: 上下文无关文法}
+\author{李鹏达 10225101460}
+\date{}
+\begin{document}
+\maketitle
+
+\subsection*{1.为下列语言设计上下文无关文法。 也请思考下列语言可不可以设计正规表达式? }
+
+\begin{enumerate}
+    \item[a)] 满足这样条件的二进制串:每个 0 之后都紧跟着至少一个 1；  
+    
+    $S \to 1S \mid 01S \mid \epsilon
+    $
+
+    写成正规表达式：$(1^*011^*)^*$
+    \item[b)] 0 和 1 个数相等的二进制串；
+    
+    $S \to 0S1 \mid 1S0 \mid SS \mid \epsilon$
+
+    无法写成正规表达式。
+    \item[c)] 不含 011 子串的二进制串；  
+    
+    $
+    S \to 0A \mid 1S \mid \epsilon \\
+    A \to 0A \mid 1B \mid \epsilon \\
+    B \to 0A \mid \epsilon
+    $
+
+    写成正规表达式：$1^*|(1^*0(0|10)^*)|(1^*0(0|10)^*1)$
+    \item[d)] 具有形式$xy$的二进制串，$x \ne y$； 
+    
+    $S \to 1S1 \mid 0S0 \mid A \\
+    A \to 1B0 \mid 0B1 \\
+    B \to 1B \mid 0B \mid \epsilon
+    $
+    无法写成正规表达式。
+    \item[e)] 形如$xx$的二进制串；
+    
+    $S \to 0S0 \mid 1S1 \mid \epsilon$
+
+    无法写成正规表达式。
+\end{enumerate}
+
+\subsection*{2.考虑文法}
+
+$
+\begin{aligned}
+    &S \to (L)\mid a \\
+    &L \to L,S\mid S
+\end{aligned}
+$
+
+
+\begin{enumerate}
+    \item[a)] 列出终结符、非终结符和开始符号； 
+    
+    终结符：``$a$'',``,'', ``('', ``)''；非终结符：$S, L$；开始符号：$S$
+    \item[b)] 给出下列句子的语法树 
+    
+    i)(a, a)  
+
+    ii) (a, (a, a))   
+    
+    iii) (a, ((a, a), (a, a))) 
+
+    \subsubsection*{i) $(a, a)$}
+    \begin{center}
+    \begin{tikzpicture}[level distance=10mm, sibling distance=15mm]
+    \node {$S$}
+        child {node {$(L)$}
+            child {node {$($}}
+            child {node {$L$}
+                child {node {$L$}
+                    child {node {$S$}
+                        child {node {$a$}}
+                    }
+                }
+                child {node {$,$}}
+                child {node {$S$}
+                    child {node {$a$}}
+                }
+            }
+            child {node {$)$}}
+        };
+    \end{tikzpicture}
+    \end{center}
+    
+    \subsubsection*{ii) $(a, (a, a))$}
+    \begin{center}
+    \begin{tikzpicture}[level distance=10mm, sibling distance=15mm]
+    \node {$S$}
+        child {node {$(L)$}
+            child {node {$($}}
+            child {node {$L$}
+                child {node {$L$}
+                    child {node {$S$}
+                        child {node {$a$}}
+                    }
+                }
+                child {node {$,$}}
+                child {node {$S$}
+                    child {node {$(L)$}
+                        child {node {$($}}
+                        child {node {$L$}
+                            child {node {$L$}
+                                child {node {$S$}
+                                    child {node {$a$}}
+                                }
+                            }
+                            child {node {$,$}}
+                            child {node {$S$}
+                                child {node {$a$}}
+                            }
+                        }
+                        child {node {$)$}}
+                    }
+                }
+            }
+            child {node {$)$}}
+        };
+    \end{tikzpicture}
+    \end{center}
+    
+    \subsubsection*{iii) $(a, ((a, a), (a, a)))$}
+    \begin{center}
+        \begin{tikzpicture}[level distance=15mm, sibling distance=15mm]
+            \node {$S$}
+                child {node {$(L)$}
+                    child {node {$($}}
+                    child {node {$L$}
+                        child {node {$L$}
+                            child {node {$S$}
+                                child {node {$a$}}
+                            }
+                        }
+                        child {node {$,$}}
+                        child {node {$S$}
+                            child {node {$(L)$}
+                                child {node {$($}}
+                                child {node {$L$}
+                                    [sibling distance=15mm] % 调整该层的间距
+                                    child {node {$L$}
+                                        child {node {$S$}
+                                            child {node {$(L)$}
+                                                child {node {$($}}
+                                                child {node {$L$}
+                                                    [sibling distance=10mm] % 增大间距
+                                                    child {node {$L$}
+                                                        child {node {$S$}
+                                                            child {node {$a$}}
+                                                        }
+                                                    }
+                                                    child {node {$,$}}
+                                                    child {node {$S$}
+                                                        child {node {$a$}}
+                                                    }
+                                                }
+                                                child {node {$)$}}
+                                            }
+                                        }
+                                    }
+                                    child {node {$,$}}
+                                    child {node {$S$}
+                                        child {node {$(L)$}
+                                            child {node {$($}}
+                                            child {node {$L$}
+                                                [sibling distance=10mm]
+                                                child {node {$L$}
+                                                    child {node {$S$}
+                                                        child {node {$a$}}
+                                                    }
+                                                }
+                                                child {node {$,$}}
+                                                child {node {$S$}
+                                                    child {node {$a$}}
+                                                }
+                                            }
+                                            child {node {$)$}}
+                                        }
+                                    }
+                                }
+                                child {node {$)$}}
+                            }
+                        }
+                    }
+                    child {node {$)$}}
+                };
+        \end{tikzpicture}
+    \end{center}
+    
+
+    \item[c)] 构造 b)中句子的最左推导； 
+    
+    \subsubsection*{i) $(a, a)$}
+\begin{align*}
+S &\Rightarrow (L) \\
+&\Rightarrow (L,S) \\
+&\Rightarrow (S,S) \\
+&\Rightarrow (a,S) \\
+&\Rightarrow (a,a)
+\end{align*}
+
+\subsubsection*{ii) $(a, (a, a))$}
+\begin{align*}
+S &\Rightarrow (L) \\
+&\Rightarrow (L,S) \\
+&\Rightarrow (S,S) \\
+&\Rightarrow (a,S) \\
+&\Rightarrow (a,(L)) \\
+&\Rightarrow (a,(L,S)) \\
+&\Rightarrow (a,(S,S)) \\
+&\Rightarrow (a,(a,S)) \\
+&\Rightarrow (a,(a,a))
+\end{align*}
+
+\subsubsection*{iii) $(a, ((a, a), (a, a)))$}
+\begin{align*}
+S &\Rightarrow (L) \\
+&\Rightarrow (L,S) \\
+&\Rightarrow (S,S) \\
+&\Rightarrow (a,S) \\
+&\Rightarrow (a,(L)) \\
+&\Rightarrow (a,(L,S)) \\
+&\Rightarrow (a,(S,S)) \\
+&\Rightarrow (a,((L),S)) \\
+&\Rightarrow (a,((L,S),S)) \\
+&\Rightarrow (a,((S,S),S)) \\
+&\Rightarrow (a,((a,S),S)) \\
+&\Rightarrow (a,((a,a),S)) \\
+&\Rightarrow (a,((a,a),(L))) \\
+&\Rightarrow (a,((a,a),(L,S))) \\
+&\Rightarrow (a,((a,a),(S,S))) \\
+&\Rightarrow (a,((a,a),(a,S))) \\
+&\Rightarrow (a,((a,a),(a,a)))
+\end{align*}
+    \item[d)] 构造 b)中句子的最右推导； 
+    
+    \subsubsection*{i) $(a, a)$}
+\begin{align*}
+S &\Rightarrow (L) \\
+&\Rightarrow (L,S) \\
+&\Rightarrow (L,a) \\
+&\Rightarrow (S,a) \\
+&\Rightarrow (a,a)
+\end{align*}
+
+\subsubsection*{ii) $(a, (a, a))$}
+\begin{align*}
+S &\Rightarrow (L) \\
+&\Rightarrow (L,S) \\
+&\Rightarrow (L,(L)) \\
+&\Rightarrow (L,(L,S)) \\
+&\Rightarrow (L,(L,a)) \\
+&\Rightarrow (L,(S,a)) \\
+&\Rightarrow (L,(a,a)) \\
+&\Rightarrow (S,(a,a)) \\
+&\Rightarrow (a,(a,a))
+\end{align*}
+
+\subsubsection*{iii) $(a, ((a, a), (a, a)))$}
+\begin{align*}
+S &\Rightarrow (L) \\
+&\Rightarrow (L,S) \\
+&\Rightarrow (L,(L)) \\
+&\Rightarrow (L,(L,S)) \\
+&\Rightarrow (L,(L,(L))) \\
+&\Rightarrow (L,(L,(L,S))) \\
+&\Rightarrow (L,(L,(L,a))) \\
+&\Rightarrow (L,(L,(S,a))) \\
+&\Rightarrow (L,(L,(a,a))) \\
+&\Rightarrow (L,(S,(a,a))) \\
+&\Rightarrow (L,((L),(a,a))) \\
+&\Rightarrow (L,((L,S),(a,a))) \\
+&\Rightarrow (L,((L,a),(a,a))) \\
+&\Rightarrow (L,((S,a),(a,a))) \\
+&\Rightarrow (L,((a,a),(a,a))) \\
+&\Rightarrow (S,((a,a),(a,a))) \\
+&\Rightarrow (a,((a,a),(a,a)))
+\end{align*}
+    \item[e)] 该文法产生的语言是什么？ （可以用自然语言描述出来，也可以用集合的
+    形式表示出来）
+
+    可以嵌套的的二元组或$a$，其中二元组形式为$(x_1,x_2)$，其中$x_1$和$x_2$可以是二元组或$a$。
+\end{enumerate}
+
+\subsection*{3. 考虑文法 }
+
+$S \to aSbS \mid bSaS \mid \epsilon$
+ 
+为某个句子构造两个不同的最左推导，以证明它是二义性的。
+ 
+句子：\( abab \)
+
+1. \( S \Rightarrow aSbS \Rightarrow abS \Rightarrow abaSbS \Rightarrow ababS \Rightarrow abab \)
+
+2. \( S \Rightarrow aSbS \Rightarrow abSaSbS \Rightarrow abaSbS \Rightarrow ababS \Rightarrow abab \)
+
+存在 2 种不同的最左推导，存在二义性。
+
+
+\newpage
+
+\subsection*{1.考虑文法}
+
+\begin{align*}
+S &\rightarrow (L) \mid a \\
+L &\rightarrow L, S \mid S
+\end{align*}
+
+消除左递归。
+
+\begin{align*}
+L &\to SL'\\
+L' &\to ,SL' \mid \epsilon
+\end{align*}
+
+消除左递归后的文法:
+
+\begin{align*}
+S &\rightarrow (L) \mid a \\
+L &\rightarrow SL' \\
+L' &\rightarrow ,SL' \mid \epsilon
+\end{align*}
+
+\subsection*{2.下面文法 G[S]}
+
+\begin{align*}
+S &\rightarrow AbB \mid A \\
+A &\rightarrow AB \mid caB \mid B \\
+B &\rightarrow Aa \mid b
+\end{align*}
+
+消除左递归。
+
+将 (3) 式带入，得到：
+
+
+\begin{align*}
+S &\to AbAs \mid Abb \mid A \\
+A &\to AAa \mid Ab \mid caAa \mid cab \mid Aa \mid b \\
+\end{align*}
+
+\begin{align*}
+A &\to caAaA' \mid cabA' \mid bA' \\
+A' &\to AaA' \mid bA' \mid aA' \mid \epsilon 
+\end{align*}
+
+消除后的文法：
+
+\begin{align*}
+S &\to AbAs \mid Abb \mid A \\
+A &\to caAaA' \mid cabA' \mid bA' \\
+A' &\to AaA' \mid bA' \mid aA' \mid \epsilon
+\end{align*}
+
+\subsection*{3.下面文法 G[S]}
+
+\begin{align*}
+S &\rightarrow aFbM \mid F \\
+F &\rightarrow M \mid abc \\
+M &\rightarrow abF \mid c
+\end{align*}
+
+消除形如 $A \rightarrow B$ 这种单产生式，并进行文法处理（左递归和公共左因子）。
+
+(3)式带入(2)式，得到：
+\begin{align*}
+F &\to abF \mid c \mid abc \\
+\end{align*}
+
+提取公共左因子，得到：
+\begin{align*}
+F &\to abF' \mid c \\
+F' &\to F \mid c \\
+\end{align*}
+
+带入$F$，得到
+\begin{align*}
+F' &\to abF' \mid c \\
+\end{align*}
+
+发现$F$和$F'$是相同的，用$F$替换$F'$，得到：
+\begin{align*}
+F &\to abF \mid c \\
+\end{align*}
+
+由于
+$$
+M \to abF \mid c
+$$
+
+$F$ 和$M$是相同的，用$F$替换$M$，得到：
+\begin{align*}
+S \to aFbF \mid F
+\end{align*}
+
+将$F$带入，得到
+\begin{align*}
+S \to aFbM \mid abF \mid c \\
+\end{align*}
+
+提取公共左因子，得到：
+\begin{align*}
+S &\to aS' \mid c \\
+S' &\to FbF \mid bF \\
+\end{align*}
+
+文法最终化为
+\begin{align*}
+S &\to aS' \mid c \\
+S' &\to FbF \mid bF \\
+F &\to abF \mid c \\
+\end{align*}
+
+\end{document}

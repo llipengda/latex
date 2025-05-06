@@ -1,0 +1,62 @@
+\documentclass[a4paper, body={18cm,22cm}]{article}
+\usepackage{ctex}
+\usepackage{amsmath}
+
+
+\title{Homework1: 正则表达式课后练习}
+\author{李鹏达 10225101460}
+\date{}
+
+\begin{document}
+\maketitle
+
+\subsection*{1. 描述下列正则式（正则）定义的语言（请用汉语直白地描述该语言）}
+
+\begin{enumerate}
+    \item[(a)] \(0(0|1)^*0\)
+
+    以0开始，以0结尾的01串。
+    \item[(b)] \(((\varepsilon | 0)1^*)^*\)
+    
+    由0 和 1 组成的所有可能的字符串，包括空串。
+    \item[(c)] \((0|1)^*0(0|1)(0|1)\)
+    
+    长度至少为3，倒数第三位是0的01串。
+    \item[(d)] \(0^*10^*10^*10^*\)
+    
+    长度至少为3，有且只有3个1的01串。
+    \item[(e)] \((00|11)^*((01|10)(00|11)^*(01|10)(00|11)^*)^*\)
+    
+    由偶数个0和偶数个1组成的01串。
+\end{enumerate}
+
+\subsection*{2. 为下列语言写出正规定义（或正则式、正规文法、有限自动机）}
+
+\begin{enumerate}
+    \item[(a)] 包含五个元音，且按顺序排列的所有字母串（\(RE\)）
+    
+    $
+    other \to (b|c|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z) \\
+    str \to {other}^*a(other|a)^*e(other|e)^*i(other|i)^*o(other|o)^*u(other|u)^*
+    $
+    \item[(b)] 字母按字典顺序排列的所有字母串（\(RE\)）
+    
+    $a^*b^*c^*d^*e^*f^*g^*h^*i^*j^*k^*l^*m^*n^*o^*p^*q^*r^*s^*t^*u^*v^*w^*x^*y^*z^*$
+    \item[(c)] 以 \texttt{/*} 开始，\texttt{*/} 结束的注释，中间不能包含 \texttt{*/}，除非包含在 \texttt{"} 和 \texttt{"} 中（\(RE\)）
+    
+    $\backslash/\backslash\!*\!([\verb|^|\!*\!\verb|"|]^*|\verb|"|.*?\verb|"||\verb|"||\backslash\!*^+\![\verb|^|\!*\!/])^*\backslash\!*\!\backslash/$
+    \item[(d)] 不包含重复数字的数字串（正规定义）
+    
+    $\verb|^|(?!.^*(.).^*\verb|\|1)[0\!-\!9]^*\verb|$|$
+    \item[(e)] 包含至少一个重复数字的数字串（正规定义）
+    
+    $\verb|^|(?!.^*(.).^*\verb|\|1\verb|\|1)[0\!-\!9]^*\verb|$|$
+    \item[(f)] 包含偶数个 0 和奇数个 1 的 0、1 串（正规定义）
+
+    $startsWithOne  \to 1(00|11)^*((01|10)(00|11)^*(01|10)(00|11)^*)^* \\
+    startsWithZero \to 0(00|11)^*((01|10)(00|11)^*(01|10)(00|11)^*(01|10)(00|11)^*)^* \\
+    str \to startsWithOne | startsWithZero
+    $
+\end{enumerate}
+
+\end{document}

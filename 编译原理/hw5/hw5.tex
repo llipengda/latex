@@ -1,0 +1,65 @@
+\documentclass[a4paper, body={18cm,22cm}]{article}
+\usepackage{ctex}
+\usepackage{amsmath}
+\usepackage{forest}
+
+
+\title{Homework 5: LL(1)文法}
+\author{李鹏达 10225101460}
+\date{}
+\begin{document}
+\maketitle
+
+\subsection*{1.对于如下的文法，求出各个$FIRST$ 集和$FOLLOW$集。}
+
+\[
+\begin{aligned}
+S &\rightarrow aAB \mid bA \mid \varepsilon \\
+A &\rightarrow aAb \mid \varepsilon \\
+B &\rightarrow bB \mid \varepsilon
+\end{aligned}
+\]
+
+$
+\begin{aligned}
+    &FIRST(S) = \{a, b, \varepsilon\} \\
+    &FIRST(A) = \{a, \varepsilon\} \\
+    &FIRST(B) = \{b, \varepsilon\} \\
+    &FOLLOW(S) = \{\$\} \\
+    &FOLLOW(A) = \{b, \$\} \\
+    &FOLLOW(B) = \{\$\} \\
+\end{aligned}
+$
+
+\subsection*{2. 验证下列文法是否为 LL(1) 文法。}
+
+\subsubsection*{(1) 文法如下：}
+
+\[
+\begin{aligned}
+S &\rightarrow AB \mid CDa \\
+A &\rightarrow ab \mid c \\
+B &\rightarrow dE \\
+C &\rightarrow eC \mid \varepsilon \\
+D &\rightarrow fD \mid f \\
+E &\rightarrow dE \mid \varepsilon
+\end{aligned}
+\]
+
+对于 $D \to fD \mid f$, $FIRST(fD) = \{f\}, FIRST(f) = \{f\}$，存在交集，所以不是 LL(1) 文法。
+
+\subsubsection*{(2) 文法如下：}
+
+\[
+\begin{aligned}
+S &\rightarrow aABBbCD \mid \varepsilon \\
+A &\rightarrow ASd \mid \varepsilon \\
+B &\rightarrow Sac \mid C \mid \varepsilon \\
+C &\rightarrow Sf \mid Cg \mid \varepsilon \\
+D &\rightarrow aBD \mid \varepsilon
+\end{aligned}
+\]
+
+$A \to ASd \mid \varepsilon$是左递归，所以不是 LL(1) 文法。
+
+\end{document}
