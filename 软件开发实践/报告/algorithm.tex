@@ -43,7 +43,7 @@
     \State Start the APP if essential
     \If{LLM mode is active}
         \State $event \gets$ \Call{GenerateLLMEvent}{}
-    \ElsIf{Detect($last\_state\_xml$, $current\_state\_xml$)}
+    \ElsIf{\Call{DetectUITarpit}{$last\_state$, $current\_state$}}
         \State Activate LLM Mode
         \State $event \gets$ \Call{GenerateLLMEvent}{}
     \Else
