@@ -6,41 +6,78 @@
 \begin{document}
 
 \begin{algorithm}
+\caption{DetectUITarpit}
+\begin{algorithmic}[1]
+\Function{DetectUITarpit}{$xml_1$, $xml_2$, $threshold$}
+    \State $similarity$ $\gets$ \Call{CompareXML}{$xml_1$, $xml_2$}
+    \If{$similarity$ $>$ 90}
+    \State $sim\_count$ $\gets$ $sim\_count$ + 1
+    \If{$sim\_count$ $\geq$ $threshold$}
+        \State $sim\_count$ $\gets$ 0
+        \State \Return \textbf{True}
+    \EndIf
+\EndIf
+\State \Return \textbf{False}
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{CompareXML}
+\begin{algorithmic}[1]
+\Function{CompareXML}{$xml_1$, $xml_2$}
+    \State $tree_1, tree_2 \gets$ Simplify $xml_1$, $xml_2$ and construct trees
+    \State $score, total \gets \Call{CompareTree}{tree_1, tree_2}$
+    \State \Return $100.0$ if $total = 0$ else $(score / total) \times 100$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
 \caption{Main Exploration Loop}
 \begin{algorithmic}[1]
-\Function{Start}{$\text{input\_manager}$}
+\Function{Start}{${input\_manager}$}
   \State $count \gets 0$
   \While{$count < max\_event\_count$}
     \State Update UI state and snapshots
     \State Start the APP if essential
-      \If{LLM mode is active}
-        \If{Continuing LLM Sequence}
-          \State Build Next Action Prompt
-          \State $response \gets$ CallLLM()
-          \State $response \gets$ ValiditByLLM()
-          \State $act \gets$ ParseAction(response)
-        \Else
-          \State Build Meaning Prompt
-          \State $r_1 \gets$ CallLLM()
-          \State Build Task Prompt
-          \State $r_2 \gets$ CallLLM()
-          \State Build First Action Prompt
-          \State $r_3 \gets$ CallLLM()
-          \State $response \gets$ ValiditByLLM()
-          \State $act \gets$ ParseAction($r_3$)
-        \EndIf
-        \State Set LLM Mode to $act.hasNext$
-        \State $event \gets$ WrapAsU2Event($act$)
-      \ElsIf{Detect($last\_state\_xml$, $current\_state\_xml$)}
+    \If{LLM mode is active}
+        \State $event \gets$ \Call{GenerateLLMEvent}{}
+    \ElsIf{Detect($last\_state\_xml$, $current\_state\_xml$)}
         \State Activate LLM Mode
-        \State Follow same steps as above to generate $event$
-      \Else
-        \State $event \gets$ RandomGenerate(from\_state)
-        \EndIf
+        \State $event \gets$ \Call{GenerateLLMEvent}{}
+    \Else
+        \State $event \gets$ \Call{GenerateRandomEvent}{}
+    \EndIf
     \State Execute($event$)
     \State $count \gets count + 1$
   \EndWhile
   \State Clean up and exit
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{GenerateLLMEvent}
+\begin{algorithmic}[1]
+\Function{GenerateLLMEvent}{}
+    \If{Continuing LLM Sequence}
+          \State Build Next Action Prompt
+          \State $response \gets$ \Call{CallLLM}{}
+          \State $response \gets$ \Call{ValiditeByLLM}{}
+          \State $act \gets$ \Call{ParseAction}{$response$}
+        \Else
+          \State Build Meaning Prompt
+          \State $r_1 \gets$ \Call{CallLLM}{}
+          \State Build Task Prompt
+          \State $r_2 \gets$ \Call{CallLLM}{}
+          \State Build First Action Prompt
+          \State $r_3 \gets$ \Call{CallLLM}{}
+          \State $response \gets$ \Call{ValiditeByLLM}{}
+          \State $act \gets$ \Call{ParseAction}{$response$}
+    \EndIf
+    \State Set LLM Mode to $act.hasNext$
+    \State \Return \Call{WrapAsU2Event}{act}
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
