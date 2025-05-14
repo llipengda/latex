@@ -6,7 +6,7 @@
 \begin{document}
 
 \begin{algorithm}
-\caption{DetectUITarpit}
+\caption{Detect UI Tarpit}
 \begin{algorithmic}[1]
 \Function{DetectUITarpit}{$xml_1$, $xml_2$, $threshold$}
     \State $similarity$ $\gets$ \Call{CompareXML}{$xml_1$, $xml_2$}
@@ -23,7 +23,7 @@
 \end{algorithm}
 
 \begin{algorithm}
-\caption{CompareXML}
+\caption{Compare XML}
 \begin{algorithmic}[1]
 \Function{CompareXML}{$xml_1$, $xml_2$}
     \State $tree_1, tree_2 \gets$ Simplify $xml_1$, $xml_2$ and construct trees
@@ -49,7 +49,7 @@
     \Else
         \State $event \gets$ \Call{GenerateRandomEvent}{}
     \EndIf
-    \State Execute($event$)
+    \State \Call{Execute}{$event$}
     \State $count \gets count + 1$
   \EndWhile
   \State Clean up and exit
@@ -58,7 +58,7 @@
 \end{algorithm}
 
 \begin{algorithm}
-\caption{GenerateLLMEvent}
+\caption{Generate LLM Event}
 \begin{algorithmic}[1]
 \Function{GenerateLLMEvent}{}
     \If{Continuing LLM Sequence}
@@ -78,6 +78,33 @@
     \EndIf
     \State Set LLM Mode to $act.hasNext$
     \State \Return \Call{WrapAsU2Event}{act}
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Frequency-Aware Random Exploration Strategy}
+\begin{algorithmic}[1]
+\Function{GenerateEvent}{}
+\State $s \gets$ current state
+\If{$s \notin input\_table$}
+    \State $possible\_events \gets \Call{GetPossibleInputs}{s}$
+    \State Initialize $input\_table[s]$ with an empty \texttt{events} list
+    \ForAll{$event \in possible\_events$}
+        \State Add $event$ to $input\_table[s].events$
+        \If{$event \notin event\_table$}
+            \State $event\_table[event] \gets$ 0
+        \EndIf
+    \EndFor
+\EndIf
+    \State $counts$ $\gets$ $\emptyset$
+    \ForAll{$event \in input\_table[s].events$}
+        \State $counts[event] \gets event\_table[event].tried$
+    \EndFor
+    \State $weights \gets$ \Call{GetWeights}{$input\_table[s].events$, $counts$}
+    \State $selected\_event \gets$ randomly select one event from the list using $weights$
+    \State Increment $event\_table[selected\_event].tried$
+    \State \Return $selected\_event$
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
