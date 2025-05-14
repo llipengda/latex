@@ -6,19 +6,13 @@
 \begin{document}
 
 \begin{algorithm}
-\caption{Main Exploration Loop with Expanded LLM Event Generation}
+\caption{Main Exploration Loop}
 \begin{algorithmic}[1]
-\Procedure{Start}{$\text{input\_manager}$}
+\Function{Start}{$\text{input\_manager}$}
   \State $count \gets 0$
   \While{$count < max\_event\_count$}
     \State Update UI state and snapshots
-    \If{$count = 0$}
-      \State $event \gets$ KillApp
-    \ElsIf{$count = 1$}
-      \State $event \gets$ StartIntent
-    \ElsIf{$count \bmod events\_to\_restart = 0$}
-      \State $event \gets$ ClearOrRestartApp
-    \Else
+    \State Start the APP if essential
       \If{LLM mode is active}
         \If{Continuing LLM Sequence}
           \State Build Next Action Prompt
@@ -26,30 +20,28 @@
           \State $response \gets$ ValiditByLLM()
           \State $act \gets$ ParseAction(response)
         \Else
-          \State Reset Message History
           \State Build Meaning Prompt
           \State $r_1 \gets$ CallLLM()
           \State Build Task Prompt
           \State $r_2 \gets$ CallLLM()
-          \State Add Task Title from $r_2$
           \State Build First Action Prompt
           \State $r_3 \gets$ CallLLM()
           \State $response \gets$ ValiditByLLM()
           \State $act \gets$ ParseAction($r_3$)
         \EndIf
-        \State Update LLM Mode: $in\_llm \gets act.hasNext$
+        \State Set LLM Mode to $act.hasNext$
         \State $event \gets$ WrapAsU2Event($act$)
-      \ElsIf{Current UI $\approx$ Previous UI}
+      \ElsIf{Detect($last\_state\_xml$, $current\_state\_xml$)}
         \State Activate LLM Mode
         \State Follow same steps as above to generate $event$
       \Else
         \State $event \gets$ RandomGenerate(from\_state)
-      \EndIf
-    \EndIf
-    \State Execute($event$); $count \gets count + 1$
+        \EndIf
+    \State Execute($event$)
+    \State $count \gets count + 1$
   \EndWhile
   \State Clean up and exit
-\EndProcedure
+\EndFunction
 \end{algorithmic}
 \end{algorithm}
 
