@@ -2,6 +2,10 @@
 \usepackage{amsmath}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+
 
 \begin{document}
 
@@ -108,5 +112,123 @@
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
+
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+\multirow{2}{*}{\textbf{应用}} & \multirow{2}{*}{\textbf{标签}} & \multicolumn{3}{c}{\textbf{Time (\%)}} & \multicolumn{3}{c}{\textbf{Event (\%)}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+& & Max & Min & Avg & Max & Min & Avg \\
+\midrule
+
+\multirow{2}{*}{AnkiDroid} 
+    & \texttt{llm}  & 6.56  & {-43.83} & {-18.69} & 17.63 & {-43.83} & {-10.45} \\
+    & \texttt{new}  & {51.32} & {2.72}   & {32.22}  & {55.44} & {6.91}   & {36.28}  \\
+\midrule
+
+\multirow{2}{*}{Feeder} 
+    & \texttt{llm}  & 6.88  & {-22.11} & {-15.54} & 10.59 & {-17.11} & {-11.76} \\
+    & \texttt{new}  & {29.81} & {1.02}   & {15.87}  & {33.25} & {4.99}   & {22.54}  \\
+\midrule
+
+\multirow{2}{*}{Newpipe} 
+    & \texttt{llm}  & {121.86} & {22.63}  & {32.71}  & 144.69 & 28.24  & 41.09  \\
+    & \texttt{new}  & {140.29} & {29.24}  & {44.10}  & {140.29} & {42.33}  & {51.83}  \\
+\midrule
+
+\multirow{2}{*}{Omninotes} 
+    & \texttt{llm}         & -13.73 & {-50.08} & {-39.31} & -13.73 & {-47.34} & {-35.73} \\
+    & \texttt{new}         & {16.12}  & {-1.65}  & {3.55}   & {16.12}  & {0.19}   & {9.44}   \\
+\midrule
+
+\multirow{2}{*}{Wikipedia} 
+    & \texttt{llm}         & 6.68   & {-39.63} & {-15.34} & {34.74}  & -30.24 & -0.58  \\
+    & \texttt{new}         & {14.57}  & {-14.38} & {1.97}   & 28.24  & {-10.54} & {17.27}  \\
+\bottomrule
+\end{tabular}
+\caption{Improvement on branch coverage}
+\label{tab:branch-coverage-improvement}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+\multirow{2}{*}{\textbf{应用}} & \multirow{2}{*}{\textbf{标签}} & \multicolumn{3}{c}{\textbf{Time (\%)}} & \multicolumn{3}{c}{\textbf{Event (\%)}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+& & Max & Min & Avg & Max & Min & Avg \\
+\midrule
+
+\multirow{2}{*}{AnkiDroid} 
+    & \texttt{llm}  & 6.56  & {-43.83} & \cellcolor{gray!20}{-18.69} & 17.63 & {-43.83} & \cellcolor{gray!20}{-10.45} \\
+    & \texttt{new}  & {51.32} & {2.72}   & \cellcolor{gray!20}{32.22}  & {55.44} & {6.91}   & \cellcolor{gray!20}{36.28}  \\
+\midrule
+
+\multirow{2}{*}{Feeder} 
+    & \texttt{llm}  & 6.88  & {-22.11} & \cellcolor{gray!20}{-15.54} & 10.59 & {-17.11} & \cellcolor{gray!20}{-11.76} \\
+    & \texttt{new}  & {29.81} & {1.02}   & \cellcolor{gray!20}{15.87}  & {33.25} & {4.99}   & \cellcolor{gray!20}{22.54}  \\
+\midrule
+
+\multirow{2}{*}{Newpipe} 
+    & \texttt{llm}  & {121.86} & {22.63}  & \cellcolor{gray!20}{32.71}  & 144.69 & 28.24  & \cellcolor{gray!20}{41.09}  \\
+    & \texttt{new}  & {140.29} & {29.24}  & \cellcolor{gray!20}{44.10}  & {140.29} & {42.33}  & \cellcolor{gray!20}{51.83}  \\
+\midrule
+
+\multirow{2}{*}{Omninotes} 
+    & \texttt{llm}  & -13.73 & {-50.08} & \cellcolor{gray!20}{-39.31} & -13.73 & {-47.34} & \cellcolor{gray!20}{-35.73} \\
+    & \texttt{new}  & {16.12}  & {-1.65}  & \cellcolor{gray!20}{3.55}   & {16.12}  & {0.19}   & \cellcolor{gray!20}{9.44}   \\
+\midrule
+
+\multirow{2}{*}{Wikipedia} 
+    & \texttt{llm}  & 6.68   & {-39.63} & \cellcolor{gray!20}{-15.34} & {34.74}  & -30.24 & \cellcolor{gray!20}{-0.58}  \\
+    & \texttt{new}  & {14.57}  & {-14.38} & \cellcolor{gray!20}{1.97}   & 28.24  & {-10.54} & \cellcolor{gray!20}{17.27}  \\
+\bottomrule
+\end{tabular}
+\caption{Improvement on branch coverage}
+% \label{tab:branch-coverage-improvement}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+\multirow{2}{*}{\textbf{App}} & \multirow{2}{*}{\textbf{Policy}} & \multicolumn{3}{c}{\textbf{Time (\%)}} & \multicolumn{3}{c}{\textbf{Event (\%)}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+& & Max & Min & Avg & Max & Min & Avg \\
+\midrule
+
+\multirow{2}{*}{AnkiDroid} 
+    & \texttt{llm}  & 6.56  & {-43.83} & \cellcolor{gray!20}{-18.69} & 17.63 & {-43.83} & \cellcolor{gray!20}{-10.45} \\
+    & \texttt{new}  & {51.32} & {2.72}   & \cellcolor{gray!20}{32.22}  & {55.44} & {6.91}   & \cellcolor{gray!20}{36.28}  \\
+\midrule
+
+\multirow{2}{*}{Feeder} 
+    & \texttt{llm}  & 6.88  & {-22.11} & \cellcolor{gray!20}{-15.54} & 10.59 & {-17.11} & \cellcolor{gray!20}{-11.76} \\
+    & \texttt{new}  & {29.81} & {1.02}   & \cellcolor{gray!20}{15.87}  & {33.25} & {4.99}   & \cellcolor{gray!20}{22.54}  \\
+\midrule
+
+\multirow{2}{*}{Newpipe} 
+    & \texttt{llm}  & {121.86} & {22.63}  & \cellcolor{gray!20}{32.71}  & 144.69 & 28.24  & \cellcolor{gray!20}{41.09}  \\
+    & \texttt{new}  & {140.29} & {29.24}  & \cellcolor{gray!20}{44.10}  & {140.29} & {42.33}  & \cellcolor{gray!20}{51.83}  \\
+\midrule
+
+\multirow{2}{*}{Omninotes} 
+    & \texttt{llm}  & -13.73 & {-50.08} & \cellcolor{gray!20}{-39.31} & -13.73 & {-47.34} & \cellcolor{gray!20}{-35.73} \\
+    & \texttt{new}  & {16.12}  & {-1.65}  & \cellcolor{gray!20}{3.55}   & {16.12}  & {0.19}   & \cellcolor{gray!20}{9.44}   \\
+\midrule
+
+\multirow{2}{*}{Wikipedia} 
+    & \texttt{llm}  & 6.68   & {-39.63} & \cellcolor{gray!20}{-15.34} & {34.74}  & -30.24 & \cellcolor{gray!20}{-0.58}  \\
+    & \texttt{new}  & {14.57}  & {-14.38} & \cellcolor{gray!20}{1.97}   & 28.24  & {-10.54} & \cellcolor{gray!20}{17.27}  \\
+\bottomrule
+\end{tabular}
+\caption{Improvement on branch coverage}
+\label{tab:branch-coverage-improvement}
+\end{table}
 
 \end{document}
