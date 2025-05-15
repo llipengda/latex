@@ -24,7 +24,7 @@
 \usepackage{svg}
 \usepackage{fontspec}
 \usepackage{algpseudocode}
-\usepackage[table]{xcolor}
+% \usepackage[table]{xcolor}
 
 \graphicspath{{img/}}
 \renewcommand\arraystretch{1.2}
@@ -36,10 +36,10 @@
 
 \author{
   Group 07\\
-  李鹏达$^{*}$, 武泽恺$^{\dagger}$, 张耘彪$^{\ddagger}$\\
-  \texttt{10225101460}$^{*}$, 
-  \texttt{10225101429}$^{\dagger}$, 
-  \texttt{10225101437}$^{\ddagger}$
+  李鹏达$^{1}$, 武泽恺$^{2}$, 张耘彪$^{3}$\\
+  \texttt{10225101460}$^{1}$, 
+  \texttt{10225101429}$^{2}$, 
+  \texttt{10225101437}$^{3}$
 }
 \date{}
 
@@ -123,7 +123,7 @@
 
 \section{方法}
 
-我们提出了三种方法来优化现有的 LLM 策略。在\textsection~\ref{sec:semantic}中，我们提出了一种基于语义的 UI 陷阱检测算法，利用 UI 界面的 XML 语义结构来判断 UI 陷阱；在\textsection~\ref{sec:iterative}中，我们提出了一种基于迭代事件序列生成的增强型 LLM 探索策略，采用循环迭代的方式来逐步引导大语言模型生成操作序列，从而模拟人类操作的思维过程；在\textsection~\ref{sec:frequency}中，我们提出了一种频率感知的随机探索策略，通过缓存输入事件的触发频率来优化路径探索。其余的贡献在
+我们提出了三种方法来优化现有的 LLM 策略。在\textsection\ref{sec:semantic} 中，我们提出了一种基于语义的 UI 陷阱检测算法，利用 UI 界面的 XML 语义结构来判断 UI 陷阱；在\textsection\ref{sec:iterative} 中，我们提出了一种基于迭代事件序列生成的增强型 LLM 探索策略，采用循环迭代的方式来逐步引导大语言模型生成操作序列，从而模拟人类操作的思维过程；在\textsection\ref{sec:frequency} 中，我们提出了一种频率感知的随机探索策略，通过缓存输入事件的触发频率来优化路径探索。其余的贡献在\textsection\ref{sec:other} 中介绍
 
 \subsection{基于语义的UI陷阱检测算法}
 \label{sec:semantic}
@@ -167,16 +167,16 @@
 
 我们在 \kea 的 LLM 策略原有的相似度计算方案的基础上，重新提出了一种新的相似度计算方案，希望通过关注 UI 界面的 XML 语义结构来判断 UI 陷阱。我们发现， XML 树结构能够更好地反映 UI 状态的语义信息和层次关系，因此可以通过对比两个 UI 状态的 XML 树结构，来判断两个UI 状态是否相似。
 
-为此，我们将 XML 树结构进行简化，将 XML 树抽象成只包含 tag 和 children 的轻量结构，便于对结构相似性进行对比。如算法~\ref{alg:compare_xml}所示，我们得到了两个简化后的 XML 树结构 $tree_1$ 和 $tree_2$，然后通过调用\texttt{CompareTree}函数递归遍历树结构，计算两个树的相似度分数 $score$ 和总节点数 $total$。最后，我们返回相似度分数。
+为此，我们将 XML 树结构进行简化，将 XML 树抽象成只包含 tag 和 children 的轻量结构，便于对结构相似性进行对比。如算法~\ref{alg:compare_xml} 所示，我们得到了两个简化后的 XML 树结构 $tree_1$ 和 $tree_2$，然后通过调用\texttt{CompareTree}函数递归遍历树结构，计算两个树的相似度分数 $score$ 和总节点数 $total$。最后，我们返回相似度分数。
 
-随后，在算法~\ref{alg:detect_tarpit}中，我们沿用了 \kea 的 LLM 策略原有的启发式相似度判断方案，使用 \texttt{CompareXML} 函数来计算两个 UI 状态的相似度分数 $similarity$后，如果相似度分数大于 90，则认为两个 UI 状态相似。我们使用一个计数器 $sim\_count$ 来记录连续相似的次数，当连续相似的次数超过设定的阈值时，我们认为当前处于 UI 陷阱。
+随后，在算法~\ref{alg:detect_tarpit} 中，我们沿用了 \kea 的 LLM 策略原有的启发式相似度判断方案，使用 \texttt{CompareXML} 函数来计算两个 UI 状态的相似度分数 $similarity$后，如果相似度分数大于 90，则认为两个 UI 状态相似。我们使用一个计数器 $sim\_count$ 来记录连续相似的次数，当连续相似的次数超过设定的阈值时，我们认为当前处于 UI 陷阱。
 
 在后续的测试过程中我们观察到，该方法显著减少了对 UI 陷阱的误判，同时仍能够识别出原有相似度检测方法所发现的 UI 陷阱。经过人工验证，这些 UI 陷阱确实是难以被探索的 UI 状态。这样的方法提高了 LLM 策略的效率，减少了对大语言模型的调用次数。
 
 \subsection{基于迭代事件序列生成的增强型LLM探索策略}
 \label{sec:iterative}
 
-我们将提示工程包括三个阶段：1）\textbf{意图理解阶段}（\textsection~\ref{sec:intent}）；2）\textbf{操作描述阶段}（\textsection~\ref{sec:action}）；3）\textbf{迭代生成阶段}（\textsection~\ref{sec:iterative_generate}）。我们在\textsection~\ref{sec:generate_event}中介绍了整个 LLM 事件生成的算法流程。流程图如图\ref{fig:process}所示。
+我们将提示工程包括三个阶段：1）\textbf{意图理解阶段}（\textsection\ref{sec:intent}）；2）\textbf{操作描述阶段}（\textsection\ref{sec:action}）；3）\textbf{迭代生成阶段}（\textsection\ref{sec:iterative_generate}）。我们在\textsection\ref{sec:generate_event} 中介绍了整个 LLM 事件生成的算法流程。流程图如图 \ref{fig:process} 所示。
 
 \subsubsection{意图理解阶段}
 \label{sec:intent}
@@ -257,9 +257,9 @@
 \subsubsection{事件生成流程}
 \label{sec:generate_event}
 
-如算法~\ref{alg:main}所示，系统在主循环中不断执行事件生成与执行流程。每轮循环中，系统会根据当前状态选择事件生成策略：当 LLM 模式处于激活状态时，调用 \texttt{GenerateLLMEvent()} 函数生成由大语言模型驱动的操作事件；否则，将调用 \texttt{GenerateRandomEvent()} 函数生成随机事件。若系统检测到 UI 陷阱（UI Tarpit），也会触发 LLM 模式并转为基于模型的操作生成。
+如算法~\ref{alg:main} 所示，系统在主循环中不断执行事件生成与执行流程。每轮循环中，系统会根据当前状态选择事件生成策略：当 LLM 模式处于激活状态时，调用 \texttt{GenerateLLMEvent()} 函数生成由大语言模型驱动的操作事件；否则，将调用 \texttt{GenerateRandomEvent()} 函数生成随机事件。若系统检测到 UI 陷阱（UI Tarpit），也会触发 LLM 模式并转为基于模型的操作生成。
 
-算法~\ref{alg:generate_event}展示了 \texttt{GenerateLLMEvent()} 函数的内部逻辑。函数首先判断是否正在延续一个 LLM 操作序列：若是，则调用 \texttt{BuildNextActionPrompt()} 构造提示，获取 LLM 响应，并依次通过 \texttt{ValiditeByLLM()} 验证响应有效性，再调用 \texttt{ParseAction()} 解析出具体操作；否则，将按顺序构建页面意图、任务目标和首个动作的提示，分别调用 \texttt{CallLLM()} 获取响应，最终进行验证和解析操作。最后，该函数会根据操作是否存在后续步骤（\texttt{hasNext}）来更新 LLM 模式，并将解析结果包装为 U2 可执行事件返回。
+算法~\ref{alg:generate_event} 展示了 \texttt{GenerateLLMEvent()} 函数的内部逻辑。函数首先判断是否正在延续一个 LLM 操作序列：若是，则调用 \texttt{BuildNextActionPrompt()} 构造提示，获取 LLM 响应，并依次通过 \texttt{ValiditeByLLM()} 验证响应有效性，再调用 \texttt{ParseAction()} 解析出具体操作；否则，将按顺序构建页面意图、任务目标和首个动作的提示，分别调用 \texttt{CallLLM()} 获取响应，最终进行验证和解析操作。最后，该函数会根据操作是否存在后续步骤（\texttt{hasNext}）来更新 LLM 模式，并将解析结果包装为 U2 可执行事件返回。
 
 \begin{algorithm}[t]
 \caption{Frequency-Aware Random Strategy}
@@ -312,12 +312,45 @@
 
 通过采用指数衰减的方式，我们可以有效地平衡新事件和已尝试事件的选择概率，从而实现更均匀的探索。
 
+\begin{algorithm}[t]
+\caption{Move App to Foreground}
+\label{alg:move-app}
+\begin{algorithmic}[1]
+\Function{MoveIfNeed}{}
+    \State $top \gets$ current foreground app
+    \If{$top \ne$ target app}
+        \State $out\_cnt \gets out\_cnt + 1$
+        \If{$out\_cnt > threshold$}
+            \State $out\_cnt \gets 0$
+            \State simulate back navigation
+            \State recheck $top$
+            \If{$top \ne$ target app}
+                \State force-stop $top$ and recheck $top$
+                \If{$top \ne$ target app}
+                    \State force-stop and restart target app
+                \EndIf
+            \EndIf
+        \EndIf
+    \Else
+        \State $out\_cnt \gets 0$
+    \EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{其余贡献}
+\label{sec:other}
+
+在实验过程中，我们发现 \kea 的唤醒机制问题。我们发现，在某些特定的情况下，测试过程中在跳转到到其他的应用或系统页面时，\kea 所实现的唤醒机制无法有效地将被测应用唤醒至前台，而是通过重启或返回事件才能有概率达到返回应用的目的。我们重新实现了一个唤醒机制，如算法~\ref{alg:move-app} 所示，我们实现了一个唤醒机制，用于确保目标应用始终处于前台状态。在每次事件执行前，系统会检查当前前台应用是否为目标应用。若检测到应用已被切换至后台，则首先尝试通过模拟返回操作将其唤醒。如果经过多次尝试后仍未恢复前台状态，系统将逐步采取更强制性的措施：首先尝试关闭当前前台应用；若仍无法唤醒目标应用，则最终通过强制停止并重启目标应用的方式将其恢复至前台。同时，我们维护一个计数器 \texttt{out\_cnt}，用于控制上述操作的触发频率，避免过度干预系统状态。
+
 \section{实验}
 
 \subsection{实验设置}
 \label{sec:setup}
 
 \subsubsection{数据集}
+
+表~\ref{tab:app-dataset} 展示了我们在实验中使用了五个开源应用程序的基本信息，这些应用程序具有不同的功能和复杂性，并具有一定的下载量。我们从 GitHub 上获取了这些应用程序的最新源代码，并使用JaCoCo\cite{jacoco}工具进行静态插桩，收集代码覆盖度数据。
 
 \begin{table}[t]
 \small
@@ -340,8 +373,7 @@ Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
 
 \subsubsection{实验环境}
 
-
-
+本实验环境基于 Windows 11 家庭中文版（版本 26100.3915），使用 Python 3.11.9 作为脚本执行环境，配合 JaCoCo 0.8.10 进行 Java 代码覆盖率分析，并通过 Android Emulator（Pixel 9，API 34）模拟移动设备运行环境，用于测试和分析 Android 应用的行为和覆盖率表现。
 
 \appendix
 
