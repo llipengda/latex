@@ -25,7 +25,7 @@
 \usepackage{algpseudocode}
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage[table]{xcolor}
+\usepackage{colortbl}
 \usepackage{stfloats}
 
 \graphicspath{{img/}}
@@ -56,7 +56,7 @@
     numberstyle = \small, % 行号字体
     numbersep = -14pt, 
     keywordstyle=\color{purple}\bfseries, % 关键字颜色
-    commentstyle =\color{red!50!green!50!blue!60}, % 注释颜色
+    commentstyle =\color{green!50!black}, % 注释颜色
     stringstyle = \color{red}, % 字符串颜色
     morekeywords={ASSERT, int64_t, uint32_t},
 	frame = single, 
@@ -72,19 +72,23 @@
 
 \maketitle
 
+\begin{abstract}
+现有 \kea 框架的 LLM 引导测试在 UI 陷阱识别、事件上下文感知和调用成本上表现不足，导致覆盖率甚至下降。为此，我们提出 \lamp：1) 用 XML 语义结构判定 UI 陷阱，减少误判与模型调用；2) 通过“意图-任务-逐步执行”提示，迭代生成上下文相关的事件序列；3) 引入频率感知随机探索，避免重复操作。对 5 款开源应用的实验显示，LAMP 将分支覆盖率分支覆盖率平均提升 1.97\%–44.10\%，活动覆盖率平均提升20.53\%，全面优于原 LLM 与随机策略。
+\end{abstract}
+
 \section{背景}
 
 移动应用自动化测试是目前正在快速发展的领域，研究热点包括UI引导的测试输入生成、基于属性的测试（Property-Based Testing，PBT）、大语言模型（Large Language Model，LLM）的应用以及上下文感知的文本输入生成等技术方向。DroidBot\cite{li2017droidbot}等UI引导的测试工具通过动态构建状态转移模型，生成高效的测试输入，适用于兼容性测试和安全分析；基于属性的测试\cite{xiong2024general}通过定义功能属性并生成输入事件序列，有效检测非崩溃性功能错误；InputBlaster\cite{liu2024testing}, QTypist\cite{liu2023fill} 和 GPTDroid\cite{liu2024make} 等工具利用大语言模型的语义理解和生成能力，在异常输入生成、文本输入生成、测试脚本生成和Bug复现等方面表现出色，显著提升了测试覆盖率和错误检测能力；上下文感知的文本输入生成技术\cite{liu2023fill}则通过提取GUI上下文信息，生成符合语义的输入，填补了文本输入测试的空白。这些技术在移动应用测试中取得了显著的进展。
 
 其中， \kea\cite{xiong2024general}是一个基于属性测试的移动应用测试工具。它将基于属性的测试引入移动应用测试，通过定义功能属性并结合路径探索，发现Android应用中的非崩溃性功能错误，提供了更深入的功能验证能力。
 
-\begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.5\textwidth]{llm}
-    \caption{\kea 现有的大模型引导策略示意图，红色框线图示了触发大模型引导策略的执行过程。}
-    \figureBelowMargin
-    \label{fig:llm}
-\end{figure}
+% \begin{figure}[ht!]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{llm}
+%     \caption{\kea 现有的大模型引导策略示意图，红色框线图示了触发大模型引导策略的执行过程。}
+%     \figureBelowMargin
+%     \label{fig:llm}
+% \end{figure}
 
 \kea 目前提供了三种路径探索策略：随机探索、主路径引导探索、和大语言模型辅助的探索。其中，随机探索策略随机地生成输入事件序列，主路经引导探索策略在用户指定的应用``主路径''附近进行随机探索。
 
@@ -94,7 +98,8 @@
 
 \section{问题}
 
-现有的LLM策略主要分为相似度检测和生成事件两个模块。图 \ref{fig:llm} 展示了现有的大模型引导策略的基本流程。
+现有的LLM策略主要分为相似度检测和生成事件两个模块。
+% 图 \ref{fig:llm} 展示了现有的大模型引导策略的基本流程。
 
 进行相似度检测时，\kea 采用了 OpenCV 来对比两个连续的UI状态的屏幕截图，从而计算两个状态之间的相似度，当连续多次相似度超过设定的阈值时，\kea 认为当前处于UI陷阱。此时，\kea 会使用大语言模型生成输入事件，试图跳出UI陷阱。基于现有的UI状态信息和可能的输入事件，\kea 会询问大语言模型，由大语言模型给出一个输入事件并执行。
 
@@ -106,7 +111,7 @@
 \end{figure}
 
 
-\begin{figure}[ht!]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.5\textwidth]{llm_test}
     \caption{LLM策略和随机策略相同时间或相同事件数量时代码分支覆盖率，阴影表示三次实验的标准差。}
@@ -117,9 +122,9 @@
 
 同时，我们在实验过程中发现，两种情况会导致 LLM 策略产生导致显著的额外开销：1) LLM 策略可能会生成无效操作，生成的输入事件并不能逃离UI陷阱；2) 现有的相似度检测方法可能会导致UI陷阱误判。在这些情况下，LLM 策略会频繁地调用大语言模型来生成输入事件，消耗了 LLM 资源和通信时间。
 
-图 \ref{fig:llm_test} 展示了运行LLM策略和随机策略相同时间或相同事件数量时的代码分支覆盖率，LLM策略相比随机策略不但没有提升，甚至有所明显的下降。（如，Omni-Notes中，分支覆盖率平均下降了39.31\%）
+图 \ref{fig:llm_test} 展示了运行LLM策略和随机策略相同时间或相同事件数量时的代码分支覆盖率，LLM策略相比随机策略不但没有提升，甚至有所下降。（如OmniNotes中，分支覆盖率平均下降了39.31\%）
 
-总而言之，现有策略存在的三个问题：\textbf{1) LLM 策略在解决 UI 陷阱方面效果不佳，其生成的事件不准确，且缺乏上下文感知能力；2) LLM 策略由于需要频繁调用，会产生显著的调用开销；3) 现有的相似度检测方法可能会导致误判。}
+总而言之，现有策略存在三个问题：\textbf{1) LLM 策略在解决 UI 陷阱方面效果不佳，其生成的事件不准确，且缺乏上下文感知能力；2) LLM 策略由于需要频繁调用，会产生显著的调用开销；3) 现有的相似度检测方法可能会导致误判。}
 
 因此，我们提出了一种新的大语言模型辅助的路径探索策略，称为\lamp（Large-language-model Augmented Mobile Testing Path Exploration Based on \kea）。\lamp 通过引入基于语义的UI陷阱检测算法和基于迭代事件序列生成 的增强型LLM探索策略，结合大语言模型的语义理解和生成能力，提升了路径探索的效率和准确性。
 
@@ -509,38 +514,33 @@ Wikipedia & 327.33 & \cellcolor{gray!15}412.00 & \cellcolor{gray!25}+25.87\%
 
 \section{结论}
 
-本研究基于\kea 的大语言模型引导策略，提出了三种优化方案。首先，我们通过XML标记提高页面语义理解显著提升了对UI陷阱识别的准确度；其次，采用逐步引导的模式，使得大语言模型能够产生更为有效的解决方案；最后，我们发现在使用随机探索策略时减少重复探索的可能性提高了探索效率。这三种技术共同构成了一个全面的框架，用于优化大型语言模型在复杂问题解决环境中的表现，
+本研究基于\kea 的大语言模型引导策略，提出了一种新策略 \lamp，它包含三种优化方案。首先，我们通过XML标记提高页面语义理解显著提升了对UI陷阱识别的准确度；其次，采用逐步引导的模式，使得大语言模型能够产生更为有效的解决方案；最后，我们发现在使用随机探索策略时减少重复探索的可能性提高了探索效率。实验结果表明，\lamp 在五个真实世界数据集上相较于原有随机策略和LLM策略均表现出更高的代码覆盖度和UI覆盖度。
 
-\newpage
 
+\bibliographystyle{IEEEtran}
+\bibliography{ref}
+
+\onecolumn
 \appendix
 
 \section{提示工程}
 \label{sec:prompt}
 
-\begin{figure*}[h]
-\centering
 \begin{lstlisting}[language=Python,caption=意图理解]
     prompt = f"""This is an XML representation of an Android application page:
     {get_xml()}
     Please describe the purpose of this page in the most concise language possible."""
 \end{lstlisting}
-\label{fig:intent}
-\end{figure*}
 
-\begin{figure*}[h]
-\centering
+
 \begin{lstlisting}[language=python, caption=操作描述]
     prompt = f"""If you were the user, what would you do on this page? You can only describe one action. 
     Please try to generate tasks that have not been generated before. Below are the tasks that have already been generated:
     {list(self._generated_tasks)}
     Please list the steps required to complete this action. (This action will be named 'The Task')"""
 \end{lstlisting}
-\label{fig:action}
-\end{figure*}
 
-\begin{figure*}[h]
-\centering
+
 \begin{lstlisting}[language=python, caption=初始事件生成]
     prompt = """Please describe the **first step** of the operation you just performed in JSON format, as shown below:
     {
@@ -559,21 +559,15 @@ Wikipedia & 327.33 & \cellcolor{gray!15}412.00 & \cellcolor{gray!25}+25.87\%
     Please return the operation in JSON format only. Do not explain or use code blocks.
     """
 \end{lstlisting}
-\label{fig:iterative}
-\end{figure*}
 
-\begin{figure*}[h]
-\centering
+
+
 \begin{lstlisting}[language=python, caption=后续事件生成]
     prompt = f"""Now, the current state of the page is as follows: {get_xml(self.device.u2)}
     Please describe the **next step** of the operation you just performed in JSON format, using the same format as above.
     """
 \end{lstlisting}
-\label{fig:next}
-\end{figure*}
 
-\begin{figure*}[h]
-\centering
 \begin{lstlisting}[language=python, caption=操作检查]
     prompt = """Please check whether the operation or sequence of operations you just generated meets the requirements:
     - The selectors must be found in the XML.
@@ -581,10 +575,67 @@ Wikipedia & 327.33 & \cellcolor{gray!15}412.00 & \cellcolor{gray!25}+25.87\%
     If there are no issues, output it as is; otherwise, modify it accordingly.
     """
 \end{lstlisting}
-\label{fig:check}
-\end{figure*}
 
-\bibliographystyle{IEEEtran}
-\bibliography{ref}
+
+\section{详细实验数据}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{it.feio.android.omninotes.alpha/coverage_time.pdf}
+\caption{OmniNotes 应用代码覆盖率（时间维度）}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{it.feio.android.omninotes.alpha/coverage_event.pdf}
+\caption{OmniNotes 应用代码覆盖率（事件维度）}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{com.ichi2.anki.debug/coverage_time.pdf}
+\caption{AnkiDroid 应用代码覆盖率（时间维度）}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{com.ichi2.anki.debug/coverage_event.pdf}
+\caption{AnkiDroid 应用代码覆盖率（事件维度）}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{com.nononsenseapps.feeder.debug/coverage_time.pdf}
+\caption{Feeder 应用代码覆盖率（时间维度）}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{com.nononsenseapps.feeder.debug/coverage_event.pdf}
+\caption{Feeder 应用代码覆盖率（事件维度）}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{org.schabi.newpipe.debug/coverage_time.pdf}
+\caption{NewPipe 应用代码覆盖率（时间维度）}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{org.schabi.newpipe.debug/coverage_event.pdf}
+\caption{NewPipe 应用代码覆盖率（事件维度）}
+
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{org.wikipedia.alpha/coverage_time.pdf}
+\caption{Wikipedia 应用代码覆盖率（时间维度）}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{org.wikipedia.alpha/coverage_event.pdf}
+\caption{Wikipedia 应用代码覆盖率（事件维度）}
+\end{figure}
 
 \end{document}
