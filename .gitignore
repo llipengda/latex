@@ -12,3 +12,5 @@
 *.blg
 *.bcf
 *.run.xml
+
+.vscode/

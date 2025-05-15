@@ -39,7 +39,8 @@
   李鹏达$^{*}$, 武泽恺$^{\dagger}$, 张耘彪$^{\ddagger}$\\
   \texttt{10225101460}$^{*}$, 
   \texttt{10225101429}$^{\dagger}$, 
-  \texttt{10225101437}$^{\ddagger}$
+  \texttt{10225101437}$^{\ddagger}$ \\
+  Github 仓库：\url{https://github.com/Mingle-2012/Kea}
 }
 \date{}
 
@@ -372,8 +373,25 @@ Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
 
 \subsubsection{实验环境}
 
+\subsubsection{度量标准}
+\label{sec:metrics}
 
+我们使用以下度量标准来评估 \lamp 的有效性：
 
+\begin{itemize}
+    \item \textbf{代码覆盖率：} 指令覆盖度、分支覆盖度、圈复杂度、行覆盖度、方法覆盖度、类覆盖度。
+    \item \textbf{UI 覆盖率：} UTG 状态数、 UTG 边数、Activity 覆盖度。
+\end{itemize}
+
+\subsection{研究问题}
+
+在本节中，我们主要探索以下几个问题：
+
+\begin{itemize}
+    \item \textbf{RQ1:} 和 \kea 现有策略相比，我们的策略能够提升多少代码覆盖度？
+    \item \textbf{RQ2:} 和 \kea 现有策略相比，我们的策略能够提升多少 UI 覆盖度？
+    \item \textbf{RQ3:} 我们的随机探索策略相比于现有的随机探索策略，能够提升多少代码覆盖度？
+\end{itemize}   
 
 \appendix
 
