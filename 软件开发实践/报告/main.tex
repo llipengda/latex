@@ -292,9 +292,53 @@
 \subsection{频率感知的随机探索策略}
 \label{sec:frequency}
 
+我们提出了一种频率感知的随机探索策略（见算法~\ref{alg:random}），通过记录和利用输入事件的触发频率，引导探索过程更均匀地覆盖不同事件，避免某些操作被频繁重复触发。
 
+在事件生成过程中，系统首先检查当前状态是否已存在于 \texttt{input\_table} 中。若不存在，则通过 \texttt{GetPossibleInputs} 获取该状态下所有可能的输入事件，并将其记录在 \texttt{input\_table} 中。对于每个新事件，如果其尚未存在于 \texttt{event\_table} 中，系统会初始化其尝试次数为零。
+
+随后，系统统计当前状态下各输入事件的触发频次，从 \texttt{event\_table} 中获取每个事件的尝试次数，并根据这些频率计算采样权重（通过 \texttt{GetWeights} 函数）。最终，系统根据权重随机选择一个输入事件，并更新其尝试次数，用于执行。
+
+为了避免重复选择已经尝试过的事件，又要防止尝试过的事件完全被忽略，我们设计了一种基于频率的采样方法 \texttt{GetWeights} 函数。设 $E = \{e_1, e_2, \dots, e_n\}$ 为所有可能事件的集合，令 $c_i$ 表示事件 $e_i$ 已被尝试的次数。给定一个衰减因子 $\gamma \in (0, 1)$，选择事件 $e_i$ 的权重 $w_i$ 可以表示为：
+
+\begin{equation}
+    w_i = w_0 \cdot \gamma^{c_i}
+\end{equation}
+
+因此，事件 $e_i$ 被选择的概率 $P(e_i)$ 可以表示为：
+
+\begin{equation}
+    P(e_i) = \frac{w_i}{\sum_{j=1}^{n} w_j} = \frac{\gamma^{c_i}}{\sum_{j=1}^{n} \gamma^{c_j}}
+\end{equation}
+
+通过采用指数衰减的方式，我们可以有效地平衡新事件和已尝试事件的选择概率，从而实现更均匀的探索。
 
 \section{实验}
+
+\subsection{实验设置}
+\label{sec:setup}
+
+\subsubsection{数据集}
+
+\begin{table}[t]
+\small
+\centering
+\caption{本文使用的应用数据集}
+\label{tab:app-dataset}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{App}    & \textbf{Primary Feature}        & \textbf{Stars} & \textbf{Installations} \\ 
+\midrule
+AnkiDroid   & Flashcard Manager     & 9.5K         & 10M–50M       \\
+Feeder      & RSS Feed Reader        & 2.1K         & 100K–500K     \\
+Newpipe     & YouTube Client         & 33.8K        & 1M–5M         \\
+OmniNotes   & Note Manager           & 2.7K         & 10M–50M       \\
+Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsubsection{实验环境}
 
 
 
