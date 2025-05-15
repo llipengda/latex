@@ -123,7 +123,7 @@
 
 \section{方法}
 
-我们提出了三种方法来优化现有的 LLM 策略。在\textsection~\ref{sec:semantic}中，我们提出了一种基于语义的 UI 陷阱检测算法，利用 UI 界面的 XML 语义结构来判断 UI 陷阱；在\textsection~\ref{sec:iterative}中，我们提出了一种基于迭代事件序列生成的增强型 LLM 探索策略，采用循环迭代的方式来逐步引导大语言模型生成操作序列，从而模拟人类操作的思维过程；在\textsection~\ref{sec:frequency}中，我们提出了一种频率感知的随机探索策略，通过缓存输入事件的触发频率来优化路径探索。其余的贡献在
+我们提出了三种方法来优化现有的 LLM 策略。在\textsection~\ref{sec:semantic}中，我们提出了一种基于语义的 UI 陷阱检测算法，利用 UI 界面的 XML 语义结构来判断 UI 陷阱；在\textsection~\ref{sec:iterative}中，我们提出了一种基于迭代事件序列生成的增强型 LLM 探索策略，采用循环迭代的方式来逐步引导大语言模型生成操作序列，从而模拟人类操作的思维过程；在\textsection~\ref{sec:frequency}中，我们提出了一种频率感知的随机探索策略，通过缓存输入事件的触发频率来优化路径探索。其余的贡献在\textsection~\ref{sec:other}中介绍。
 
 \subsection{基于语义的UI陷阱检测算法}
 \label{sec:semantic}
@@ -312,12 +312,44 @@
 
 通过采用指数衰减的方式，我们可以有效地平衡新事件和已尝试事件的选择概率，从而实现更均匀的探索。
 
+\begin{algorithm}[t]
+\caption{Move App to Foreground}
+\label{alg:move-app}
+\begin{algorithmic}[1]
+\Function{MoveIfNeed}{}
+    \State $top \gets$ current foreground app
+    \If{$top \ne$ target app}
+        \State $out\_cnt \gets out\_cnt + 1$
+        \If{$out\_cnt > threshold$}
+            \State $out\_cnt \gets 0$
+            \State simulate back navigation
+            \State recheck $top$
+            \If{$top \ne$ target app}
+                \State force-stop $top$ and recheck $top$
+                \If{$top \ne$ target app}
+                    \State force-stop and restart target app
+                \EndIf
+            \EndIf
+        \EndIf
+    \Else
+        \State $out\_cnt \gets 0$
+    \EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{其余贡献}
+\label{sec:other}
+
+在实验过程中，我们发现 \kea 的唤醒机制问题。我们发现，无论哪种策略，在测试过程中跳到其他的应用时，\kea 所实现的唤醒机制都无法有效地将被测应用唤醒至前台，而是通过重启或返回事件才能有概率达到返回应用的目的。我们重新实现了一个唤醒机制，如算法~\ref{alg:move-app}所示，我们实现了一个唤醒机制，用于确保目标应用始终处于前台状态。在每次事件执行前，系统会检查当前前台应用是否为目标应用。若检测到应用已被切换至后台，则首先尝试通过模拟返回操作将其唤醒。如果经过多次尝试后仍未恢复前台状态，系统将逐步采取更强制性的措施：首先尝试关闭当前前台应用；若仍无法唤醒目标应用，则最终通过强制停止并重启目标应用的方式将其恢复至前台。同时，我们维护一个计数器 \texttt{out\_cnt}，用于控制上述操作的触发频率，避免过度干预系统状态。
+
 \section{实验}
 
 \subsection{实验设置}
 \label{sec:setup}
 
 \subsubsection{数据集}
+\label{sec:dataset}
 
 \begin{table}[t]
 \small
