@@ -21,10 +21,12 @@
 \usepackage{array}
 \usepackage{enumitem}
 \usepackage{hyperref}
-\usepackage{svg}
 \usepackage{fontspec}
 \usepackage{algpseudocode}
-% \usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{stfloats}
 
 \graphicspath{{img/}}
 \renewcommand\arraystretch{1.2}
@@ -375,20 +377,148 @@ Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
 
 本实验环境基于 Windows 11 家庭中文版（版本 26100.3915），使用 Python 3.11.9 作为脚本执行环境，配合 JaCoCo 0.8.10 进行 Java 代码覆盖率分析，并通过 Android Emulator（Pixel 9，API 34）模拟移动设备运行环境，用于测试和分析 Android 应用的行为和覆盖率表现。
 
+\subsubsection{度量标准}
+\label{sec:metrics}
+
+我们使用以下度量标准来评估 \lamp 的有效性：
+
+\begin{itemize}[noitemsep]
+    \item \textbf{代码覆盖率：} 指令覆盖度、分支覆盖度、圈复杂度、行覆盖度、方法覆盖度、类覆盖度。
+    \item \textbf{UI 覆盖率：} UTG 状态数、 UTG 边数、Activity 覆盖度。
+\end{itemize}
+
+\begin{table*}[ht]
+\centering
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+\multirow{2}{*}{\textbf{App}} & \multirow{2}{*}{\textbf{Policy}} & \multicolumn{3}{c}{\textbf{Time (\%)}} & \multicolumn{3}{c}{\textbf{Event (\%)}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+& & Max & Min & Avg & Max & Min & Avg \\
+\midrule
+
+\multirow{2}{*}{AnkiDroid} 
+    & \texttt{llm}  & 6.56  & {-43.83} & \cellcolor{gray!20}{-18.69} & 17.63 & {-43.83} & \cellcolor{gray!20}{-10.45} \\
+    & \texttt{new}  & {51.32} & {2.72}   & \cellcolor{gray!20}{32.22}  & {55.44} & {6.91}   & \cellcolor{gray!20}{36.28}  \\
+\midrule
+
+\multirow{2}{*}{Feeder} 
+    & \texttt{llm}  & 6.88  & {-22.11} & \cellcolor{gray!20}{-15.54} & 10.59 & {-17.11} & \cellcolor{gray!20}{-11.76} \\
+    & \texttt{new}  & {29.81} & {1.02}   & \cellcolor{gray!20}{15.87}  & {33.25} & {4.99}   & \cellcolor{gray!20}{22.54}  \\
+\midrule
+
+\multirow{2}{*}{Newpipe} 
+    & \texttt{llm}  & {121.86} & {22.63}  & \cellcolor{gray!20}{32.71}  & 144.69 & 28.24  & \cellcolor{gray!20}{41.09}  \\
+    & \texttt{new}  & {140.29} & {29.24}  & \cellcolor{gray!20}{44.10}  & {140.29} & {42.33}  & \cellcolor{gray!20}{51.83}  \\
+\midrule
+
+\multirow{2}{*}{Omninotes} 
+    & \texttt{llm}  & -13.73 & {-50.08} & \cellcolor{gray!20}{-39.31} & -13.73 & {-47.34} & \cellcolor{gray!20}{-35.73} \\
+    & \texttt{new}  & {16.12}  & {-1.65}  & \cellcolor{gray!20}{3.55}   & {16.12}  & {0.19}   & \cellcolor{gray!20}{9.44}   \\
+\midrule
+
+\multirow{2}{*}{Wikipedia} 
+    & \texttt{llm}  & 6.68   & {-39.63} & \cellcolor{gray!20}{-15.34} & {34.74}  & -30.24 & \cellcolor{gray!20}{-0.58}  \\
+    & \texttt{new}  & {14.57}  & {-14.38} & \cellcolor{gray!20}{1.97}   & 28.24  & {-10.54} & \cellcolor{gray!20}{17.27}  \\
+\bottomrule
+\end{tabular}
+\caption{运行相同时间或相同时间数量时，LLM 策略(\texttt{llm}) 和 \lamp 策略(\texttt{new}) 代码 分支覆盖率相比随机策略的相对提升}
+\label{tab:branch-coverage-improvement}
+\end{table*}
+
+\subsubsection{实验过程}
+
+我们对每个应用程序运行 \kea 原有随机策略(\texttt{random})，LLM策略(\texttt{llm})和 我们提出的\lamp 策略(\texttt{new})至少3次，每个策略运行 120 分钟或 1200 个事件。
+
+我们使用 JaCoCo 工具收集代码覆盖率数据，并计算平均值和标准差，并统计生成的UTG中的状态数、边数和Activity覆盖率。
+
+\subsection{研究问题}
+
+我们设计了以下研究问题来评估 \lamp 策略的有效性：
+
+\begin{itemize}[noitemsep]
+    \item \textbf{RQ1:} 和 \kea 现有策略相比，我们的策略能够提升多少代码覆盖度？
+    \item \textbf{RQ2:} 和 \kea 现有策略相比，我们的策略能够提升多少 UI 覆盖度？
+    \item \textbf{RQ3:} 我们的随机探索策略相比于现有的随机探索策略，能够提升多少代码覆盖度？
+\end{itemize}  
+
+\subsection{实验结果与分析}
+
+\subsubsection{RQ1}
+
+表 \ref{tab:branch-coverage-improvement} 展示了运行相同时间或相同事件数量时，LLM 策略和 \lamp 策略代码分支覆盖率相比随机策略的相对提升百分比，在至少三次运行取平均值后，按时间维度和事件数量维度计算得到的最小值、最大值和平均值。
+
+实验结果显示，\lamp 策略在大多数情况下都能显著提升代码分支覆盖率，尤其是在 AnkiDroid，Feeder 和 NewPipe 应用中，\lamp 策略的平均提升幅度分别达到了 32.22\%, 15.87\% 44.10\%。而在 OmniNotes 和 Wikipedia 应用中，\lamp 策略的平均提升幅度也达到了 3.55\% 和 1.97\%。
+
+然而，无论是时间维度还是事件数量维度，原有 的 LLM 策略在大部分应用中表现不佳，尤其是在 AnkiDroid 和 Feeder 应用中，LLM 策略的平均提升幅度分别为 -18.69\% 和 -15.54\%。而在 NewPipe 应用中，LLM 策略却表现出 32.71\%的较大提升幅度。考虑到 NewPipe应用的功能与其他应用差异较大，我们认为这是由于 LLM 策略在不同类型的应用中的适应性差异所导致的。
+
+这表明，无论是相同时间还是相同事件数量，\lamp 策略在不同应用中都能有效提升代码分支覆盖率，而原有的 LLM 策略在某些应用中则表现不佳，甚至出现了负提升幅度。这说明 \lamp 策略在路径探索中具有更好的适应性和有效性。
+
+\subsubsection{RQ2}
+
+\begin{table*}[t]\small
+\centering
+\begin{tabular}{lcccccccccc}
+\toprule
+\multirow{2}{*}{App name} 
+& \multicolumn{3}{c}{\# of UTG States} 
+& \multicolumn{3}{c}{\# of UTG Events} 
+& \multicolumn{3}{c}{Activity Coverage} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+& Random & Ours & Difference 
+& Random & Ours & Difference 
+& Random & Ours & Difference \\
+\midrule
+Omninotes & 232.67 & \cellcolor{gray!15}261.67 & \cellcolor{gray!25}+12.46\% 
+          & 496.00 & \cellcolor{gray!15}525.33 & \cellcolor{gray!25}+5.91\%
+          & 0.378 & \cellcolor{gray!15}0.422 & \cellcolor{gray!25}+11.76\% \\
+AnkiDroid & 293.67 & \cellcolor{gray!15}309.00 & \cellcolor{gray!25}+5.22\% 
+          & 517.00 & \cellcolor{gray!15}573.33 & \cellcolor{gray!25}+10.90\% 
+          & 0.427 & \cellcolor{gray!15}0.438 & \cellcolor{gray!25}+2.44\% \\
+Feeder    & 169.33 & \cellcolor{gray!15}128.67 & \cellcolor{gray!25}-24.02\% 
+          & 344.00 & \cellcolor{gray!15}393.67 & \cellcolor{gray!25}+14.44\% 
+          & 0.185 & \cellcolor{gray!15}0.259 & \cellcolor{gray!25}+40.00\% \\
+Newpipe   & 367.67 & \cellcolor{gray!15}455.67 & \cellcolor{gray!25}+23.93\% 
+          & 601.67 & \cellcolor{gray!15}625.00 & \cellcolor{gray!25}+3.88\% 
+          & 0.238 & \cellcolor{gray!15}0.333 & \cellcolor{gray!25}+40.00\% \\
+Wikipedia & 327.33 & \cellcolor{gray!15}412.00 & \cellcolor{gray!25}+25.87\% 
+          & 605.67 & \cellcolor{gray!15}704.67 & \cellcolor{gray!25}+16.35\% 
+          & 0.307 & \cellcolor{gray!15}0.333 & \cellcolor{gray!25}+8.47\% \\
+\bottomrule
+\end{tabular}
+\caption{不同应用中 \lamp 策略和随机策略 UI覆盖度的对比}
+\label{tab:app-coverage}
+\end{table*}
+
+表 \ref{tab:app-coverage} 展示了我们提出的 \lamp 策略在不同应用中的 UTG 状态数、UTG 边数和 Activity 覆盖率与随机策略的对比。由于原有 LLM 策略并未提供生成 UTG 功能，我们在此将其排除。
+
+实验数据表明，\lamp 策略在大多数应用中都能显著提升 UTG 状态数和 UTG 边数，尤其是在 Wikipedia 和 NewPipe 应用中，UTG 状态数的提升幅度分别达到了 25.87\% 和 23.93\%。而在 Activity 覆盖率方面，\lamp 策略在所有应用中都能提升，尤其是在 Feeder 和 NewPipe 应用中，Activity 覆盖率的提升幅度达到了 40.00\%。
+
+这说明 \lamp 策略在 UI 覆盖度方面具有显著的优势，能够提升对于应用UI页面的探索，达到更深更广的探索路径。
+
+\subsubsection{RQ3}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.5\textwidth]{rq3.png}
+\caption{增强随机策略与原有随机策略代码分支覆盖率对比}
+\label{fig:rq3}
+\end{figure}
+
+图 \ref{fig:rq3} 展示了增强随机策略与原有随机策略在代码分支覆盖率方面的对比。实验结果表明，增强的随机策略对比原有策略在代码分支覆盖率上明显提升，这是因为我们的策略可以有效地平衡新事件和已尝试事件的选择概率，从而实现更均匀的探索。
+
+\section{结论}
+
+本研究基于\kea 的大语言模型引导策略，提出了三种优化方案。首先，我们通过XML标记提高页面语义理解显著提升了对UI陷阱识别的准确度；其次，采用逐步引导的模式，使得大语言模型能够产生更为有效的解决方案；最后，我们发现在使用随机探索策略时减少重复探索的可能性提高了探索效率。这三种技术共同构成了一个全面的框架，用于优化大型语言模型在复杂问题解决环境中的表现，
+
+\newpage
+
 \appendix
 
 \section{提示工程}
 \label{sec:prompt}
 
-\begin{itemize}
-    \item 意图理解：见代码~1。
-    \item 操作描述：见代码~2。
-    \item 迭代生成：见代码~3。
-    \item 后续事件生成：见代码~4。
-    \item 操作检查：见代码~5。
-\end{itemize}
-
-\begin{figure*}[t]
+\begin{figure*}[h]
 \centering
 \begin{lstlisting}[language=Python,caption=意图理解]
     prompt = f"""This is an XML representation of an Android application page:
@@ -398,7 +528,7 @@ Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
 \label{fig:intent}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[h]
 \centering
 \begin{lstlisting}[language=python, caption=操作描述]
     prompt = f"""If you were the user, what would you do on this page? You can only describe one action. 
@@ -409,7 +539,7 @@ Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
 \label{fig:action}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[h]
 \centering
 \begin{lstlisting}[language=python, caption=初始事件生成]
     prompt = """Please describe the **first step** of the operation you just performed in JSON format, as shown below:
@@ -432,7 +562,7 @@ Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
 \label{fig:iterative}
 \end{figure*}
 
-\begin{figure*}[t!]
+\begin{figure*}[h]
 \centering
 \begin{lstlisting}[language=python, caption=后续事件生成]
     prompt = f"""Now, the current state of the page is as follows: {get_xml(self.device.u2)}
@@ -442,7 +572,7 @@ Wikipedia   & Wiki Reader    & 3K           & 10M–50M       \\
 \label{fig:next}
 \end{figure*}
 
-\begin{figure*}[t!]
+\begin{figure*}[h]
 \centering
 \begin{lstlisting}[language=python, caption=操作检查]
     prompt = """Please check whether the operation or sequence of operations you just generated meets the requirements:
