@@ -1,0 +1,111 @@
+\documentclass[a4paper, body={18cm,22cm}]{article}
+\usepackage{ctex}
+\usepackage{amsmath}
+\usepackage{makecell}
+
+
+\title{Homework 8: 属性文法}
+\author{李鹏达 10225101460}
+\date{}
+\begin{document}
+\maketitle
+
+\subsection*{1. 写出下面文法的属性文法}
+
+\[
+\begin{aligned}
+    & Number \to Number_1\; Digit \\
+    & Number \to Digit \\
+    & Digit \to 0 \mid 1 \mid 2 \mid 3 \mid 4 \mid 5 \mid 6 \mid 7 \mid 8 \mid 9 \\
+\end{aligned}
+\]
+
+\noindent\textbf{{\heiti 解答}}\\ 
+
+\begin{tabular}{|c|c|}
+\hline
+    \textbf{\heiti 文法规则} & \textbf{\heiti 语义规则} \\
+\hline
+    $Number \to Number_1\; Digit$ & $Number.val = Number_1.val \times 10 + Digit.val$ \\
+\hline
+    $Number \to Digit$ & $Number.val = Digit.val$ \\
+\hline
+    $Digit \to 0$ & $Digit.val = 0$ \\
+\hline
+    $Digit \to 1$ & $Digit.val = 1$ \\
+\hline
+    $\cdots$ & $\cdots$ \\
+\hline
+    $Digit \to 9$ & $Digit.val = 9$ \\
+\hline
+\end{tabular}
+\newpage
+
+\subsection*{2. 写出下面文法的属性文法}
+
+\[
+\begin{aligned}
+    & Number \to Digit\;Number_1 \\
+    & Number \to Digit \\
+    & Digit \to 0 \mid 1 \mid 2 \mid 3 \mid 4 \mid 5 \mid 6 \mid 7 \mid 8 \mid 9 \\
+\end{aligned}
+\]
+
+\noindent\textbf{{\heiti 解答}}\\
+
+\begin{tabular}{|c|c|}
+\hline
+    \textbf{\heiti 文法规则} & \textbf{\heiti 语义规则} \\
+\hline
+    $Number \to Digit\;Number_1$ & \makecell{$Number.exp=Number_1.exp\times 10$ \\ $Number.val = Digit.val \times Number.exp + Number_1.val$} \\
+\hline
+    $Number \to Digit$ & \makecell{$Number.exp = 1$ \\ $Number.val = Digit.val$} \\
+\hline
+    $Digit \to 0$ & $Digit.val = 0$ \\
+\hline
+    $Digit \to 1$ & $Digit.val = 1$ \\
+\hline
+    $\cdots$ & $\cdots$ \\
+\hline
+    $Digit \to 9$ & $Digit.val = 9$ \\
+\hline
+\end{tabular}
+
+\subsection*{3. 十进制浮点数的文法修改如下}
+
+\[
+\begin{aligned}
+    & dnum \to num.snum \\
+    & num \to num_1\;digit \mid digit \\
+    & snum \to digit\;snum_1 \mid digit \\
+    & digit \to 0 \mid 1 \mid 2 \mid 3 \mid 4 \mid 5 \mid 6 \mid 7 \mid 8 \mid 9 \\
+\end{aligned}
+\]
+
+\noindent\textbf{{\heiti 解答}}\\
+
+\begin{tabular}{|c|c|}
+\hline
+    \textbf{\heiti 文法规则} & \textbf{\heiti 语义规则} \\
+\hline
+    $dnum \to num.snum$ & \makecell{$dnum.val = num.val + snum.val$} \\
+\hline
+    $num \to num_1\;digit$ & \makecell{$num.val = num_1.val \times 10 + digit.val$} \\
+\hline
+    $num \to digit$ & \makecell{$num.val = digit.val$} \\
+\hline
+    $snum \to digit\;snum_1$ & \makecell{$snum.val = digit.val / 10 + snum_1.val / 10$} \\
+\hline
+    $snum \to digit$ & \makecell{$snum.val = digit.val / 10$} \\
+\hline
+    $digit \to 0$ & $digit.val = 0$ \\
+\hline
+    $digit \to 1$ & $digit.val = 1$ \\
+\hline
+    $\cdots$ & $\cdots$ \\
+\hline  
+    $digit \to 9$ & $digit.val = 9$ \\
+\hline
+\end{tabular}
+
+\end{document}
