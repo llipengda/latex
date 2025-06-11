@@ -1,0 +1,52 @@
+\documentclass[a4paper, body={18cm,22cm}]{article}
+\usepackage{ctex}
+\usepackage{amsmath}
+\usepackage{makecell}
+
+
+\title{Homework 9: 分析输出路径}
+\author{李鹏达 10225101460}
+\date{}
+\begin{document}
+\maketitle
+
+\subsection*{1. 给定下面文法及语义动作，输入 bac 时对应的输出是什么？输入是 adc 时对应的输出是
+什么？请分别写出语义动作执行过程。}
+
+\[
+\begin{aligned}
+    & S \to bA\{\texttt{print('b');}\}B \mid AB \\
+    & A \to aA\{\texttt{print('a');}\} \mid \epsilon \{\texttt{print('e');}\} \\
+    & B \to c \{\texttt{print('c');}\} \mid dA\{\texttt{print('d');}\}B
+\end{aligned}
+\]
+
+\noindent\textbf{{\heiti 解答}}\\ 
+
+\begin{enumerate}
+    \item[(1)] 输入bac
+
+$\begin{aligned}
+    S &\to bA\{\texttt{print('b');}\}B \\
+    &\to baA\{\texttt{print('a');}\}\{\texttt{print('b');}\}B \\
+    &\to ba\{\texttt{print('e');}\}\{\texttt{print('a');}\}\{\texttt{print('b');}\}B \\
+    &\to ba\{\texttt{print('e');}\}\{\texttt{print('a');}\}\{\texttt{print('b');}\}c\{\texttt{print('c');}\} \\
+\end{aligned}$
+
+输出为：eabc
+
+    \item[(2)] 输入adc
+
+$\begin{aligned}
+    S &\to AB \\
+    &\to aA\{\texttt{print('a');}\}B \\
+    &\to a\{\texttt{print('e');}\}\{\texttt{print('a');}\}B \\
+    &\to a\{\texttt{print('e');}\}\{\texttt{print('a');}\}dA\{\texttt{print('d');}\}B \\
+    &\to a\{\texttt{print('e');}\}\{\texttt{print('a');}\}d\{\texttt{print('e');}\}\{\texttt{print('d');}\}B \\
+    &\to a\{\texttt{print('e');}\}\{\texttt{print('a');}\}d\{\texttt{print('e');}\}\{\texttt{print('d');}\}c\{\texttt{print('c')}\} \\
+\end{aligned}$
+
+输出为：eaedc
+\end{enumerate}
+
+\end{document}
