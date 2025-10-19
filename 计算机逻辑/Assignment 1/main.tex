@@ -1,0 +1,133 @@
+%!TEX program = xelatex
+\title          {Logic in Computer Science - Assignment 1}
+\author         {李鹏达 10225101460}
+\date{}
+
+\documentclass{article}
+\usepackage{../boxproof}
+\usepackage{a4wide}
+\usepackage{ctex}
+% \usepackage{daymonthyear}
+
+\def\meta#1{\mbox{$\langle\hbox{#1}\rangle$}}
+\def\macrowitharg#1#2{{\tt\string#1\bra\meta{#2}\ket}}
+
+{\escapechar-1 \xdef\bra{\string\{}\xdef\ket{\string\}}}
+
+\showboxbreadth 999
+\showboxdepth 999
+\tracingoutput 1
+
+
+\let\imp\to
+
+\def\premise{\mathrm{premise}}
+\def\assumption{\mathrm{assumption}}
+\def\MT{\mathrm{MT\ }}
+\def\LEM{\mathrm{LEM}}
+\def\intro{\mathrm{i\ }}
+\def\elim{\mathrm{e\ }}
+\def\introa{\mathrm{i_1\ }}
+\def\elima{\mathrm{e_1\ }}
+\def\introb{\mathrm{i_2\ }}
+\def\elimb{\mathrm{e_2\ }}
+
+\def\lt{<}
+\def\eqdef{=}
+
+\def\eps{\mathrel{\epsilon}}
+\def\biimplies{\leftrightarrow}
+\def\flt#1{\mathrel{{#1}^\flat}}
+\def\setof#1{{\left\{{#1}\right\}}}
+\let\implies\to
+\def\KK{{\mathsf K}}
+\let\squashmuskip\relax
+
+
+\def\pre{\premise}
+\def\ass{\assumption}
+\def\andea{\land\elima}
+\def\andeb{\land\elimb}
+\def\andi{\land\intro}
+\def\toe{\to\elim}
+\def\toi{\to\intro}
+\def\ore{\lor\elim}
+\def\ore{\lor\elim}
+\def\oria{\lor\introa}
+\def\orib{\lor\introb}
+\def\nege{\neg\elim}
+\def\negi{\neg\intro}
+
+\def\tt{\!-\!}
+
+%=======================================================================
+\begin{document}
+\maketitle
+%=======================================================================
+\noindent Prove the following Theorems with natural deduction:
+\\[1em]
+(1) $p \to q, r \to s \vdash p \land r \to q \land s$
+
+$$
+\begin{proofbox}
+\: p \to q \= \pre \\
+\: r \to s \= \pre \\
+\[
+    \: p \land r \= \ass \\
+    \: p \=  \andea 3 \\
+    \: r \= \andeb 3 \\
+    \: q \=  \toe 1,4 \\
+    \: s \=  \toe 2,5 \\
+    \: q \land s \= \andi 4,5 \\
+\]
+\: p \land r \to q \land s \= \toi 3\tt8 \\
+\end{proofbox}
+$$
+\\[1em]
+(2) $\neg (p \land q) \vdash \neg q \lor \neg p$
+
+$$
+\begin{proofbox}
+\: \neg (p \land q) \= \pre \\
+\: q \land \neg q \= \LEM \\
+\[
+    \: \neg q \= \ass \\
+    \: \neg q \lor \neg p \= \oria 3 \\
+\]
+\[
+    \: q \= \ass \\
+    \[
+        \: p \= \ass \\
+        \: p \land q \= \andi 5,6 \\
+        \: \bot \= \nege 1,7 \\
+    \]
+    \: \neg p \= \negi 6\tt8 \\
+    \: \neg q \lor \neg p \= \orib 9 \\
+\]
+\: \neg q \lor \neg p \= \ore 2,3\tt4,5\tt10
+\end{proofbox}
+$$
+\\[1em]
+(3) $p \to (q \lor r), q \to s, r \to s \vdash p \to s$
+
+$$\begin{proofbox}
+\: p \to (q \lor r) \= \pre \\
+\: q \to s \= \pre \\
+\: r \to s \= \pre \\
+\[
+\: p \= \ass \\
+\: q \lor r \= \toe 1,4 \\
+\[
+    \: q \= \ass \\
+    \: s \= \toe 2,6 \\
+\]
+\[
+    \: r \= \ass \\
+    \: s \= \toe 3,8 \\
+\]
+\: s \= \ore 5,6\tt7,8\tt9 \\
+\]
+\: p \to s \= \toi 4\tt10 \\
+\end{proofbox}$$
+\end{document}
+
