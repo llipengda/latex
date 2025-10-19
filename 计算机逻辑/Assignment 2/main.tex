@@ -1,0 +1,89 @@
+%!TEX program = xelatex
+\title          {Logic in Computer Science - Assignment 2}
+\author         {李鹏达 10225101460}
+\date{}
+
+\documentclass{article}
+\usepackage{../boxproof}
+\usepackage{a4wide}
+\usepackage{ctex}
+% \usepackage{daymonthyear}
+
+\def\meta#1{\mbox{$\langle\hbox{#1}\rangle$}}
+\def\macrowitharg#1#2{{\tt\string#1\bra\meta{#2}\ket}}
+
+{\escapechar-1 \xdef\bra{\string\{}\xdef\ket{\string\}}}
+
+\showboxbreadth 999
+\showboxdepth 999
+\tracingoutput 1
+
+
+\let\imp\to
+
+\def\premise{\mathrm{premise}}
+\def\assumption{\mathrm{assumption}}
+\def\MT{\mathrm{MT\ }}
+\def\LEM{\mathrm{LEM}}
+\def\intro{\mathrm{i\ }}
+\def\elim{\mathrm{e\ }}
+\def\introa{\mathrm{i_1\ }}
+\def\elima{\mathrm{e_1\ }}
+\def\introb{\mathrm{i_2\ }}
+\def\elimb{\mathrm{e_2\ }}
+
+\def\lt{<}
+\def\eqdef{=}
+
+\def\eps{\mathrel{\epsilon}}
+\def\biimplies{\leftrightarrow}
+\def\flt#1{\mathrel{{#1}^\flat}}
+\def\setof#1{{\left\{{#1}\right\}}}
+\let\implies\to
+\def\KK{{\mathsf K}}
+\let\squashmuskip\relax
+
+
+\def\pre{\premise}
+\def\ass{\assumption}
+\def\andea{\land\elima}
+\def\andeb{\land\elimb}
+\def\andi{\land\intro}
+\def\toe{\to\elim}
+\def\toi{\to\intro}
+\def\ore{\lor\elim}
+\def\ore{\lor\elim}
+\def\oria{\lor\introa}
+\def\orib{\lor\introb}
+\def\nege{\neg\elim}
+\def\negi{\neg\intro}
+
+\def\tt{\!-\!}
+
+%=======================================================================
+\begin{document}
+\maketitle
+%=======================================================================
+\noindent For soundness proof, complete the proof of the following proof rule cases:
+\\[1em]
+(1) $\andea$: It must be the case that $\chi_k = \chi_1$ with $\chi_1 \land \chi_2$ appearing at line $l < k$. The formula $\chi_1 \land \chi_2$ has the shorter proof, and therefore, using the induction hypothesis, it has the truth value $T$. Using the truth table for $\land$, we can conclude that the truth value of $\chi_1$ is $T$.
+\\[1em]
+(2) $\andeb$: Same as (1), but with $\chi_k = \chi_2$.
+\\[1em]
+(3) $\bot\elim$: It must be the case that $\chi_k = \phi$ with $\bot$ appearing at line $l < k$, which means that $\chi_1, \neg\chi_1$ appears at line $m,n<l$. Using the induction hypothesis, both $\chi_1$ and $\neg\chi_1$ have the truth value $T$. However, according to the truth table of $\neg$, if $\chi_1$ has the truth value $T$, then $\neg\chi_1$ must have the truth value $F$, which contradicts the fact that $\neg\chi_1$ has the truth value $T$. Therefore, this case cannot happen, and $\chi_k$ is trivially true.
+\\[1em]
+(4) $\negi$: It must be the case that $\chi_k = \neg\phi$ with $\phi$ as an assumption at line $l < k$ and $\bot$ appearing at line $m < k$($m > l, l \in d_m$). If $\phi$ is $T$, then by the induction hypothesis, $\bot$ must be $T$ since the assumption is $T$. However, that is impossible, so we can get $\chi_k$ is $T$ trivially. If $\phi$ is $F$, then by the truth table of $\neg$, $\neg\phi$ is $T$. Therefore, in both cases, $\chi_k$ is $T$.
+\\[1em]
+(5) $\neg\neg\elim$: It must be the case that $\chi_k = \phi$ with $\neg\neg\phi$ appearing at line $l < k$. Since it has a shorter proof, using the induction hypothesis, $\neg\neg\phi$ is $T$, then by the truth table of $\neg$, $\neg\phi$ is $F$. Then, by the truth table of $\neg$ again, we can get that $\phi$ is $T$. Therefore, $\chi_k$ is $T$. 
+\\[1em]
+(6) $\oria$: It must be the case that $\chi_k = \chi_1 \lor \chi_2$ with $\chi_1$ appearing at line $l < k$. Since $\chi_1$ has a shorter proof, by the induction hypothesis, $\chi_1$ is $T$. Then, by the truth table of $\lor$, we can get that $\chi_1 \lor \chi_2$ is $T$. Therefore, $\chi_k$ is $T$.
+\\[1em]
+(7) $\orib$: Same as (6), but with $\chi_2$ appearing at line $l < k$.
+\\[1em]
+(8) $\toi$: It must be the case that $\chi_k = \phi \to \psi$ with $\psi$ appearing at line $l < k$ and $\phi$ as an assumption at line $m < l$ ($m \in d_l$). If $\phi$ is $F$, then by the truth table of $\to$, $\phi \to \psi$ is $T$. If $\phi$ is $T$, then by the induction hypothesis, $\psi$ is $T$ since the assumption is $T$. Then, by the truth table of $\to$, we can get that $\phi \to \psi$ is $T$. Therefore, $\chi_k$ is $T$.
+\\[1em]
+(9) $\toe$: It must be the case that $\chi_k = \psi$ with $\phi \to \psi$ appearing at line $l < k$ and $\phi$ appearing at line $m < k$. Since both $\phi \to \psi$ and $\phi$ have shorter proofs, by the induction hypothesis, they are both $T$. Then, by the truth table of $\to$, we can get that $\psi$ is $T$. Therefore, $\chi_k$ is $T$.
+\\[1em]
+(10) $\nege$: It must be the case that $\chi_k = \bot$ with $\phi$ appearing at line $l < k$ and $\neg\phi$ appearing at line $m < k$. Since both $\phi$ and $\neg\phi$ have shorter proofs, by the induction hypothesis, they are both $T$. However, this case cannot happen, so the conclusion is trivially proved.
+\end{document}
+
