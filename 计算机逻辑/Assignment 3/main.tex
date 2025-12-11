@@ -1,0 +1,208 @@
+%!TEX program = xelatex
+\title          {Logic in Computer Science - Assignment 3}
+\author         {李鹏达 10225101460}
+\date{}
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{../boxproof}
+\usepackage{a4wide}
+\usepackage{ctex}
+% \usepackage{daymonthyear}
+
+\def\meta#1{\mbox{$\langle\hbox{#1}\rangle$}}
+\def\macrowitharg#1#2{{\tt\string#1\bra\meta{#2}\ket}}
+
+{\escapechar-1 \xdef\bra{\string\{}\xdef\ket{\string\}}}
+
+\showboxbreadth 999
+\showboxdepth 999
+\tracingoutput 1
+
+
+\let\imp\to
+
+\def\premise{\mathrm{premise}}
+\def\assumption{\mathrm{assumption}}
+\def\MT{\mathrm{MT\ }}
+\def\LEM{\mathrm{LEM}}
+\def\intro{\mathrm{i\ }}
+\def\elim{\mathrm{e\ }}
+\def\introa{\mathrm{i_1\ }}
+\def\elima{\mathrm{e_1\ }}
+\def\introb{\mathrm{i_2\ }}
+\def\elimb{\mathrm{e_2\ }}
+
+\def\lt{<}
+\def\eqdef{=}
+
+\def\eps{\mathrel{\epsilon}}
+\def\biimplies{\leftrightarrow}
+\def\flt#1{\mathrel{{#1}^\flat}}
+\def\setof#1{{\left\{{#1}\right\}}}
+\let\implies\to
+\def\KK{{\mathsf K}}
+\let\squashmuskip\relax
+
+
+\def\pre{\premise}
+\def\ass{\assumption}
+\def\andea{\land\elima}
+\def\andeb{\land\elimb}
+\def\andi{\land\intro}
+\def\toe{\to\elim}
+\def\toi{\to\intro}
+\def\ore{\lor\elim}
+\def\ore{\lor\elim}
+\def\oria{\lor\introa}
+\def\orib{\lor\introb}
+\def\nege{\neg\elim}
+\def\negi{\neg\intro}
+\def\bote{\bot\elim}
+
+\def\tt{\!-\!}
+
+%=======================================================================
+\begin{document}
+\maketitle
+%=======================================================================
+\noindent 1. For completeness proof, complete the proof of the following cases:
+\\[1em]
+(1) $\Phi_1 \land \Phi_2 \vdash \Phi_1 \lor \Phi_2$
+$$\begin{proofbox}
+\: \Phi_1 \land \Phi_2 \= \pre \\
+\: \Phi_1 \= \andea 1 \\
+\: \Phi_1 \lor \Phi_2 \= \oria 2 \\
+\end{proofbox}$$
+\\[1em]
+(2) $\Phi_1 \land \neg \Phi_2 \vdash \Phi_1 \lor \Phi_2$
+$$\begin{proofbox}
+\: \Phi_1 \land \neg\Phi_2 \= \pre \\
+\: \Phi_1 \= \andea 1 \\
+\: \Phi_1 \lor \Phi_2 \= \oria 2 \\
+\end{proofbox}$$
+\\[1em]
+(3) $\neg \Phi_1 \land \Phi_2 \vdash \Phi_1 \lor \Phi_2$
+$$\begin{proofbox}
+\: \neg\Phi_1 \land \Phi_2 \= \pre \\
+\: \Phi_2 \= \andeb 1 \\
+\: \Phi_1 \lor \Phi_2 \= \orib 2 \\
+\end{proofbox}$$
+\\[1em]
+(4) $\neg \Phi_1 \land \neg \Phi_2 \vdash \neg(\Phi_1 \lor \Phi_2)$
+$$\begin{proofbox}
+\: \neg\Phi_1 \land \neg\Phi_2 \= \pre \\
+\: \neg \Phi_1 \= \andea 1 \\
+\: \neg \Phi_2 \= \andeb 1 \\
+\[
+    \: \Phi_1 \lor \Phi_2 \= \ass \\
+    \[
+        \: \Phi_1 \= \oria 4 \\
+        \: \bot \= \nege 2, 5 \\
+    \]
+    \[
+        \: \Phi_2 \= \orib 4 \\
+        \: \bot \= \nege 3, 7 \\
+    \]
+    \: \bot \= \ore 4,5\tt6,7\tt8 \\
+\]
+\: \neg(\Phi_1 \lor \Phi_2) \= \negi 4\tt9 \\
+\end{proofbox}$$
+\\[1em]
+(5) $\Phi_1 \land \Phi_2 \vdash\Phi_1 \to \Phi_2$
+$$\begin{proofbox}
+\: \Phi_1 \land \Phi_2 \= \pre \\
+\[
+    \: \Phi_1 \= \ass \\
+    \: \Phi_2 \= \andeb 1 \\
+\]
+\: \Phi_1 \to \Phi_2 \= \toi 2\tt3 \\
+\end{proofbox}$$
+\\[1em]
+(6) $\Phi_1 \land \neg \Phi_2 \vdash \neg(\Phi_1 \to \Phi_2)$
+$$\begin{proofbox}
+\: \Phi_1 \land \neg\Phi_2 \= \pre \\
+\: \Phi_1 \= \andea 1 \\
+\: \neg \Phi_2 \= \andeb 1 \\
+\[
+    \: \Phi_1 \to \Phi_2 \= \ass \\
+    \: \Phi_2 \= \toe 4, 2 \\
+    \: \bot \= \nege 3, 5 \\
+\]
+\: \neg(\Phi_1 \to \Phi_2) \= \negi 4\tt6 \\
+\end{proofbox}$$
+\\[1em]
+(7)  $\neg \Phi_1 \land \Phi_2 \vdash\Phi_1 \to \Phi_2$
+$$\begin{proofbox}
+\: \neg \Phi_1 \land \Phi_2 \= \pre \\
+\[
+    \: \Phi_1 \= \ass \\
+    \: \Phi_2 \= \andeb 1 \\
+\]
+\: \Phi_1 \to \Phi_2 \= \toi 2\tt3 \\
+\end{proofbox}$$
+\\[1em]
+(8) $\neg \Phi_1 \land \neg \Phi_2 \vdash \Phi_1 \to \Phi_2$
+$$\begin{proofbox}
+\: \neg \Phi_1 \land \neg \Phi_2 \= \pre \\
+\[
+    \: \Phi_1 \= \ass \\
+    \: \neg \Phi_1 \= \andea 1 \\
+    \: \bot \= \nege 2, 3 \\
+    \: \Phi_2 \= \bote 4 \\
+\]
+\: \Phi_1 \to \Phi_2 \= \toi 2\tt5 \\
+\end{proofbox}$$
+\newpage
+\noindent 2. Convert the following formula into CNF
+$$
+\neg\left(r \land \left(\neg \left(q \to \left(\neg p \to \left(q \land r\right)\right)\right)\right)\right)
+$$
+
+\noindent\textbf{Solution:}
+\\[2em]
+Let $\Phi = \neg\left(r \land \left(\neg \left(q \to \left(\neg p \to \left(q \land r\right)\right)\right)\right)\right)$.
+\newcommand{\cnf}[1]{\texttt{CNF($#1$)}}
+\newcommand{\nnf}[1]{\texttt{NNF($#1$)}}
+\newcommand{\impf}[1]{\texttt{IMPL\_FREE($#1$)}}
+\newcommand{\distr}[2]{\texttt{DISTR($#1,#2$)}}
+\begin{align*}
+& \impf{\Phi}\\
+&= \impf{\neg\left(r \land \left(\neg \left(q \to \left(\neg p \to \left(q \land r\right)\right)\right)\right)\right)}\\
+&= \neg(\impf{r \land \left(\neg \left(q \to \left(\neg p \to \left(q \land r\right)\right)\right)\right)})\\
+&= \neg(\impf{r} \land \impf{\neg \left(q \to \left(\neg p \to \left(q \land r\right)\right)\right)})\\
+&= \neg(r \land \neg(\impf{q \to \left(\neg p \to \left(q \land r\right)\right)}))\\
+&= \neg(r \land \neg(\neg \impf{q} \lor \impf{\neg p \to \left(q \land r\right)}))\\
+&= \neg(r \land \neg(\neg q \lor (\neg \impf{p} \lor \impf{q \land r})))\\
+&= \neg(r \land \neg(\neg q \lor (\neg p \lor (\impf{q} \land \impf{r}))))\\
+&= \neg(r \land \neg(\neg q \lor (\neg p \lor (q \land r))))\\
+\end{align*}
+Let $\Phi_1 = \neg(r \land \neg(\neg q \lor (\neg p \lor (q \land r))))$.
+\begin{align*}
+& \nnf{\Phi_1} \\
+&= \nnf{\neg(r \land \neg(\neg q \lor (\neg p \lor (q \land r))))} \\
+&= \nnf{\neg r \lor \neg\neg(\neg q \lor (\neg p \lor (q \land r)))} \\
+&= \nnf{\neg r} \lor \nnf{\neg\neg(\neg q \lor (\neg p \lor (q \land r)))} \\
+&= \neg r \lor \nnf{\neg q \lor (\neg p \lor (q \land r))} \\
+&= \neg r \lor \nnf{\neg q} \lor \nnf{\neg p \lor (q \land r)} \\
+&= \neg r \lor \neg q \lor \nnf{\neg p} \lor \nnf{q \land r} \\
+&= \neg r \lor \neg q \lor \nnf{\neg p} \lor (\nnf{q} \land \nnf{r}) \\
+&= \neg r \lor \neg q \lor \neg p \lor (q \land r) \\
+\end{align*}
+Let $\Phi_2 = \neg r \lor \neg q \lor \neg p \lor (q \land r)$.
+\begin{align*}
+& \cnf{\Phi_2} \\
+&= \cnf{\neg r \lor \neg q \lor \neg p \lor (q \land r)} \\
+&= \distr{\cnf{\neg r \lor \neg q}}{\cnf{\neg p \lor (q \land r)}} \\
+&= \distr{\distr{\cnf{\neg r}}{\cnf{\neg q}}}{\distr{\cnf{\neg p}}{\cnf{q \land r}}} \\
+&= \distr{\distr{{\neg r}}{{\neg q}}}{\distr{{\neg p}}{{\cnf{q} \land \cnf{r}}}} \\
+&= \distr{\distr{{\neg r}}{{\neg q}}}{\distr{{\neg p}}{{q \land r}}} \\
+&= \distr{\neg r \lor \neg q}{\distr{\neg p}{q}\land \distr{\neg p}{r}} \\
+&= \distr{\neg r \lor \neg q}{({\neg p}\lor{q})\land ({\neg p}\lor{r})} \\
+&= \distr{\neg r \lor \neg q}{{\neg p}\lor{q}} \land \distr{\neg r \lor \neg q}{{\neg p}\lor{r}} \\
+&= (\neg r \lor \neg q \lor \neg p \lor q) \land (\neg r \lor \neg q \lor \neg p \lor r)
+\end{align*}
+Thus, the CNF of the formula is
+$$(\neg r \lor \neg q \lor \neg p \lor q) \land (\neg r \lor \neg q \lor \neg p \lor r)$$
+\end{document}
+

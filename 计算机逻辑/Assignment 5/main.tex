@@ -1,0 +1,177 @@
+%!TEX program = xelatex
+\title          {Logic in Computer Science - Assignment 5}
+\author         {李鹏达 10225101460}
+\date{}
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{../boxproof}
+\usepackage{a4wide}
+\usepackage{ctex}
+\usepackage{enumitem}
+% \usepackage{daymonthyear}
+
+\def\meta#1{\mbox{$\langle\hbox{#1}\rangle$}}
+\def\macrowitharg#1#2{{\tt\string#1\bra\meta{#2}\ket}}
+
+{\escapechar-1 \xdef\bra{\string\{}\xdef\ket{\string\}}}
+
+\showboxbreadth 999
+\showboxdepth 999
+\tracingoutput 1
+
+
+\let\imp\to
+
+\def\premise{\mathrm{premise}}
+\def\assumption{\mathrm{assumption}}
+\def\MT{\mathrm{MT\ }}
+\def\LEM{\mathrm{LEM}}
+\def\intro{\mathrm{i\ }}
+\def\elim{\mathrm{e\ }}
+\def\introa{\mathrm{i_1\ }}
+\def\elima{\mathrm{e_1\ }}
+\def\introb{\mathrm{i_2\ }}
+\def\elimb{\mathrm{e_2\ }}
+
+\def\lt{<}
+\def\eqdef{=}
+
+\def\eps{\mathrel{\epsilon}}
+\def\biimplies{\leftrightarrow}
+\def\flt#1{\mathrel{{#1}^\flat}}
+\def\setof#1{{\left\{{#1}\right\}}}
+\let\implies\to
+\def\KK{{\mathsf K}}
+\let\squashmuskip\relax
+
+
+\def\pre{\premise}
+\def\ass{\assumption}
+\def\andea{\land\elima}
+\def\andeb{\land\elimb}
+\def\andi{\land\intro}
+\def\toe{\to\elim}
+\def\toi{\to\intro}
+\def\ore{\lor\elim}
+\def\ore{\lor\elim}
+\def\oria{\lor\introa}
+\def\orib{\lor\introb}
+\def\nege{\neg\elim}
+\def\negi{\neg\intro}
+\def\bote{\bot\elim}
+\def\falle#1{\forall#1\ \elim}
+\def\falli#1{\forall#1\ \intro}
+\def\exie#1{\exists#1\ \elim}
+\def\exii#1{\exists#1\ \intro}
+
+\def\tt{\!-\!}
+
+%=======================================================================
+\begin{document}
+\maketitle
+%=======================================================================
+\noindent 1. Read the following specification: 
+
+Alice, Bob, and Charles live in an apartment. One day Alice is found dead in her room. \textbf{Please translate the following clues into predicate logic formulas}:
+
+\noindent (1) A killer always hates, and is no richer than his victim. \\
+(2) Charles hates no one that Alice hates. \\
+(3) Alice hates everybody except Bob. \\
+(4) Bob hates everyone who is either not richer than Alice or hated by Alice. \\
+(5) No one hates everyone. \\
+(6) No one is richer than himself/herself. Who is richer can be determined for any two different persons. 
+\\[1em]
+Denote:
+
+$K(x,y)$ : ``$x$ killed $y$''.
+
+$H(x,y)$ : ``$x$ hates $y$''.
+
+$R(x,y)$ : ``$x$ is richer than $y$''.
+
+Constants: $a$ (Alice), $b$ (Bob), $c$ (Charles).
+
+
+\begin{enumerate}[label=(\arabic*), noitemsep]
+    \item A killer always hates, and is no richer than his victim:
+    \[
+        \forall x\,\forall y\;\bigl(K(x,y) \rightarrow (H(x,y) \land \neg R(x,y))\bigr).
+    \]
+
+    \item Charles hates no one that Alice hates:
+    \[
+        \forall y\;\bigl(H(a,y) \rightarrow \neg H(c,y)\bigr).
+    \]
+
+    \item Alice hates everybody except Bob:
+    \[
+        \bigl(\forall y\ (y \neq b \rightarrow H(a,y))\bigr)\ \land\ \neg H(a,b).
+    \]
+
+    \item Bob hates everyone who is either not richer than Alice or hated by Alice:
+    \[
+        \forall y\;\bigl((\neg R(y,a) \lor H(a,y)) \rightarrow H(b,y)\bigr).
+    \]
+
+    \item No one hates everyone:
+    \[
+        \forall x\;\exists y\;\neg H(x,y).
+    \]
+
+    \item No one is richer than himself/herself.  
+    Who is richer can be decided for any two different persons:
+    \[
+        \forall x\;\neg R(x,x),
+    \]
+    \[
+        \forall x\,\forall y\;\bigl(x \neq y \rightarrow (R(x,y) \lor R(y,x))\bigr).
+    \]
+\end{enumerate}
+~\\[1em]
+\noindent \textbf{Guess who is the killer and verify your conclusion with semantical entailment.}
+\\[1em]
+
+The killer is Alice herself.
+
+Let $\mathcal M$ be a model satisfying all the above formulas and $\exists x\, K(x,a)$. We show that $\mathcal M \models K(a,a)$.
+
+From (1) and $\exists x\, K(x,a)$, there is some person $d$ such that $K(d,a)$ holds in $\mathcal M$. By (1), we have $H(d,a)$ and $\neg R(d,a)$.
+
+From (3), since $a \neq b$, we have $H(a,a)$.
+
+From (2) and $H(a,a)$, we have $\neg H(c,a)$. So $c \neq d$.
+
+Suppose $b = d$. Then $\neg R(b,a)$ and $H(b, a)$ holds. Let $y=b$ in (4), we have $H(b,b)$. And by (3), since $c \neq b$, we have $H(a,b)$. From (4) and $H(a,b)$, we have $H(b,c)$. So $b$ hates everyone, contradicting (5). Thus $b \neq d$.
+
+Then the only possibility is $a = d$. Since $H(a, a)$ and $\neg R(a, a)$ hold, there is no contradiction with (1). In this case, Alice hates Alice and Charles, and Bob hates Alice and Charles, while Bob does not hate himself. This satisfies all the clues. 
+
+Thus the killer is Alice herself.
+
+~\\[1em]
+\noindent 2. Prove the following theorems with semantical model
+\\[1em]
+(1) $\neg \forall\,x P(x) \equiv \exists x\,\neg P(x)$
+\\[1em]
+We need to show that for any model $\mathcal M$, $\mathcal M \models \neg \forall x P(x) \iff \mathcal M \models \exists x \neg P(x)$.\\
+$\Rightarrow$ side:\\
+$\mathcal M \models \neg \forall x P(x)\\
+\Rightarrow \neg \forall a\, \mathcal M \models_{l[x \mapsto a]} P(x)\\
+\Rightarrow \exists a\, \mathcal M \models_{l[x \mapsto a]} \neg P(x)\\
+\Rightarrow \mathcal M \models \exists x \neg P(x)\\
+$
+$\Leftarrow$ side:\\
+$\mathcal M \models \exists x \neg P(x)\\
+\Rightarrow \exists a\, \mathcal M \models_{l[x \mapsto a]} \neg P(x)\\
+\Rightarrow \neg \forall a\, \mathcal M \models_{l[x \mapsto a]} P(x)\\
+\Rightarrow \mathcal M \models \neg \forall x P(x)\\
+$
+\\[1em]
+(2) $\exists x \,\forall y\, P(x,y) \;\not\equiv\; \forall y \,\exists x\, P(x,y)$
+\\[1em]
+We need to show that there is a model $\mathcal M$ such that $\mathcal M \models \exists x \forall y P(x,y)$ but $\mathcal M \not\models \forall y \exists x P(x,y)$.\\
+Let $D = \{1,2\}, P^{\mathcal M}= \{(1,1), (2,2)\}$.\\
+Then $\mathcal M \models \forall y\exists x\;P(x,y)$ since $\mathcal M \models_{l[x \mapsto 1, y \mapsto 1]} P(1, 1)$ and $\mathcal M \models_{l[x \mapsto 2, y \mapsto 2]} P(2, 2)$ holds.\\
+But $\mathcal M \not\models \exists x\forall y\;P(x,y)$ since $\mathcal M \not\models_{l[x \mapsto 1, y \mapsto 2]} P(1, 2)$.\\
+\end{document}
+

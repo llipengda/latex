@@ -1,0 +1,243 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{ctex}
+\setmonofont{DejaVu Sans Mono}
+
+% Code listing settings
+\lstset{
+    language=C++,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\footnotesize\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    breaklines=true,
+    breakatwhitespace=false
+}
+
+\title{Lab3 Sharing}
+\author{李鹏达}
+\date{\today}
+
+\begin{document}
+
+\frame{\titlepage}
+
+% Slide 1: weightedRand
+\begin{frame}[fragile]
+\frametitle{Weighted Random Selection}
+\begin{lstlisting}
+int weightedRand(const std::vector<double> &Weights) {
+  if (Weights.empty()) return 0;
+  
+  static std::mt19937 gen(static_cast<unsigned>(rand()));
+  std::discrete_distribution<int> dist(Weights.begin(), 
+                                        Weights.end());
+  return dist(gen);
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 2: selectInput
+\begin{frame}[fragile]
+\frametitle{Input Selection Strategy}
+\begin{lstlisting}
+std::string selectInput(RunInfo Info) {
+  if (SeedInputs.empty()) 
+    return "";
+  int Index = weightedRand(SeedWeight);
+  MutationState = Index;
+  return SeedInputs[Index];
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 3: selectMutationFn
+\begin{frame}[fragile]
+\frametitle{Mutation Function Selection}
+\begin{lstlisting}
+MutationFn *selectMutationFn(RunInfo &Info) {
+  int Strat = weightedRand(MutationFnWeights);
+  StrategyState = Strat;
+  return MutationFns[Strat];
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 4: Mutation 0 and 1
+\begin{frame}[fragile]
+\frametitle{Mutation Strategies (1/3)}
+\begin{lstlisting}
+// Mutation 0: No mutation
+std::string mutation_0(std::string Original) { 
+  return Original; 
+}
+
+// Mutation 1: Insert random character
+std::string mutation_1(std::string Original) {
+  if (Original.length() <= 0)
+    return Original;
+  int Index = rand() % Original.length();
+  return Original.insert(Index, 1, 
+                         ALPHA[rand() % LENGTH_ALPHA]);
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 5: Mutation 2 and 3
+\begin{frame}[fragile]
+\frametitle{Mutation Strategies (2/3)}
+\begin{lstlisting}
+// Mutation 2: Swap adjacent characters
+std::string mutation_2(std::string Original) {
+  if (Original.length() <= 1) return Original;
+  int Index = rand() % Original.length();
+  int Addition = rand() % 2 == 0 ? 1 : -1;
+  int SwapIndex = Index + Addition;
+  if (SwapIndex < 0 || 
+      static_cast<std::size_t>(SwapIndex) >= Original.length()) {
+    SwapIndex = Index - Addition;
+  }
+  if (SwapIndex < 0 || 
+      static_cast<std::size_t>(SwapIndex) >= Original.length()) {
+    return Original;
+  }
+  char Temp = Original[Index];
+  Original[Index] = Original[SwapIndex];
+  Original[SwapIndex] = Temp;
+  return Original;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 6: Mutation 3 continued
+\begin{frame}[fragile]
+\frametitle{Mutation Strategies (2/3 continued)}
+\begin{lstlisting}
+// Mutation 3: Increment/decrement character
+std::string mutation_3(std::string Original) {
+  if (Original.length() <= 0)
+    return Original;
+  int Index = rand() % Original.length();
+  int Addition = rand() % 2 == 0 ? 1 : -1;
+  int AlphaIndex = 0;
+  for (int i = 0; i < LENGTH_ALPHA; ++i) {
+    if (ALPHA[i] == Original[Index]) {
+      AlphaIndex = i;
+      break;
+    }
+  }
+  AlphaIndex = (AlphaIndex + Addition + LENGTH_ALPHA) 
+               % LENGTH_ALPHA;
+  Original[Index] = ALPHA[AlphaIndex];
+  return Original;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 7: Mutation 4 and 5
+\begin{frame}[fragile]
+\frametitle{Mutation Strategies (3/3)}
+\begin{lstlisting}
+// Mutation 4: Delete character
+std::string mutation_4(std::string Original) {
+  if (Original.length() <= 0)
+    return Original;
+  int Index = rand() % Original.length();
+  return Original.erase(Index, 1);
+}
+
+// Mutation 5: Insert newline character
+std::string mutation_5(std::string Original) {
+  int Pos = Original.empty() ? 0 : 
+            (rand() % (Original.size() + 1));
+  char Special = '\n';
+  Original.insert(Pos, 1, Special);
+  return Original;
+}
+\end{lstlisting}
+\end{frame}
+
+% Slide 8: Feedback (Part 1)
+\begin{frame}[fragile]
+\frametitle{Feedback Algorithm (1/2)}
+\begin{lstlisting}
+void feedBack(std::string &Target, RunInfo &Info) {
+  std::vector<std::string> RawCoverageData;
+  readCoverageFile(Target, RawCoverageData);
+
+  PrevCoverageState = CoverageState;
+  CoverageState.clear();
+  CoverageState.assign(RawCoverageData.begin(),
+                       RawCoverageData.end());
+
+  int Diff = coverageDiff(PrevCoverageState, CoverageState);
+
+  if (Diff > 0) {
+    SeedInputs.push_back(Info.MutatedInput);
+    SeedWeight.push_back(10.0);
+    
+    SeedWeight[MutationState] *= 1.5;
+    if (SeedWeight[MutationState] > 100.0) {
+      SeedWeight[MutationState] = 100.0;
+    }
+\end{lstlisting}
+\end{frame}
+
+% Slide 9: Feedback (Part 2)
+\begin{frame}[fragile]
+\frametitle{Feedback Algorithm (2/2)}
+\begin{lstlisting}
+    MutationFnWeights[StrategyState] *= 1.5;
+    if (MutationFnWeights[StrategyState] > 100.0) {
+      MutationFnWeights[StrategyState] = 100.0;
+    }
+  } else if (Info.Passed) {
+    if (MutationState >= 0 && 
+        MutationState < static_cast<int>(SeedWeight.size())) {
+      SeedWeight[MutationState] *= 0.9;
+      if (SeedWeight[MutationState] < 0.1) {
+        SeedWeight[MutationState] = 0.1;
+      }
+    }
+    
+    MutationFnWeights[StrategyState] *= 0.9;
+    if (MutationFnWeights[StrategyState] < 0.1) {
+      MutationFnWeights[StrategyState] = 0.1;
+    }
+  }
+}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Why Mutation 5?}
+Use mutation\_1:
+$$
+\frac{1}{6} \times \frac{1}{26} \times \frac{1}{2} =\frac{1}{312}
+$$
+100 times to get a newline that meets the condition:
+$$
+\left(1 - \left(1 - \frac{1}{312}\right)^{100}\right) \approx 0.27
+$$
+\end{frame}
+
+\begin{frame}
+\begin{center}
+    \huge THANKS
+\end{center}
+\end{frame}
+
+\end{document}

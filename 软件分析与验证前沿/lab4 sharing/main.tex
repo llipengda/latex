@@ -1,0 +1,196 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{ctex}
+\setmonofont{DejaVu Sans Mono}
+
+% Code listing settings
+\lstset{
+    language=Python,
+    basicstyle=\footnotesize\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\footnotesize\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    breaklines=true,
+    breakatwhitespace=false
+}
+
+\title{Lab4 Sharing}
+\author{李鹏达}
+\date{\today}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Validity Properties}
+
+\begin{frame}[allowframebreaks,fragile]{Validity Properties: Invariant Checking}
+    \begin{itemize}
+        \item \textbf{Invariant:} Binary Search Tree (BST) ordering.
+        $$ \text{keys}(\text{left}) < \text{root\_key} < \text{keys}(\text{right}) $$
+        \item \textbf{Test Goal:} Ensure that operations preserve the BST invariant.
+        \item \textbf{Functions to Test (TODO 1):}
+        \begin{enumerate}
+            \item \texttt{find}: After locating a key, the result remains valid in a BST.
+            \item \texttt{delete}: After merging two binary search trees, the result remains a valid binary search tree.
+        \end{enumerate}
+    \end{itemize}
+
+    \framebreak
+
+    \begin{lstlisting}
+# TODO: After locating a key, the result remains valid in a BST.
+@given(keys_strategy, trees_strategy)
+def test_find_valid(key: int, bst: BST[int,int]) -> None:
+    bst.find(key)
+    assert(is_valid(bst))
+    \end{lstlisting}
+
+    \begin{lstlisting}
+# TODO: After merging two binary search trees, the result remains a valid binary search tree.
+@given(trees_strategy, trees_strategy)
+def test_union_valid(bst1: BST[int,int], bst2: BST[int,int]) -> None:
+    assert(is_valid(BST.union(bst1, bst2)))
+    \end{lstlisting}
+
+\end{frame}
+
+\section{Postconditions Testing}
+
+\begin{frame}[allowframebreaks,fragile]{Postconditions Testing: Result Verification}
+    \begin{itemize}
+        \item \textbf{Postcondition Idea:} Verify the expected state/result \textbf{after} an operation. \emph{Avoid replicating code logic in the test.}
+        \item \textbf{Functions to Test (TODO 2):}
+        \begin{enumerate}
+            \item \texttt{delete}: Deletion must not affect the search results for \textbf{other} keys.
+            \item \texttt{union}: Lookup in the merged BST must return the correct value, with keys from $\text{BST}_1$ having \textbf{precedence} over $\text{BST}_2$.
+        \end{enumerate}
+    \end{itemize}
+
+        \framebreak
+
+    \begin{lstlisting}
+# TODO: Deletion should not affect the search results for other keys.
+@given(keys_strategy, trees_strategy, keys_strategy)
+def test_delete_post(key: int, bst: BST[int,int], search_key: int) -> None:
+    found = bst.delete(key).find(search_key)
+    expected = bst.find(search_key) if search_key != key else None
+    assert found == expected
+    \end{lstlisting}
+
+    \framebreak
+
+    \begin{lstlisting}
+# TODO: After merging, the lookup should return the correct value, with keys from bst1 taking precedence over keys from bst2.
+@given(trees_strategy, trees_strategy, keys_strategy)
+def test_union_post(bst1: BST[int,int], bst2: BST[int,int], search_key:int) -> None:
+    union_bst: BST[int,int] = BST.union(bst1, bst2)
+    found = union_bst.find(search_key)
+    bst1_found = bst1.find(search_key)
+    expected = bst1_found if bst1_found else bst2.find(search_key)
+    assert found == expected
+    \end{lstlisting}
+\end{frame}
+
+\section{Metamorphic Testing}
+
+\begin{frame}[allowframebreaks,fragile]{Metamorphic Testing: Relation Between Calls}
+    \begin{itemize}
+        \item \textbf{Metamorphic Relation (MR) Idea:} Check the relationship between the results of two \textbf{related} function calls: $\text{result}_1 \sim \text{result}_2$.
+        \item \textbf{Functions to Test (TODO 3):}
+        \begin{enumerate}
+            \item \texttt{delete}: Establish a relationship by adding an \texttt{insert} operation (e.g., $\text{delete}.\text{insert} \sim \text{insert}.\text{delete}$).
+            \item \texttt{union}: Establish a relationship by adding an \texttt{insert} operation.
+        \end{enumerate}
+        \item \textbf{Equivalence:} Use $\texttt{equivalent}(\text{bst}_1, \text{bst}_2)$ to check if key-value sets are equal, \textbf{disregarding structure}.
+    \end{itemize}
+
+        \framebreak
+
+    \begin{lstlisting}
+# TODO: establish a relationship between `delete.insert` and `insert.delete` by adding an insert. That is, by inserting before and after the deletion, one can determine whether the tree structures are equivalent.
+# NOTE: Take care to assess the scenario where key1 equals key2.
+@given(keys_strategy, keys_strategy, st.integers(), trees_strategy)
+def test_delete_metamorph_by_insert(key1: int, key2: int, value: int, bst: BST[int,int]) -> None:
+    deleted = bst.delete(key1).insert(key2, value)
+    expected = bst.insert(key2, value).delete(key1)
+    assert equivalent(deleted, expected)
+    \end{lstlisting}
+
+    \begin{lstlisting}
+# TODO: To verify the outcome of the union operation, one may establish a relationship by adding an insert.
+# NOTE: Please note that we have not introduced bugs into the union, but the metamorphic properties of this union are prone to errors in implementation. Correct properties will not detect bugs.
+@given (keys_strategy, st.integers(), trees_strategy, trees_strategy)
+def test_union_metamorph_by_insert(key: int, value: int, bst1: BST[int,int], bst2: BST[int,int]) -> None:
+    unioned = BST.union(bst1, bst2).insert(key, value)
+    expected = BST.union(bst1.insert(key, value), bst2)
+    assert equivalent(unioned, expected)
+    \end{lstlisting}
+\end{frame}
+
+\section{Model-based Properties Testing}
+
+\begin{frame}[allowframebreaks,fragile]{Model-based Properties: Abstraction}
+    \begin{itemize}
+        \item \textbf{Model Idea:} Relate the concrete data type (BST) to an abstract data model (List of $\langle K, V \rangle$ tuples) via an $\mathbf{Abstraction}$ \textbf{Function} ($\texttt{to\_list()}$).
+        \item \textbf{Test Goal:} $\texttt{concrete\_op}(\text{BST}) \sim \texttt{abstract\_op}(\text{model})$.
+        \item \textbf{Functions to Test (TODO 4):}
+        \begin{enumerate}
+            \item \texttt{delete}: Compare the set of tuples after deleting from the BST versus deleting from the abstract list.
+            \item \texttt{union}: Compare the set of tuples after performing \texttt{union} on two BSTs versus two abstract lists.
+        \end{enumerate}
+    \end{itemize}
+
+            \framebreak
+
+    \begin{lstlisting}
+# TODO:Perform a delete operation on the BST and abstract data structure, then determine whether the final sets are equivalent.
+@given(keys_strategy, trees_strategy)
+def test_delete_model(key: int, bst: BST[int,int]) -> None:
+    abstract_data = bst.to_list()
+    deleted_abstract_data = filter(lambda kv: kv[0] != key, abstract_data)
+    deleted_bst = bst.delete(key)
+    assert set(deleted_bst.to_list()) == set(deleted_abstract_data)
+    \end{lstlisting}
+
+    \framebreak
+
+  \begin{enumerate}
+    \item Get keys in BST1
+    \item Get key-value pairs in BST2 whose keys are not in BST1
+    \item Merge the key-value pairs
+  \end{enumerate}
+
+    \begin{lstlisting}
+# TODO:Perform a union operation on two BSTs and their corresponding abstract data structures, then determine whether the resulting union is equivalent.
+@given(trees_strategy, trees_strategy)
+def test_union_model(bst1: BST[int,int], bst2: BST[int,int]) -> None:
+    abstract_data1 = bst1.to_list()
+    abstract_data2 = bst2.to_list()
+    data1_key_set = set(map(lambda kv: kv[0], abstract_data1))
+    unioned_abstract_data = list(filter(lambda kv: kv[0] not in data1_key_set, abstract_data2)) + abstract_data1
+    unioned_bst = BST.union(bst1, bst2)
+    assert set(unioned_bst.to_list()) == set(unioned_abstract_data)
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+    \huge THANKS
+\end{center}
+\end{frame}
+
+\end{document}
