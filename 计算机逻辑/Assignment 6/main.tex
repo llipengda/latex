@@ -1,0 +1,150 @@
+%!TEX program = xelatex
+\title          {Logic in Computer Science - Assignment 6}
+\author         {李鹏达 10225101460}
+\date{}
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{../boxproof}
+\usepackage{a4wide}
+\usepackage{ctex}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fontspec}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{stfloats}
+% \usepackage{daymonthyear}
+
+\def\meta#1{\mbox{$\langle\hbox{#1}\rangle$}}
+\def\macrowitharg#1#2{{\tt\string#1\bra\meta{#2}\ket}}
+
+{\escapechar-1 \xdef\bra{\string\{}\xdef\ket{\string\}}}
+
+\showboxbreadth 999
+\showboxdepth 999
+\tracingoutput 1
+
+
+\let\imp\to
+
+\def\premise{\mathrm{premise}}
+\def\assumption{\mathrm{assumption}}
+\def\MT{\mathrm{MT\ }}
+\def\LEM{\mathrm{LEM}}
+\def\intro{\mathrm{i\ }}
+\def\elim{\mathrm{e\ }}
+\def\introa{\mathrm{i_1\ }}
+\def\elima{\mathrm{e_1\ }}
+\def\introb{\mathrm{i_2\ }}
+\def\elimb{\mathrm{e_2\ }}
+
+\def\lt{<}
+\def\eqdef{=}
+
+\def\eps{\mathrel{\epsilon}}
+\def\biimplies{\leftrightarrow}
+\def\flt#1{\mathrel{{#1}^\flat}}
+\def\setof#1{{\left\{{#1}\right\}}}
+\let\implies\to
+\def\KK{{\mathsf K}}
+\let\squashmuskip\relax
+
+
+\def\pre{\premise}
+\def\ass{\assumption}
+\def\andea{\land\elima}
+\def\andeb{\land\elimb}
+\def\andi{\land\intro}
+\def\toe{\to\elim}
+\def\toi{\to\intro}
+\def\ore{\lor\elim}
+\def\ore{\lor\elim}
+\def\oria{\lor\introa}
+\def\orib{\lor\introb}
+\def\nege{\neg\elim}
+\def\negi{\neg\intro}
+\def\bote{\bot\elim}
+\def\falle#1{\forall#1\ \elim}
+\def\falli#1{\forall#1\ \intro}
+\def\exie#1{\exists#1\ \elim}
+\def\exii#1{\exists#1\ \intro}
+
+\def\tt{\!-\!}
+
+%=======================================================================
+\begin{document}
+\maketitle
+%=======================================================================
+\noindent Check whether the following model satisfies the CTL formulas:
+\begin{figure}[H]
+    \includegraphics[width=0.5\textwidth]{1.png}
+\end{figure}
+1) $AG(Start \to EF\ Heat)$
+\begin{align*}
+ AG(Start \to EF\ Heat)&= AG(\neg Start \lor EF\ Heat)\\
+ &=AG(\neg (Start \land \neg EF\ Heat)) \\
+ &= \neg EF(Start \land \neg EF\ Heat) \\
+    &= \neg E[\top\ U(Start \land \neg EF\ Heat)]
+\end{align*}
+
+\begin{align*}
+& S(M \models Heat) = \{4, 7\} \\
+& S(M \models EF\ Heat) = \{1, 2, 3, 4, 5, 6, 7\} \\
+& S(M \models \neg EF\ Heat) = \emptyset \\
+& S(M \models (Start \wedge \neg EF\ Heat)) = \emptyset \\
+& S(M \models E[\top\ U(Start \wedge \neg EF\ Heat)]) = \emptyset \\
+& S(M \models \neg E[\top\ U(Start \wedge \neg EF\ Heat)]) = \{1, 2, 3, 4, 5, 6, 7\} \\
+& \Rightarrow M \models AG(Start \to EF\ Heat)
+\end{align*}
+
+So the model satisfies the formula.
+~\\[1em]
+
+2) $AG(A[\neg Error\ U\ (EF\ Close)])$
+
+\begin{align*}
+&AG(A[\neg Error\ U\ (EF\ Close)]) \\
+&= AG(\neg(E [\neg (EF\ Close)\ U\ (Error \land \neg (EF\ Close))] \lor EG\ \neg (EF\ Close))) \\
+&= AG(\neg(E [\neg (EF\ Close)\ U\ (Error \land \neg (EF\ Close))] \lor \neg AF\ (EF\ Close))) \\
+&= \neg EF(E [\neg (EF\ Close)\ U\ (Error \land \neg (EF\ Close))] \lor \neg AF\ (EF\ Close)) \\
+&= \neg E[\top\ U(E [\neg (EF\ Close)\ U\ (Error \land \neg (EF\ Close))] \lor \neg AF\ (EF\ Close))]
+\end{align*}
+
+\begin{align*}
+& S(M \models Close) = \{3, 4, 5, 6, 7\} \\
+& S(M \models EF \, Close) = \{1, 2, 3, 4, 5, 6, 7\} \\
+& S(M \models \neg EF \, Close) = \emptyset \\
+& S(M \models \neg AF(EF \, Close)) = \emptyset \\
+& S(M \models Error \wedge \neg EF \, Close) = \emptyset \\
+& S(M \models E[\neg EF \, Close \, U \, (Error \wedge \neg EF \, Close)]) = \emptyset \\
+& S(M \models (E[\neg EF \, Close \, U \, (Error \wedge \neg EF \, Close)] \vee \neg AF(EF \, Close))) = \emptyset \\
+& S(M \models E[\top U (E[\neg EF \, Close \, U \, (Error \wedge \neg EF \, Close)] \vee \neg AF(EF \, Close))]) = \emptyset \\
+& S(M \models \neg E[\top U (E[\neg EF \, Close \, U \, (Error \wedge \neg EF \, Close)] \vee \neg AF(EF \, Close))]) = \{1, 2, 3, 4, 5, 6, 7\}
+\end{align*}
+
+So the model satisfies the formula.
+\end{document}
+
