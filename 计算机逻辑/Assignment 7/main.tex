@@ -1,0 +1,195 @@
+%!TEX program = xelatex
+\title          {Logic in Computer Science - Assignment 7}
+\author         {李鹏达 10225101460}
+\date{}
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{../boxproof}
+\usepackage{a4wide}
+\usepackage{ctex}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fontspec}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{stfloats}
+% \usepackage{daymonthyear}
+
+\def\meta#1{\mbox{$\langle\hbox{#1}\rangle$}}
+\def\macrowitharg#1#2{{\tt\string#1\bra\meta{#2}\ket}}
+
+{\escapechar-1 \xdef\bra{\string\{}\xdef\ket{\string\}}}
+
+\showboxbreadth 999
+\showboxdepth 999
+\tracingoutput 1
+
+
+\let\imp\to
+
+\def\premise{\mathrm{premise}}
+\def\assumption{\mathrm{assumption}}
+\def\MT{\mathrm{MT\ }}
+\def\LEM{\mathrm{LEM}}
+\def\intro{\mathrm{i\ }}
+\def\elim{\mathrm{e\ }}
+\def\introa{\mathrm{i_1\ }}
+\def\elima{\mathrm{e_1\ }}
+\def\introb{\mathrm{i_2\ }}
+\def\elimb{\mathrm{e_2\ }}
+
+\def\lt{<}
+\def\eqdef{=}
+
+\def\eps{\mathrel{\epsilon}}
+\def\biimplies{\leftrightarrow}
+\def\flt#1{\mathrel{{#1}^\flat}}
+\def\setof#1{{\left\{{#1}\right\}}}
+\let\implies\to
+\def\KK{{\mathsf K}}
+\let\squashmuskip\relax
+
+
+\def\pre{\premise}
+\def\ass{\assumption}
+\def\andea{\land\elima}
+\def\andeb{\land\elimb}
+\def\andi{\land\intro}
+\def\toe{\to\elim}
+\def\toi{\to\intro}
+\def\ore{\lor\elim}
+\def\ore{\lor\elim}
+\def\oria{\lor\introa}
+\def\orib{\lor\introb}
+\def\nege{\neg\elim}
+\def\negi{\neg\intro}
+\def\bote{\bot\elim}
+\def\falle#1{\forall#1\ \elim}
+\def\falli#1{\forall#1\ \intro}
+\def\exie#1{\exists#1\ \elim}
+\def\exii#1{\exists#1\ \intro}
+
+\def\tt{\!-\!}
+\allowdisplaybreaks
+
+\lstset{
+    language=C,
+    basicstyle=\small\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\footnotesize\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    breaklines=true,
+    breakatwhitespace=false
+}
+
+%=======================================================================
+\begin{document}
+\maketitle
+%=======================================================================
+Verify the following Hoare triple is partial correct.
+\begin{align*}
+    &\{n > 0 \land \forall i. \ 0 \leq i < n \to a[i] \in \mathbb{N} \} \\
+    &Sort \\
+    &\{ \forall i, j. \ 0 \leq i \leq j < n \to a[i] \leq a[j] \}
+\end{align*}
+
+The code of Sort is as follows:
+
+~\\
+\begin{lstlisting}[language=C,xleftmargin=6em,xrightmargin=22em]
+i = 0;
+while (i < n-1) {
+    j = 0;
+    while (j < n-i-1) {
+        if (a[j] > a[j+1]) {
+            temp = a[j];
+            a[j] = a[j+1];
+            a[j+1] = temp;
+        }
+        j = j + 1;
+    }
+    i = i + 1;
+}
+\end{lstlisting}
+
+\newpage
+\textbf{Solution:}
+
+\begin{align*}
+&\text{Denote} \quad \forall k, l. \ k \in [n-i-1..n-2] \times l \in [k+1..n-1] \to a[k] \leq a[l] \\
+&\quad\quad\text{as} \quad INV_1; \\
+&\quad \forall \ a[j] = \max a[0..j] \quad \text{as} \quad INV_2. \\
+\\
+& \{ n > 0 \land \forall i. \ 0 \leq i < n \to a[i] \in \mathbb{N} \} & \text{pre} \\
+& \{ \forall k, l. \ k \in [n-1..n-2] \land l \in [k+1..n-1] \to a[k] \leq a[l] \}  & \text{implied} \\
+1 \ & i = 0; \\
+& \{ INV_1 \land i \leq n-1 \} \\
+& \{ INV_1 \}  & \text{assignment} \\
+2 \ & \text{while } (i < n-1) \ \{ \\
+& \{ INV_1 \land i < n-1 \} & \text{inv \& grd} \\
+& \{ INV_1 \land i < n \land a[0] = \max[0..0] \}  & \text{implied} \\
+3 \ & j = 0; \\
+& \{ INV_1 \land i < n-1 \land INV_2 \}  & \text{assignment} \\
+4 \ & \quad \text{while } (j < n-i-1) \ \{ \\
+& \quad \{ INV_1 \land i < n-1 \land j < n-i-1 \land INV_2 \}  & \text{inv \& grd} \\
+5 \ & \quad \quad \text{if } (a[j] > a[j+1]) \ \{ \\
+& \quad \quad \{ INV_1 \land i < n-1 \land j < n-i-1 \land INV_2 \land a[j] > a[j+1] \}  & \text{if-statement} \\
+6 \ & \quad \quad \quad temp = a[j]; \\
+& \quad \quad \{ INV_1 \land i < n-1 \land j < n-i-1 \land INV_2 \land temp > a[j+1] \}  & \text{assignment} \\
+& \quad \quad \quad a[j] = a[j+1]; \\
+7 \ & \quad \quad \{ INV_1 \land i < n-1 \land j < n-i-1 \land INV_2 \land temp > a[j] \}  & \text{assignment} \\
+& \quad \quad \quad a[j+1] = temp; \\
+8 \ & \quad \quad \{ INV_1 \land i < n-1 \land j < n-i-1 \land INV_2 \land a[j] < a[j+1] \}  & \text{assignment} \\
+9 \ & \quad \quad \} \\
+& \quad \quad \{ INV_1 \land i < n-1 \land j < n-i-1 \land INV_2 \land a[j+1] \geq a[j] \}  & \text{if-statement} \\
+& \quad \quad \{ INV_1 \land i < n-1 \land j < n-i-1 \land a[j+1] = \max a[0..j+1] \}  & \text{implied} \\
+10 \ & \quad \quad j = j + 1; \\
+& \quad \quad \{ INV_1 \land i < n-1 \land INV_2 \}  & \text{assignment} \\
+11 \ & \quad \} \\
+& \quad \{ INV_1 \land i < n-1 \land INV_2 \land j \geq n-i-1 \}  & \text{while} \\
+& \quad \{ \forall k, l. \ k \in [n-i-2..n-2] \land l \in [k+1..n-1] \to a[k] \leq a[l] \ \land \\
+& i < n-1 \land a[n-i-1] = \max a[0..n-i-1] \}  & \text{implied} \\
+12 \ & \quad i = i + 1; \\
+& \quad \{ \forall k, l. \ k \in [n-i-1..n-2] \land l \in [k+1..n-1] \to a[k] \leq a[l] \land i < n \}  & \text{assignment} \\
+& \quad \{ INV_1 \}  & \text{implied} \\
+13 \ & \} \\
+& \{ INV_1 \land i \geq n-1 \}  & \text{while} \\
+& \{ \forall k, l. \ k \in [0..n-2] \land l \in [k+1..n-1] \to a[k] \leq a[l] \} & \text{implied} \\
+& \{ \forall i, j. \ 0 \leq i < j < n \to a[i] \leq a[j] \}  & \text{post} \\
+& & \square
+\end{align*}
+\end{document}
+
