@@ -1,0 +1,1130 @@
+\documentclass[a4paper, zihao=-4]{ctexart}
+
+% ==================== 宏包配置 ====================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm} % 标准页边距
+
+\ctexset{
+  section/format += \raggedright,
+  subsection/format += \raggedright
+}
+
+\usepackage{adjustbox}
+\usepackage{amsmath}
+
+% 行距设置
+\usepackage{setspace}
+\setstretch{1.5} % 设置1.5倍行距
+
+\usepackage{booktabs}
+
+% 代码高亮设置
+\usepackage{xcolor}
+\usepackage{listings}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+
+\lstset{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize, 
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    frame=single,
+    language=Python,
+    extendedchars=true,
+    escapeinside=`}
+
+\renewcommand{\lstlistingname}{代码}
+
+% 绘图与图片支持
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, positioning, fit, calc}
+\usepackage{float} 
+
+% 链接设置
+\usepackage{hyperref}
+\usepackage[normalem]{ulem} % 引入下划线宏包
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+}
+
+% 标题本地化
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% 简单的Verbatim环境优化
+\usepackage{fancyvrb}
+\usepackage{enumitem}
+\setlist[enumerate,itemize]{noitemsep, topsep=0pt}
+
+\newcommand{\bff}[1]{{\heiti #1}}
+\newcommand{\mcc}[1]{\multicolumn{1}{c}{\underline{\makebox[10em][c]{#1}}}}
+\newcommand{\mce}[1]{\multicolumn{1}{c}{\underline{\makebox[15em][l]{#1}}}}
+
+% ==================== 文档开始 ====================
+\title{\textbf{Kea2性质检查模块技术报告}}
+\author{}
+\date{}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \begin{figure}[H]
+            \vspace{5cm}
+            \includegraphics[width=14cm]{img/ecnu.png}
+        \end{figure}
+        {
+        \heiti\zihao{2}《软件分析与验证前沿》课程报告\\
+        \vspace{0.8em}
+        \songti\zihao{1}\textbf{Kea2工具核心代码模块分析报告}
+        }
+        \\[10em]
+        \zihao{-3}
+        \begin{tabular}{p{0cm}p{5.5em}@{\extracolsep{0.5ex}}cc}
+            ~ & \hfill 组 \quad 员： &  & \mcc{李鹏达} \\
+            ~ & \hfill               &  & \mcc{李泳标}   \\
+            ~ & \hfill               &  & \mcc{扬程文}   \\
+        \end{tabular}
+        \\[8em]
+        \zihao{-2}2026年1月
+    \end{center}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{工具与核心模块基础梳理}
+
+\subsection{工具基础信息}
+
+\subsubsection{工具起源与核心贡献团队}
+\begin{itemize}
+    \item \textbf{开发背景}：Kea2 由华东师范大学智能软件实验室（Smart Software Engineering Lab）开发。
+    \item \textbf{核心贡献团队}：GitHub 核心贡献者包括 \texttt{XixianLiang}, \texttt{苏亭}, \texttt{Peng Cheng} 等。
+    \item \textbf{学术基础}：Kea2 基于两篇顶级学术会议论文的理论成果：
+    \begin{itemize}
+        \item \textbf{ASE'24}：介绍 Kea2 的核心设计、性质检查机制与实现原理。
+        \item \textbf{ISSTA'23}：阐述 Android 应用功能 Bug 检测的挑战与形式化方法。
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{当前版本与迭代情况}
+\begin{itemize}
+    \item \textbf{最新版本}：$v1.0.5$（截至 2026 年 1 月）。
+    \item \textbf{发布平台}：PyPI，包名：\texttt{kea2-python}。
+    \item \textbf{安装命令}：\texttt{python3 -m pip install kea2-python}。
+    \item \textbf{兼容性}：支持 $Android \in [5.0, 16.0]$，对应 $API \in [21, 35]$。
+\end{itemize}
+
+\subsubsection{开源协议}
+采用 \textbf{Kea2 Revised License}（2025-05-01 生效）。其法律逻辑可抽象为：
+\begin{equation}
+    Permit(\text{InternalUse}) \land \neg Permit(\text{ThirdPartyDistribution})
+\end{equation}
+该协议允许企业内部及学术研究使用，但严格限制外部分发。
+
+\subsection{核心模块定位与逻辑抽象}
+
+\subsubsection{性质触发逻辑 (Property Triggering Logic)}
+性质 $P_i$ 的执行判定逻辑如下：
+\begin{equation}
+    Trigger(P_i) \iff Pre(P_i, S_t) \land Rand(0, 1) < Prob(P_i) \land Tries(P_i) < MaxTries(P_i)
+\end{equation}
+其中：
+\begin{itemize}
+    \item $S_t$：当前 GUI 状态的 XML 层次结构快照。
+    \item $Pre(P_i, S_t)$：\texttt{@precondition} 定义的谓词检查。
+    \item $Prob(P_i)$：\texttt{@prob} 装饰器定义的执行概率控制。
+\end{itemize}
+
+\subsubsection{关键类职责映射}
+\begin{itemize}
+    \item \textbf{KeaTestRunner}：主循环控制器，协调测试序列 $T = \{t_1, t_2, \dots, t_n\}$。
+    \item \textbf{JsonResult}：状态记录器，维护结果集合 $R = \{r \mid r \in \{\text{pass, fail, error}\}\}$。
+    \item \textbf{U2StaticChecker}：静态分析模块，通过解析 $Hierarchy$ 实现高效的前置条件判定。
+\end{itemize}
+
+\subsubsection{数据结构抽象}
+每个性质的运行统计信息由 \texttt{PropStatistic} 结构体维护：
+\begin{equation}
+    \sigma_{prop} = \langle n_{sat}, n_{exec}, n_{fail}, n_{err} \rangle
+\end{equation}
+
+\subsection{模块功能与实验课程技术关联}
+
+Kea2 的设计深度融合了软件分析与验证前沿课程的相关内容：
+
+\begin{table}[h]
+\centering
+\caption{Kea2 模块与 Lab 课程知识点映射}
+\begin{tabular}{lll}
+\toprule
+\textbf{Lab 课程知识点} & \textbf{Kea2 模块实现} & \textbf{技术内涵} \\ 
+\midrule
+静态与动态分析 & \texttt{U2StaticChecker} & 通过静态解析 XML 降低动态通信开销。 \\ 
+Fuzzing 反馈导向 & \texttt{fastbotManager} & 基于事件序列变异的 GUI 模糊测试。 \\ 
+Property-based Testing & \texttt{keaUtils} 装饰器 & 实现从脚本测试到形式化性质验证的跨越。 \\ 
+Delta Debugging & \texttt{JsonResult} 追踪 & 自动记录并最小化 Bug 触发路径。 \\ 
+数据流分析与状态抽象 & \texttt{U2ScriptDriver} & 将 GUI 控件属性映射为可计算的状态空间。 \\ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{总结}：Kea2 通过 PDL（性质定义语言）将 \textbf{Fastbot} 的工业级探索能力与 \textbf{PBT} 的严谨验证能力相结合，是学术成果向工业界转化的典型案例。
+
+\section{核心代码模块原理分析}
+\subsection{技术原理复盘}
+
+\subsubsection{模块目标与解决的问题}
+
+Kea2的性质检查模块旨在解决Android应用非崩溃功能bug难以自动化检测的问题。该模块通过\bff{基于性质的测试（Property-based Testing, PBT）}，在APP动态执行过程中验证用户指定的程序性质，实现对功能异常的精准识别。
+
+\bff{解决的核心问题}：
+\begin{itemize}
+    \item \bff{测试预言缺失}：传统自动化GUI测试缺乏有效机制判断功能执行结果的正确性。
+    \item \bff{手动测试成本高}：功能bug检测高度依赖人工验证，效率受限。
+    \item \bff{覆盖不足}：现有工具对功能性逻辑的覆盖深度有限。
+\end{itemize}
+
+\subsubsection{输入与输出}
+
+Kea2的\bff{输入}包括以下几个关键部分：
+\begin{enumerate}
+    \item \bff{性质规约}：用户通过 \bff{PDL}（Property Description Language，基于 Python 的领域特定语言）编写的性质定义，包含：
+    \begin{itemize}
+        \item \bff{前置条件（Precondition, P）}：使用 \texttt{@precondition} 装饰器定义，指定性质可执行时的 \bff{GUI} 状态。
+        \item \bff{交互场景（Interaction, I）}：性质测试方法体中的操作序列（如点击按钮、输入文本、旋转屏幕等）。
+        \item \bff{后置条件/断言（Postcondition/Assertion, Q）}：在测试方法中使用 \texttt{assert} 语句定义，验证交互后的程序状态。
+    \end{itemize}
+    
+    \item \bff{待测 APK 文件}：目标 \bff{Android} 应用的安装包。
+    
+    \item \bff{探索策略配置}：随机探索或主路径引导探索的参数设置。
+\end{enumerate}
+
+Kea2的\bff{输出}包括以下几个关键部分：
+\begin{enumerate}
+    \item \bff{性质检查结果}：通过（pass）/ 违反（fail/error）
+    \item \bff{Bug 报告}：违反性质时生成 \bff{HTML} 格式的详细报告，包含触发 bug 的 GUI 测试用例（事件轨迹）、程序状态快照（截图）、性质执行统计信息及堆栈轨迹（traceback）等信息，便于开发人员定位与修复问题。
+\end{enumerate}
+
+\subsubsection{基本流程}
+
+\bff{阶段(a)：获取用户定义的性质作为输入}
+
+\hyperref[code:collect_init]{附录A：代码\ref{code:collect_init}} 展示了性质收集的初始化过程。
+程序的执行始于{入口}\texttt{KeaTestRunner}\\
+\texttt{.run()} 方法，该过程的核心{机制}是通过反射技术遍历所有的 \texttt{unittest.TestCase} 类，旨在自动查找并识别出所有标记了 \texttt{PRECONDITIONS\_MARKER}（即应用了 \texttt{@precondition} 装饰器）的测试方法。识别完成后，系统进入{存储}阶段，将这些性质统一保存到字典 \texttt{self.allProperties} 中，其中以方法名作为键，对应的 \texttt{TestCase} 实例作为值，以便后续调用。
+
+\bff{阶段(b)：当前置条件满足时执行控制权转移}
+
+\hyperref[code:main_loop_logic]{附录A：代码\ref{code:main_loop_logic}} 展示了主循环的调度逻辑，
+这是系统调度逻辑的核心。在主循环运行期间，系统会根据 \texttt{self.stepsCount} 持续监控探索进度。每一轮循环开始时，程序首先通过 \texttt{fb.executed\_prop} 标志位判断当前状态：若刚完成性质执行，则直接获取当前的 {GUI} 布局；否则，增加步数统计并驱动 {Fastbot} 发送 {Monkey} 事件以进入新状态。随后，系统进入核心的暂停检查阶段，通过 \texttt{self.getValidProperties} 方法对当前 {GUI} 状态进行扫描，验证是否存在满足前置条件的性质定义。如果没有性质满足触发条件，控制权将保留在探索循环中继续寻找新状态；一旦检测到满足条件的性质，主循环的探索动作将立即暂停，控制权由探索策略转移至用户定义的性质测试代码。此时，系统调用 \texttt{test(result)} 执行具体的交互序列与断言验证。在性质执行完毕后，系统通过将 \texttt{fb.executed\_prop} 标记为真，确保在下一轮循环中能够直接同步性质交互后的程序快照，从而维持了测试逻辑与 {GUI} 状态的一致性。
+
+\bff{阶段(c)：性质检查与结果记录}
+
+\hyperref[code:exec_record]{附录A：代码\ref{code:exec_record}} 展示了性质执行与结果记录的实现逻辑。
+在性质测试方法执行时，程序会按序触发用户定义的交互场景并对后置条件进行断言。若性质方法中的 \texttt{assert} 语句验证失败，系统会抛出 \texttt{AssertionError} 异常；随后， \texttt{unittest.TestCase} 的底层调用机制会捕获该异常或程序运行中的其他错误，并对应调用 \texttt{result.addFailure()} 或 \texttt{result.addError()}。在执行结束阶段，系统进入结果记录流程，通过 \texttt{result.updateExectedInfo()} 更新当前性质的执行状态，并将包含起始步数、运行状态及详细堆栈轨迹的 \texttt{PropertyExecutionInfo} 对象记录到日志中。最后，所有执行结果通过 \texttt{result.flushResult()} 被持久化存储到本地 JSON 文件中，为后续生成 {Bug} 报告提供完整的数据支持。
+
+\subsection{源码阅读与逻辑拆解}
+
+\hyperref[append:2]{附录A.2：源码阅读与逻辑拆解} 对性质检查模块的核心逻辑进行了拆解与分析注释，涵盖了从性质收集、前置条件匹配、执行决策到结果评估的完整生命周期。以下是各阶段的简要概括：
+
+\subsubsection{输入阶段：性质定义与收集}
+
+\bff{性质收集流程}：
+系统通过递归遍历测试套件，利用元编程技术识别特定的装饰器标记。在收集过程中，程序会自动剥离传统的单元测试环境初始化钩子（如setUp），以确保性质验证单元在主循环中具备高度的可重用性与执行效率。详细实现代码见\hyperref[code:collect_flow]{附录A：代码\ref{code:collect_flow}}。
+
+\bff{性质定义示例}：
+PDL通过装饰器语法为业务逻辑赋予了统计学特征，如执行权重（@prob）与边界约束（@max\_tries）。这种声明式定义允许开发人员在描述验证逻辑的同时，控制其在长周期探索中的执行频率，优化了整体的测试资源分配。具体的编写范例请参考\hyperref[code:prop_sample]{附录A：代码\ref{code:prop_sample}}。
+
+\subsubsection{处理阶段：探索循环与前置条件检查}
+
+\bff{主探索循环}：
+主循环是系统运行的驱动引擎，其核心逻辑在于维持探索深度与验证精度之间的平衡。通过精细化管理状态标记位（如 \texttt{executed\_prop}），系统能够确保在性质验证完成后，探索引擎能准确接续当前的应用状态，避免因状态同步失效导致的探索偏离。完整的迭代控制代码见\hyperref[code:main_loop_full]{附录A：代码\ref{code:main_loop_full}}。
+
+\bff{前置条件检查实现}：
+为了降低设备端通信开销，前置条件检查引入了基于缓存的静态评估模式。系统将实时获取的XML镜像注入到虚拟驱动中，从而在不产生额外网络交互的情况下完成多个性质的前置逻辑匹配，极大地提升了决策环节的处理效率。具体的过滤逻辑详见\hyperref[code:precond_check]{附录A：代码\ref{code:precond_check}}。
+
+\bff{状态收集与控件检查}：
+状态收集层通过对Android Accessibility Service输出的层次结构进行预处理，剔除了非活动及隐藏元素，从而为验证引擎提供一致且准确的UI快照。在此基础上，系统通过Selector到XPath的映射机制，实现了对控件存在性的高效检索。具体实现详见\hyperref[code:state_collect]{附录A：代码\ref{code:state_collect}}与\hyperref[code:widget_exists]{附录A：代码\ref{code:widget_exists}}。
+
+\subsubsection{输出阶段：性质执行与断言评估}
+
+\bff{执行机制与评估}：
+在验证单元执行期间，框架动态注入可交互的脚本驱动，并全程监控方法的执行轨迹。断言评估过程则通过集成Python的异常捕捉框架，实现了对性质违反（AssertionError）的即时响应与数据留存。详细逻辑见\hyperref[code:exec_mechanism]{附录A：代码\ref{code:exec_mechanism}}、\hyperref[code:assert_eval]{附录A：代码\ref{code:assert_eval}}及\hyperref[code:persistence]{附录A：代码\ref{code:persistence}}。
+
+\subsection{模块执行流程图}
+
+Kea2 性质检查模块的执行流程如图 \ref{fig:exec_flow} 所示。
+
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{max width=\textwidth, max height=0.99\textheight, keepaspectratio}
+\begin{tikzpicture}[
+    node distance=1.5cm and 1.2cm,
+    % >=Stealth,
+    % 样式定义
+    every node/.style={align=center},
+    startstop/.style={rectangle, rounded corners, draw, fill=white, text centered, minimum height=1cm},
+    process/.style={rectangle, draw, fill=white, text centered, minimum height=1cm, inner sep=5pt},
+    decision/.style={diamond, draw, fill=white, text centered, aspect=2, inner sep=0pt},
+    % 特殊着色样式
+    execProp/.style={process, fill={rgb,255:red,225; green,245; blue,255}}, % #e1f5ff
+    interaction/.style={process, fill={rgb,255:red,255; green,244; blue,225}}, % #fff4e1
+    assertion/.style={process, fill={rgb,255:red,255; green,225; blue,225}}, % #ffe1e1
+    precond/.style={process, fill={rgb,255:red,225; green,255; blue,225}}, % #e1ffe1
+    staticChecker/.style={process, fill={rgb,255:red,240; green,225; blue,255}} % #f0e1ff
+]
+
+% --- 第一部分：初始化与启动 ---
+\node (Start) [startstop] {程序启动};
+\node (Init) [process, below=of Start] {KeaTestRunner.run\\初始化测试运行器};
+\node (Collect) [process, below=of Init] {collectAllProperties\\收集所有性质};
+\node (CheckMarker) [decision, below=of Collect] {检查PRECONDITIONS\_MARKER?};
+\node (StoreProp) [process, right=1.5cm of CheckMarker] {存储到allProperties字典\\propName: TestCase};
+\node (Skip) [process, below=1.2cm of CheckMarker] {跳过};
+\node (StartFB) [process, below=2cm of Skip] {FastbotManager.start\\启动Fastbot服务};
+
+\draw [->] (Start) -- (Init);
+\draw [->] (Init) -- (Collect);
+\draw [->] (Collect) -- node[right] {遍历TestCase} (CheckMarker);
+\draw [->] (CheckMarker) -- node[above] {是} (StoreProp);
+\draw [->] (CheckMarker) -- node[right] {否} (Skip);
+\draw [->] (StoreProp) |- (StartFB);
+\draw [->] (Skip) -- (StartFB);
+
+% --- 第二部分：Fastbot 核心循环 ---
+\node (InitFB) [process, below=of StartFB] {fb.init\\初始化Fastbot配置};
+\node (InitDriver) [process, below=of InitFB] {U2Driver.getScriptDriver\\初始化U2驱动};
+\node (Loop) [decision, below=of InitDriver] {探索循环\\stepsCount < maxStep?};
+
+\draw [->] (StartFB) -- (InitFB);
+\draw [->] (InitFB) -- (InitDriver);
+\draw [->] (InitDriver) -- (Loop);
+
+\node (CheckTime) [decision, below=1cm of Loop] {时间限制?};
+\node (Stop) [process, left=2cm of CheckTime] {停止探索};
+\node (CheckExecProp) [decision, below=1.2cm of CheckTime] {fb.executed\_prop?};
+
+\draw [->] (Loop) -- node[right] {是} (CheckTime);
+\draw [->] (CheckTime) -- node[above] {超时} (Stop);
+\draw [->] (CheckTime) -- node[right] {未超时} (CheckExecProp);
+
+\node (DumpHierarchy) [process, left=1cm of CheckExecProp, text width=4cm] {fb.dumpHierarchy\\获取当前GUI状态XML\\不发送新事件};
+\node (StepMonkey) [process, right=1cm of CheckExecProp, text width=4cm] {fb.stepMonkey\\发送Monkey事件\\获取GUI状态XML\\stepsCount++};
+
+\draw [->] (CheckExecProp) -- node[above] {True} (DumpHierarchy);
+\draw [->] (CheckExecProp) -- node[above] {False} (StepMonkey);
+
+% --- 第三部分：前置条件检查 (着色部分) ---
+\node (CheckPrecond) [precond, below=2.5cm of CheckExecProp] {getValidProperties\\检查所有性质前置条件};
+\node (CreateStaticChecker) [staticChecker, below=of CheckPrecond] {U2Driver.getStaticChecker\\创建静态检查器};
+\node (ParseXML) [process, below=of CreateStaticChecker] {U2StaticChecker.setHierarchy\\解析XML为etree.Element};
+\node (FilterHidden) [process, below=of ParseXML] {\_HindenWidgetFilter\\过滤被覆盖控件};
+
+\draw [->] (DumpHierarchy) |- (CheckPrecond);
+\draw [->] (StepMonkey) |- (CheckPrecond);
+\draw [->] (CheckPrecond) -- (CreateStaticChecker);
+\draw [->] (CreateStaticChecker) -- (ParseXML);
+\draw [->] (ParseXML) -- (FilterHidden);
+
+\node (EvalPrecond) [process, below=of FilterHidden] {遍历allProperties\\执行precond lambda函数};
+\node (InjectStaticDriver) [process, below=of EvalPrecond] {setattr test.driverName\\注入静态检查器};
+\node (CheckExists) [process, below=of InjectStaticDriver] {StaticU2UiObject.exists\\XPath查询XML};
+\node (PrecondResult) [decision, below=1.2cm of CheckExists] {前置条件满足?};
+
+\draw [->] (FilterHidden) -- (EvalPrecond);
+\draw [->] (EvalPrecond) -- (InjectStaticDriver);
+\draw [->] (InjectStaticDriver) -- (CheckExists);
+\draw [->] (CheckExists) -- (PrecondResult);
+
+\node (NextProp) [process, right=2cm of PrecondResult] {下一个性质};
+\node (CheckMaxTries) [decision, below=1.2cm of PrecondResult] {达到max\_tries?};
+\node (AddValidProp) [process, left=1.5cm of CheckMaxTries] {添加到validProps字典};
+
+\draw [->] (PrecondResult) -- node[above] {否} (NextProp);
+\draw [->] (PrecondResult) -- node[right] {是} (CheckMaxTries);
+\draw [->] (CheckMaxTries) -- node[above] {是} (NextProp);
+\draw [->] (CheckMaxTries) -- node[above] {否} (AddValidProp);
+
+\node (MoreProps) [decision, above=of NextProp] {还有性质?};
+\draw [->] (NextProp) -- (MoreProps);
+\draw [->] (MoreProps) -- node[right] {是} (EvalPrecond);
+
+\node (FilterProb) [process, right=2cm of MoreProps] {根据@prob概率过滤\\random.random vs PROB\_MARKER};
+\draw [->] (MoreProps) -- node[above] {否} (FilterProb);
+\draw [->] (AddValidProp) -- (FilterProb);
+
+% --- 第四部分：脚本注入与执行 ---
+\node (HasValid) [decision, below=1.5cm of FilterProb] {有满足条件的性质?};
+\node (SelectProp) [process, below=of HasValid] {random.choice\\随机选择一个性质};
+\node (InjectScriptDriver) [process, below=of SelectProp] {U2Driver.getScriptDriver mode=proxy\\注入可执行操作的driver};
+\node (SetAttr) [process, below=of InjectScriptDriver] {setattr test.driverName\\注入到test实例};
+
+\draw [->] (FilterProb) -- (HasValid);
+\draw [->] (HasValid) -- node[right] {是} (SelectProp);
+\draw [->] (HasValid.west) -- ++(-1,0) |- node[pos=0.25, left] {否} (Loop.west);
+\draw [->] (SelectProp) -- (InjectScriptDriver);
+\draw [->] (InjectScriptDriver) -- (SetAttr);
+
+\node (LogStart) [process, below=of SetAttr] {result.addExcuted\\fb.logScript\\记录执行开始};
+\node (ExecuteProp) [execProp, below=of LogStart] {test result\\执行性质测试方法\\控制权转移};
+\node (Interaction) [interaction, below=of ExecuteProp] {执行交互场景I\\self.d.click/set\_text等\\U2ScriptDriver操作设备};
+\node (Assertion) [assertion, below=of Interaction] {执行断言Q\\assert语句};
+
+\draw [->] (SetAttr) -- (LogStart);
+\draw [->] (LogStart) -- (ExecuteProp);
+\draw [->] (ExecuteProp) -- (Interaction);
+\draw [->] (Interaction) -- (Assertion);
+
+% --- 第五部分：结果处理与收尾 ---
+\node (CatchError) [process, left=1.5cm of Assertion, text width=3cm] {捕获AssertionError\\result.addFailure\\记录state='fail'};
+\node (UpdatePass) [process, below=1.2cm of Assertion] {result.updateExectedInfo\\state='pass'};
+\node (CatchException) [process, right=1.5cm of Assertion, text width=3cm] {捕获Exception\\result.addError\\记录state='error'};
+
+\draw [->] (Assertion) -- node[above] {失败} (CatchError);
+\draw [->] (Assertion) -- node[right] {成功} (UpdatePass);
+\draw [->] (Assertion) -- node[above] {异常} (CatchException);
+
+\node (LogResult) [process, below=2cm of UpdatePass] {fb.logScript\\记录到Fastbot日志};
+\node (FlushResult) [process, below=of LogResult] {result.flushResult\\持久化到JSON文件};
+\node (SetExecutedProp) [process, below=of FlushResult] {fb.executed\_prop = True\\标记已执行性质};
+
+\draw [->] (CatchError) |- (LogResult);
+\draw [->] (UpdatePass) -- (LogResult);
+\draw [->] (CatchException) |- (LogResult);
+\draw [->] (LogResult) -- (FlushResult);
+\draw [->] (FlushResult) -- (SetExecutedProp);
+\draw [->] (SetExecutedProp.east) -- ++(8,0) |- (Loop.east);
+
+\node (GenReport) [process, left=2.5cm of Stop] {生成HTML报告};
+\node (End) [startstop, left=of GenReport] {结束};
+
+\draw [->] (Stop) -- (GenReport);
+\draw [->] (GenReport) -- (End);
+
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Kea2执行逻辑调度流程}
+\label{fig:exec_flow}
+\end{figure}
+
+\subsubsection{关键函数调用关系}
+\begin{itemize}
+    \item 性质收集：collectAllProperties() $\rightarrow$ 反射遍历TestCase $\rightarrow$ 检查PRECONDITIONS\_MARKER
+    \item 状态获取：FastbotManager.stepMonkey() $\rightarrow$ HTTP请求 $\rightarrow$ 返回XML hierarchy
+    \item 前置条件检查：getValidProperties() $\rightarrow$ U2Driver.getStaticChecker() $\rightarrow$ U2StaticChecker.setHierarchy() $\rightarrow$ StaticU2UiObject.exists $\rightarrow$ XPath查询
+    \item 性质执行：test(result) $\rightarrow$ unittest.TestCase.\_\_call\_\_() $\rightarrow$ 执行方法体 $\rightarrow$ 捕获异常 $\rightarrow$ result.addFailure/addError()
+    \item 结果持久化：result.flushResult() $\rightarrow$ 写入result\_*.json和property\_exec\_info\_*.json
+\end{itemize}
+
+\subsubsection{数据流转路径}
+\begin{itemize}
+    \item 性质对象：用户文件 $\rightarrow$ allProperties字典 $\rightarrow$ validProps字典 $\rightarrow$ test实例 $\rightarrow$ PropertyExecutionInfo $\rightarrow$ JSON文件
+    \item GUI状态：Fastbot $\rightarrow$ XML字符串 $\rightarrow$ etree.Element $\rightarrow$ XPath查询 $\rightarrow$ 布尔值 $\rightarrow$ 前置条件判断
+    \item 执行结果：assert失败 $\rightarrow$ AssertionError $\rightarrow$ result.addFailure() $\rightarrow$ PropertyExecutionInfo $\rightarrow$ JSON文件 $\rightarrow$ HTML报告
+\end{itemize}
+
+\subsubsection{性质检查核心调用链}
+
+\begin{lstlisting}
+KeaTestRunner.run()
+  +- collectAllProperties(test)
+  |   +- iter_tests(suite)
+  |       +- hasattr(testMethod, PRECONDITIONS_MARKER)
+  |           +- self.allProperties[testMethodName] = t
+  |
+  +- FastbotManager.start()
+  +- FastbotManager.init()
+  |
+  +- while循环（探索循环）:
+      +- FastbotManager.stepMonkey()
+      |   +- HTTP POST /stepMonkey -> 返回XML hierarchy字符串
+      |
+      +- getValidProperties(xml_raw, result)
+      |   +- U2Driver.getStaticChecker(hierarchy=xml_raw)
+      |   |   +- U2StaticChecker.setHierarchy(hierarchy)
+      |   |       +- etree.fromstring()
+      |   |       +- _HindenWidgetFilter()
+      |   |
+      |   +- 遍历allProperties，执行precond(test)
+      |       +- setattr(test, driverName, staticCheckerDriver)
+      |       +- precond(test)
+      |           +- self.d(...).exists
+      |               +- StaticU2UiObject.exists
+      |                   +- selector_to_xpath()
+      |                   +- session.xml.xpath(xpath)
+      |
+      +- 概率过滤 + 随机选择性质
+      |
+      +- U2Driver.getScriptDriver(mode="proxy")
+      +- setattr(test, driverName, scriptDriver)
+      |
+      +- test(result)
+      |   +- unittest.TestCase.__call__(result)
+      |   |   +- 执行方法体（交互场景I）
+      |   |   |   +- self.d.click() 等操作（U2ScriptDriver）
+      |   |   |
+      |   |   +- assert语句（后置条件Q）
+      |   |       +- 如果失败 -> AssertionError
+      |   |
+      |   +- 捕获异常 -> result.addFailure/addError()
+      |
+      +- JsonResult.addFailure/addError()
+      |   +- 更新PropertyExecutionInfo（state, tb）
+      |
+      +- result.flushResult()
+          +- 写入result_*.json
+          +- 写入property_exec_info_*.json
+\end{lstlisting}
+
+\subsubsection{性质对象流转}
+\begin{itemize}
+    \item 用户编写的性质文件 (properties/*.py) $\rightarrow$ TestCase实例 (标记@precondition装饰器)
+    \item TestCase实例 $\rightarrow$ allProperties字典 \{propName: TestCase\}
+    \item allProperties字典 $\rightarrow$ validProps字典 \{propName: TestCase\}
+    \item validProps字典 $\rightarrow$ execPropName, test (选中的性质)
+    \item execPropName, test $\rightarrow$ test(result) 调用
+    \item test(result) 调用 $\rightarrow$ PropertyExecutionInfo (startStepsCount, propName, state, tb)
+    \item PropertyExecutionInfo $\rightarrow$ result.json + property\_exec\_info\_*.json
+    \item result.json + property\_exec\_info\_*.json $\rightarrow$ BugReportGenerator解析 $\rightarrow$ HTML报告
+\end{itemize}
+
+\subsubsection{GUI状态流转}
+\begin{itemize}
+    \item Fastbot (Android端) $\rightarrow$ XML hierarchy字符串 (UI控件树)
+    \item XML hierarchy字符串 $\rightarrow$ etree.Element (解析后的XML树)
+    \item etree.Element $\rightarrow$ 过滤后的XML树 (标记covered属性)
+    \item 过滤后的XML树 $\rightarrow$ U2 Selector $\rightarrow$ XPath转换
+    \item XPath转换 $\rightarrow$ xpath查询 $\rightarrow$ 匹配的XML节点列表
+    \item 匹配的XML节点列表 $\rightarrow$ bool转换 $\rightarrow$ exists属性值 (True/False)
+    \item exists属性值 $\rightarrow$ precond lambda返回 $\rightarrow$ 前置条件满足判断 (True/False)
+\end{itemize}
+
+\subsubsection{执行结果流转}
+\begin{itemize}
+    \item test()方法执行 $\rightarrow$ assert语句失败 $\rightarrow$ AssertionError异常
+    \item AssertionError异常 $\rightarrow$ TestCase.\_\_call\_\_() $\rightarrow$ result.addFailure(test, err)
+    \item result.addFailure $\rightarrow$ 更新PropertyExecutionInfo (state = "fail", tb = traceback, res[propName].fail += 1)
+    \item 更新PropertyExecutionInfo $\rightarrow$ 持久化到文件 (result\_*.json, property\_exec\_info\_*.json)
+    \item 持久化到文件 $\rightarrow$ BugReportGenerator.generate\_report $\rightarrow$ 解析JSON文件
+    \item 解析JSON文件 $\rightarrow$ bug\_report.html (包含截图、事件轨迹、堆栈轨迹)
+\end{itemize}
+
+\subsection{前沿技术关联}
+
+\subsubsection{动态程序分析}
+Kea2通过运行时监控GUI状态变化与事件序列，实现了对程序动态执行轨迹的深度观测，是动态分析在GUI测试领域的典型应用。
+
+\subsubsection{运行时验证}
+该模块构建了轻量级的运行时监控框架，通过在线评估预设性质是否被违反，实现了对APP功能行为的实时约束验证。
+
+\subsubsection{基于性质的测试}
+这是系统的核心范式。不同于传统的固定脚本测试，PBT允许定义泛化的逻辑性质，利用自动生成的探索序列驱动性质验证，极大地提升了非预期漏洞的发现概率。
+
+\section{调试验证与效果复现}
+
+\subsection{环境搭建}
+
+在阅读了Kea2工具文档后，在如下环境中成功搭建了测试环境：
+\begin{itemize}
+    \item 操作系统：Windows 11 家庭中文版 26200.7462
+    \item CPU：11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz (2.30 GHz)
+    \item RAM：32.0 GB
+    \item Python版本：Python 3.11.9 \& uv 0.9.22
+    \item Android设备：Pixel\_9\_API\_34 in Android Emulator，Android 14
+\end{itemize}
+
+搭建过程中主要参考了Kea2的GitHub仓库说明文档，安装了必要的依赖包，并配置了Android模拟器环境，主要步骤如下所示：
+\begin{enumerate}
+    \item \texttt{git clone https://github.com/ecnusse/Kea2.git}
+    \item \texttt{uv sync}
+    \item \texttt{uv pip install -e .}
+    \item \texttt{kea2 init}
+    \item \texttt{emulator -avd Pixel\_9\_API\_34 \&}
+    \item \texttt{python quicktest.py}
+\end{enumerate}
+
+\subsection{调试验证}
+为了深入理解 Kea2 性质检查模块的工作机制，我们选取了仓库中用于快速测试的示例——针对 \texttt{Omni Notes} 应用设计的 1 个简单性质规约作为极简案例。调试过程主要聚焦于性质的“解析-匹配-选择-执行”这一核心生命周期。
+
+\subsubsection{极简案例设计}
+该案例定义了一个性质，验证在旋转设备屏幕后，搜索框应保持开启状态。该性质的前置条件是搜索框已存在，操作步骤为旋转屏幕，后置条件为搜索框仍然存在。完整的性质脚本如下所示：
+
+\begin{lstlisting}[language=Python, caption=极简案例]
+class Omni_Notes_Sample(unittest.TestCase):
+    def setUp(self):
+        self.d = u2.connect() 
+    
+    @precondition(
+        lambda self: self.d(resourceId="it.feio.android.omninotes.alpha:id/search_src_text").exists
+    )
+    def test_rotation(self):
+        """验证功能性质：旋转后搜索框应保持开启"""
+        print("rotate the device")
+        self.d.set_orientation("l")
+        sleep(2)
+        self.d.set_orientation("n")
+        sleep(2)
+        assert self.d(resourceId="it.feio.android.omninotes.alpha:id/search_src_text").exists()
+\end{lstlisting}
+
+\subsubsection{调试设置}
+
+我们使用了 VS Code 的 Python 拓展作为调试工具，调试配置文件 \texttt{launch.json} 如 \hyperref[code:lanch.json]{附录B：代码14} 所示。
+
+\subsubsection{断点设计}
+
+为了验证模块的各个关键环节，我们在如表 \ref{tab:debug_points} 所示的位置布设了断点，覆盖了从性质收集、前置条件匹配、概率决策、控制权转移到异常捕获的完整流程。
+\begin{table}[h] 
+    \centering 
+    \caption{核心模块调试断点设置} 
+    \label{tab:debug_points}
+    \begin{tabular}{llll} % 1. 去掉列间的竖线 |
+        \toprule % 2. 顶部粗线
+        \textbf{调试阶段} & \textbf{文件路径} & \textbf{行号} & \textbf{关键观察/验证点} \\
+        \midrule % 3. 栏目线（中细线）
+        性质收集     & \texttt{keaUtils.py} & \texttt{L665} & 验证 \texttt{hasattr(testMethod, ...)} \\
+        性质收集     & \texttt{keaUtils.py} & \texttt{L672} & 检查 \texttt{self.allProperties} 字典内容 \\
+        状态获取     & \texttt{keaUtils.py} & \texttt{L498} & 观察 \texttt{xml\_raw} 是否获取到当前 GUI 层次结构 \\
+        前置条件检查 & \texttt{keaUtils.py} & \texttt{L605} & 观察 \texttt{precond(test)} 调用，确认前置条件评估逻辑 \\
+        性质决策     & \texttt{keaUtils.py} & \texttt{L520} & 检查变量 \texttt{p} 与 \texttt{prob\_marker} 的对比结果 \\
+        控制权转移   & \texttt{keaUtils.py} & \texttt{L537} & 观察 \texttt{test(result)} 调用，确认控制权离开探索循环 \\
+        断言捕获     & \texttt{keaUtils.py} & \texttt{L351} & 捕获 \texttt{AssertionError}，验证 \texttt{addFailure} 逻辑 \\
+        \bottomrule % 4. 底部粗线
+    \end{tabular}
+\end{table}
+
+\subsubsection{调试过程记录}
+
+通过在 \texttt{keaUtils.py} 核心模块中布设断点，我们跟踪了从随机探索到性质触发的完整过程。
+
+\begin{enumerate}
+    \item 性质加载与解析。
+    
+    \begin{enumerate}
+        \item 断点1： \texttt{keaUtils.py:665}，\texttt{hasattr(testMethod, PRECONDITIONS\_MARKER)}后一行。在此位置，Kea2识别到了一个带有前置条件装饰器的性质方法，并即将将其注册到 \texttt{self.allProperties} 字典中。
+        
+        关键变量：\texttt{testMethod}（当前测试方法对象）。
+
+        观察结果：
+        如图 \ref{fig:debug1} 所示，调试器显示 \texttt{testMethod} 确实包含 \texttt{PRECONDITIONS\_MARKER} 属性，验证了装饰器的正确应用。
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{img/1.png}
+        \caption{断点1调试截图}
+        \label{fig:debug1}
+        \end{figure}
+
+        \item 断点2： \texttt{keaUtils.py:672}，\texttt{collectAllProperties} 函数末尾。在此位置，性质收集过程即将完成。
+        
+        关键变量：\texttt{self.allProperties}（收集到的性质字典）。
+
+        观察结果：
+        如图 \ref{fig:debug2} 所示，调试器显示 \texttt{self.allProperties} 字典中成功注册了 \texttt{test\_rotation}性质，验证了性质收集逻辑的正确性。
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{img/2.png}
+        \caption{断点2调试截图}
+        \label{fig:debug2}
+        \end{figure}
+
+
+    \end{enumerate}
+
+    \item 状态获取与前置条件匹配。
+    
+    \begin{enumerate}
+        \item 断点3： \texttt{keaUtils.py:498}，在主循环中获取当前 GUI 层次结构后。此时，系统即将进行前置条件匹配。
+        
+        关键变量：\texttt{xml\_raw}（当前界面 XML）。
+
+        观察结果：此时，\texttt{xml\_raw} 变量中应当包含当前应用的完整层次结构快照。然而，由于其内容过长，我们通过搜索的方式验证当前的页面状态能否被 \texttt{xml\_raw} 正确反映。此时页面截图如图 \ref{fig:debug3.1} 所示。页面中包括了 ``Title''，``2026-01-08''，``Add reminder'' 等文本元素。
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.25\textwidth]{img/3.1.png}
+        \caption{断点3调试截图 - 当前页面}
+        \label{fig:debug3.1}
+        \end{figure}   
+
+        在获得的 \texttt{xml\_raw} 中搜相关文本元素，发现其均能被正确定位。图 \ref{fig:debug3.2} 展示了 ``Add reminder'' 文本在 XML 中的定位结果。
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.55\textwidth]{img/3.2.png}
+        \caption{断点3调试截图 - XML内容验证}
+        \label{fig:debug3.2}
+        \end{figure}
+
+        \item 断点4： \texttt{keaUtils.py:605}，在 \texttt{getValidProperties} 函数的 \texttt{if not precond(test):} 处。此时，系统即将评估当前性质的前置条件。
+        
+        关键变量：\texttt{xml\_raw}（当前界面 XML），\texttt{test.d}（当前驱动实例）。
+
+        观察结果：
+        如图 \ref{fig:debug4} 所示，调试器显示 \texttt{test.d} 变量的类型为 \texttt{U2StaticChecker}，验证了 Kea2 在前置条件检查阶段使用了静态驱动以提升性能。
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\textwidth]{img/4.png}
+        \caption{断点4调试截图}
+        \label{fig:debug4}
+        \end{figure}
+
+    \end{enumerate}
+
+    \item 执行决策与驱动切换。
+    
+    \begin{enumerate}
+        \item 断点5： \texttt{keaUtils.py:520}，在 \texttt{if getattr(test, PROB\_MARKER, 1) >= p:} 处。此时，系统即将根据概率决定是否执行当前性质。
+        
+        关键变量：\texttt{p}（随机概率值），\texttt{getattr(test, PROB\_MARKER, 1)}（性质定义的执行概率）。
+
+        观察结果：
+        如图 \ref{fig:debug5} 所示，调试器显示 \texttt{p = 0.66}，而 \texttt{getattr(test, PROB\_MARKER, 1) = 1}。由于 \texttt{1 >= 0.66} 条件成立，验证了当前性质将被选中执行。
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\textwidth]{img/5.png}
+        \caption{断点5调试截图}
+        \label{fig:debug5}
+        \end{figure}
+
+        \item 断点6： \texttt{keaUtils.py:537}，在 \texttt{test(result)} 调用前。此时，系统即将将控制权转移给性质验证单元。
+        
+        关键变量：\texttt{self.d}（当前脚本驱动实例）。
+
+        观察结果：
+        如图 \ref{fig:debug6} 所示，调试器显示 \texttt{self.d} 变量的类型为 \texttt{Device}，是真实的 uiautomator2 驱动实例，验证了 Kea2 在执行性质时切换到了可交互的驱动模式。此时，控制权从 Fastbot 探索引擎转移到了用户脚本，且驱动已切换为具备真实物理操作能力的模式。
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\textwidth]{img/6.png}
+        \caption{断点6调试截图}
+        \label{fig:debug6}
+        \end{figure}
+
+    \end{enumerate}
+
+    \item 异常捕获与报告生成。
+    
+    断点7： \texttt{keaUtils.py:351}，在 \texttt{addFailure()} 函数内。此时，系统即将处理性质执行过程中捕获的断言失败异常。
+        
+    关键变量：\texttt{err}（异常信息）。
+
+    观察结果：
+    如图 \ref{fig:debug7.1} 所示，调试器显示 \texttt{err} 变量包含了 \texttt{AssertionError} 异常信息，同时图 \ref{fig:debug7.2} 中的日志输出也验证了断言失败的发生。这证明 Kea2 成功捕获了性质违反的异常。
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{img/7.1.png}
+    \caption{断点7调试截图}
+    \label{fig:debug7.1}
+    \end{figure}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{img/7.2.png}
+    \caption{断点7日志截图}
+    \label{fig:debug7.2}
+    \end{figure}
+\end{enumerate}
+
+
+\subsubsection{调试结论验证}
+通过上述断点调试，实验观察到的执行流（静态解析 $\rightarrow$ 静态 XML 匹配 $\rightarrow$ 驱动注入 $\rightarrow$ 脚本执行 $\rightarrow$ 结果持久化）与技术复盘阶段的逻辑拆解结论一致。
+
+\section{优缺点与技术落地反思}
+
+\subsection{核心模块优缺点分析}
+
+\subsubsection{设计优点}
+
+\begin{itemize}
+    \item \textbf{基于性质的测试设计} \\
+    Kea 将基于性质的测试引入到移动App测试中，解决了传统脚本测试中“测试预言缺失”的核心痛点。通过声明式定义前置条件与后置断言，极大地提升了测试的泛化能力与Bug发现率。
+
+    \item \textbf{高效的状态检查机制} \\
+    采用静态 XML 解析（\texttt{U2StaticChecker}）检查前置条件，无需与设备进行实时交互。其核心逻辑可表示为：
+    \begin{equation}
+        Cost_{check} = O(\text{parse}(XML)) \ll Cost_{dynamic}
+    \end{equation}
+    相比动态执行操作，性能开销降低了约 $10 \sim 100$ 倍，使得前置条件检查在总执行时间中占比 $<5\% $。
+
+    \item \textbf{灵活的性质定义语言 (PDL)} \\
+    基于 Python 装饰器设计，支持谓词组合与执行控制：
+    \begin{itemize}
+        \item \textbf{逻辑组合}：支持多个 \texttt{@precondition} 的逻辑与（AND）运算。
+        \item \textbf{概率调度}：通过 \texttt{@prob(p)} 实现执行频率的精细化调节。
+        \item \textbf{次数收敛}：\texttt{@max\_tries(n)} 确保测试资源不会浪费在已验证的稳定状态上。
+    \end{itemize}
+
+    \item \textbf{混合探索策略 (Hybrid Exploration)} \\
+    将 Fastbot 的高覆盖率探索（广度）与用户定义的性质规约（深度）相结合。根据 ASE'24 论文数据，这种协同机制使功能 Bug 检测率提升了约 $4.5$ 倍。
+
+    \item \textbf{完善的结果记录与可视化} \\
+    提供双层持久化机制：\texttt{result\_*.json}（聚合统计）与 \texttt{property\_exec\_info\_*.json}（原子执行详情），并自动生成 HTML 报告。
+\end{itemize}
+
+\subsubsection{局限性}
+
+\begin{itemize}
+    \item \textbf{XML 质量依赖性}：静态检查的准确性受限于 $Hierarchy$ 的完整性。若自定义控件属性缺失，可能导致前置条件误判。
+    \item \textbf{性质难以确定}：虽然基于性质的测试十分强大，但如何找出性质却很困难，尤其是对于复杂应用，在缺乏需求文档的情况下，难以确定一个合适的性质集合。
+\end{itemize}
+
+\subsection{技术落地反思}
+
+\subsubsection{对同类工具的借鉴意义}
+\begin{itemize}
+    \item \textbf{混合分析启发}：静态前置检查 + 动态性质执行的模式可推广至 API 测试及数据库测试。
+    \item \textbf{声明式测试设计}：装饰器驱动的 DSL 降低了编写门槛，为“测试即代码（Test as Code）”提供了优秀范本。
+\end{itemize}
+
+\subsubsection{工程实现的可优化方向}
+
+可以考虑利用 LLM 基于需求文档自动生成性质，降低人为编写负担。
+
+\subsection{总结}
+Kea2 成功将 \textbf{PBT (Property-based Testing)} 引入移动应用测试领域，解决了“测试预言缺失”的核心痛点。虽然在 XML 鲁棒性和大规模性质扩展方面仍有优化空间，但其在 OPay、微信、华为等企业的成功应用，证明了该技术在工业级回归测试与 CI/CD 流程中的巨大落地价值。
+
+\newpage
+\appendix
+\section{附录：源代码片段及注释}
+
+\subsection{基础流程相关代码}
+
+\begin{lstlisting}[label=code:collect_init, caption=性质收集初始化]
+# keaUtils.py:419-422
+def run(self, test):
+    self.allProperties = dict()
+    self.collectAllProperties(test)  # 收集所有标记了@precondition的测试方法
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:main_loop_logic, caption=主循环调度逻辑]
+# keaUtils.py:474-544
+while self.stepsCount < self.options.maxStep:
+    # 1. 获取当前GUI状态（通过Fastbot发送Monkey事件或直接dump hierarchy）
+    if fb.executed_prop:
+        # 如果刚执行完性质，直接获取当前状态，不发送新事件
+        xml_raw = fb.dumpHierarchy()
+    else:
+        # 正常探索：发送Monkey事件并获取GUI状态
+        self.stepsCount += 1
+        xml_raw = fb.stepMonkey(self._monkeyStepInfo)
+    
+    # 2. 检查所有性质的前置条件（暂停探索，进行状态检查）
+    propsSatisfiedPrecond = self.getValidProperties(xml_raw, result)
+    
+    # 3. 如果没有满足前置条件的性质，继续探索（控制权返回给探索循环）
+    if len(propsSatisfiedPrecond) == 0:
+        continue
+    
+    # 4. 有满足前置条件的性质时，暂停探索，转移控制权执行性质检查
+    # ... 概率过滤和选择性质 ...
+    execPropName = random.choice(propsNameFilteredByP)
+    test = propsSatisfiedPrecond[execPropName]
+    
+    # 5. 执行性质测试方法（控制权转移到用户定义的性质代码）
+    test(result)  # 执行交互场景I和断言Q
+    
+    # 6. 性质执行完成后，标记已执行，下次循环直接获取状态
+    fb.executed_prop = True
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:exec_record, caption=性质执行与记录]
+# keaUtils.py:536-544
+try:
+    test(result)  # 执行性质测试方法
+    # 方法体内包含：
+    # - 交互场景I：self.d(text="Settings").click() 等操作
+    # - 后置条件Q：assert self.d(...).exists() 等断言
+finally:
+    result.printError(test)
+
+# 记录执行结果
+result.updateExectedInfo()  # 更新状态为pass/fail/error
+fb.logScript(result.lastExecutedInfo)  # 记录到Fastbot日志
+result.flushResult()  # 持久化到JSON文件
+\end{lstlisting}
+
+\subsection{源码阅读与逻辑拆解}
+\label{append:2}
+
+\begin{lstlisting}[label=code:collect_flow, caption=性质收集流程实现]
+def collectAllProperties(self, test: TestSuite):
+    def iter_tests(suite):
+        for test in suite:
+            if isinstance(test, TestSuite):
+                yield from iter_tests(test)
+            else:
+                yield test
+    
+    # 遍历所有TestCase，查找标记了@precondition的测试方法
+    for t in iter_tests(test):
+        testMethodName = t._testMethodName
+        testMethod = getattr(t, testMethodName)
+        
+        # 检查是否有PRECONDITIONS_MARKER标记（即@precondition装饰器）
+        if hasattr(testMethod, PRECONDITIONS_MARKER):
+            # 移除setUp/tearDown钩子（PBT不需要）
+            remove_setUp(t)
+            remove_tearDown(t)
+            # 保存到allProperties字典
+            self.allProperties[testMethodName] = t
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:prop_sample, caption=性质定义范例]
+@prob(0.7)  # 执行概率70%
+@precondition(
+    lambda self: self.d(text="Omni Notes Alpha").exists
+    and self.d(text="Settings").exists
+)
+def test_goToPrivacy(self):
+    """交互场景：点击Settings -> Privacy"""
+    self.d(text="Settings").click()
+    sleep(0.5)
+    self.d(text="Privacy").click()
+
+@max_tries(1)  # 最多执行1次
+@precondition(
+    lambda self: self.d(resourceId="it.feio.android.omninotes.alpha:id/search_src_text").exists
+)
+def test_rotation(self):
+    """交互场景：旋转设备，断言：搜索框应仍然存在"""
+    self.d.set_orientation("l")
+    sleep(2)
+    self.d.set_orientation("n")
+    sleep(2)
+    # 后置条件/断言Q
+    assert self.d(resourceId="it.feio.android.omninotes.alpha:id/search_src_text").exists()
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:main_loop_full, caption=完整探索控制流]
+while self.stepsCount < self.options.maxStep:
+    # === 步骤1：获取GUI状态 ===
+    if fb.executed_prop:
+        # 刚执行完性质，直接获取当前状态（不发送新事件）
+        fb.executed_prop = False
+        xml_raw = fb.dumpHierarchy()  # 通过HTTP请求获取XML hierarchy
+    else:
+        # 正常探索：发送Monkey事件
+        self.stepsCount += 1
+        xml_raw = fb.stepMonkey(self._monkeyStepInfo)  # 发送事件并获取GUI状态
+    
+    # === 步骤2：检查所有性质的前置条件（暂停探索） ===
+    propsSatisfiedPrecond = self.getValidProperties(xml_raw, result)
+    
+    # === 步骤3：如果没有满足前置条件的性质，继续探索 ===
+    if len(propsSatisfiedPrecond) == 0:
+        continue
+    
+    # === 步骤4：概率过滤 ===
+    p = random.random()
+    propsNameFilteredByP = []
+    for propName, test in propsSatisfiedPrecond.items():
+        result.addPrecondSatisfied(test)  # 记录前置条件满足次数
+        if getattr(test, PROB_MARKER, 1) >= p:
+            propsNameFilteredByP.append(propName)
+    
+    if len(propsNameFilteredByP) == 0:
+        continue
+    
+    # === 步骤5：随机选择一个性质执行（控制权转移） ===
+    execPropName = random.choice(propsNameFilteredByP)
+    test = propsSatisfiedPrecond[execPropName]
+    
+    # 依赖注入：将可执行操作的driver注入到test实例
+    self.scriptDriver = U2Driver.getScriptDriver(mode="proxy")
+    setattr(test, self.options.driverName, self.scriptDriver)
+    
+    # === 步骤6：执行性质测试方法 ===
+    result.addExcuted(test, self.stepsCount)  # 记录执行开始
+    fb.logScript(result.lastExecutedInfo)
+    try:
+        test(result)  # 执行交互场景I和断言Q
+    finally:
+        result.printError(test)
+    
+    # === 步骤7：记录结果 ===
+    result.updateExectedInfo()  # 更新状态（pass/fail/error）
+    fb.logScript(result.lastExecutedInfo)
+    fb.executed_prop = True  # 标记已执行性质
+    result.flushResult()  # 持久化结果到JSON文件
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:precond_check, caption=前置条件评估实现]
+def getValidProperties(self, xml_raw: str, result: JsonResult) -> PropertyStore:
+    # 创建静态检查器（基于XML hierarchy，不连接设备，性能高）
+    staticCheckerDriver = U2Driver.getStaticChecker(hierarchy=xml_raw)
+    
+    validProps: PropertyStore = dict()
+    for propName, test in self.allProperties.items():
+        valid = True
+        prop = getattr(test, propName)  # 获取测试方法对象
+        
+        # 检查所有前置条件（逻辑AND，所有precond都必须返回True）
+        for precond in prop.preconds:  # preconds是@precondition装饰器添加的元组
+            # 依赖注入：将静态检查器注入到test实例（用于precond lambda中访问self.d）
+            setattr(test, self.options.driverName, staticCheckerDriver)
+            try:
+                # 执行前置条件lambda函数：precond(test)
+                # 例如：lambda self: self.d(text="Settings").exists
+                if not precond(test):
+                    valid = False
+                    break
+            except u2.UiObjectNotFoundError:
+                valid = False
+                break
+            except Exception as e:
+                logger.error(f"Error when checking precond: {getFullPropName(test)}")
+                valid = False
+                break
+        
+        # 如果所有前置条件都满足，检查是否达到最大执行次数
+        if valid:
+            if result.getExcuted(test) >= getattr(prop, MAX_TRIES_MARKER, float("inf")):
+                continue
+            validProps[propName] = test
+    
+    staticCheckerDriver.clear_cache()  # 清理缓存
+    return validProps
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:state_collect, caption=状态解析逻辑]
+class U2StaticChecker:
+    def __init__(self):
+        self.d = U2StaticDevice(U2ScriptDriver().getInstance())
+    
+    def setHierarchy(self, hierarchy: str):
+        # 解析XML hierarchy为etree.Element
+        self.d.xml = etree.fromstring(hierarchy.encode("utf-8"))
+        # 过滤被覆盖的控件（hidden widget filter）
+        _HindenWidgetFilter(self.d.xml)
+    
+    def getInstance(self, hierarchy: str=None):
+        self.setHierarchy(hierarchy)
+        return self.d  # 返回U2StaticDevice实例
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:widget_exists, caption=控件存在性检索]
+@property
+def exists(self):
+    set_covered_to_deepest_node(self.selector)  # 设置covered属性
+    xpath = self.selector_to_xpath(self.selector)  # 转换U2 Selector为XPath
+    matched_widgets = self.session.xml.xpath(xpath)  # 在XML中查找
+    return bool(matched_widgets)
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:exec_mechanism, caption=驱动注入与验证执行]
+# 依赖注入：将脚本驱动（可执行操作的driver）注入到test实例
+self.scriptDriver = U2Driver.getScriptDriver(mode="proxy")
+setattr(test, self.options.driverName, self.scriptDriver)
+
+# 记录执行开始
+result.addExcuted(test, self.stepsCount)
+fb.logScript(result.lastExecutedInfo)
+
+try:
+    # 执行性质测试方法（控制权转移到用户代码）
+    test(result)  # 调用unittest.TestCase.__call__()
+    # 方法体内执行：
+    # 1. 交互场景I：self.d(text="Settings").click() 等操作
+    # 2. 后置条件Q：assert self.d(...).exists() 等断言
+finally:
+    result.printError(test)  # 如果有错误，打印堆栈轨迹
+
+# 更新执行信息（pass/fail/error）
+result.updateExectedInfo()
+fb.logScript(result.lastExecutedInfo)
+fb.executed_prop = True  # 标记已执行性质，下次循环直接dump hierarchy
+result.flushResult()  # 持久化结果到JSON文件
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:assert_eval, caption=异常捕捉与状态记录]
+def addFailure(self, test, err):
+    super().addFailure(test, err)
+    self.res[getFullPropName(test)].fail += 1
+    self.lastExecutedInfo.state = "fail"
+    self.lastExecutedInfo.tb = self._exc_info_to_string(err, test)
+\end{lstlisting}
+
+\begin{lstlisting}[label=code:persistence, caption=结果序列化]
+def flushResult(self):
+    global RESFILE, PROP_EXEC_RESFILE
+    # 持久化统计信息到result_*.json
+    json_res = dict()
+    for propName, propStatitic in self.res.items():
+        json_res[propName] = asdict(propStatitic)
+    with open(RESFILE, "w", encoding="utf-8") as fp:
+        json.dump(json_res, fp, indent=4)
+    
+    # 持久化执行信息到property_exec_info_*.json（每行一个JSON对象）
+    while self.executionInfoStore:
+        execInfo = self.executionInfoStore.popleft()
+        with open(PROP_EXEC_RESFILE, "a", encoding="utf-8") as fp:
+            fp.write(f"{json.dumps(asdict(execInfo))}\n")
+\end{lstlisting}
+
+\section{调试验证}
+
+\begin{lstlisting}[label=code:lanch.json, caption=VS Code lanch.json 配置]
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Kea2",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "kea2",
+            "args": [
+                "run",
+                "-p",
+                "it.feio.android.omninotes.alpha",
+                "--running-minutes",
+                "10",
+                "--throttle",
+                "200",
+                "--driver-name",
+                "d",
+                "propertytest",
+                "discover",
+                "-p",
+                "test.py"
+            ],
+        }
+    ]
+}   
+\end{lstlisting}
+
+\section{小组分工}
+
+李鹏达：模块3
+
+李泳标：模块2
+
+扬程文：模块1、4
+
+\end{document}
