@@ -66,6 +66,7 @@
   }
   { \PassOptionsToPackage #1 }
 \RequirePackage { etoolbox }
+\let\maketitle\relax
 \LoadClass { ctexrep }
 % 导入宏包
 \PassOptionsToPackage { titles } { tocloft }
@@ -1160,7 +1161,7 @@
 
 \NewDocumentCommand \frontmatter { }
   {
-    \cleardoublepage\pagenumbering{roman}
+    \cleardoublepage\pagenumbering{Roman}
   }
 \NewDocumentCommand \mainmatter { }
   {
@@ -1236,5 +1237,4 @@
   breakatwhitespace=true,
   tabsize=3
 }
-\let\maketitle\relax
 \ExplSyntaxOff
