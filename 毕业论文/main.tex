@@ -52,14 +52,14 @@
     year  = 2026,
     % 论文完成年份
     %
-    month = 5,
+    month = 4,
     % 论文完成月份
     %
-    keywords = {协议模糊测试，大语言模型},
+    keywords = {协议模糊测试，大语言模型，Peach模糊测试框架},
     % 中文关键词
     % 请使用英文逗号 "," 以分隔
     %
-    keywordsEN = {Protocol Fuzzing, Large Language Models},
+    keywordsEN = {Protocol Fuzzing, Large Language Models, Peach Fuzzer},
     % 英文关键词
     % 请使用英文逗号 "," 以分隔
     %
@@ -109,6 +109,21 @@
 
 % 需要的宏包可以自行调用
 \usepackage{mwe}
+\usepackage{tcolorbox}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{lstlinebgrd}
+
+\newcommand{\todo}[1]{\vspace{10pt}\textbf{\textsf{\zihao{1} #1}}}
+
+\newcommand{\bfsf}[1]{\textbf{\textsf{#1}}}
+\newfontfamily\codefont{Menlo}
+
+\newcommand{\prule}{\vspace{-0.5em}\textcolor{gray}{\rule{\linewidth}{1pt}}}
 
 \begin{document}
 
@@ -121,18 +136,23 @@
 \mainmatter
 \include{chapters/introduction}
 
+\include{chapters/knowledges}
+
+\include{chapters/method}
+
+\include{chapters/experiment}
+
+\include{chapters/conclusion}
+
 % 正文后部分
 \backmatter
 % 导入参考文献 (需要通过 latexmk 编译后才能显示)
 \printbibliography
 
 % 附录环境
-\begin{appendix}
-\end{appendix}
+\include{chapters/appendix}
 
 % 致谢环境
-\begin{acknowledgement}
-
-\end{acknowledgement}
+\include{chapters/acknowledgement}
 
 \end{document}

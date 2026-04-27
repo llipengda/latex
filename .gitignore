@@ -12,3 +12,8 @@
 *.blg
 *.bcf
 *.run.xml
+
+*.bbl-*
+
+.DS_Store
+__MACOSX/

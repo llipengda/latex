@@ -173,7 +173,7 @@
   
 \pagestyle{fancy}
   \fancyhead[L,R]       { }
-  \fancyhead[C]         { \titleheader }
+  \fancyhead[C]         { \textsf{ \zihao{-5} \titleheader } }
   \fancyfoot[C]         { \small \thepage }
   \fancyfoot[L,R]       { }
   \headheight = 13 pt
@@ -181,7 +181,7 @@
 \fancypagestyle{plain} 
   {
     \fancyhead[L,R]     { }
-     \fancyhead[C]      { \titleheader }
+     \fancyhead[C]      { \textsf{ \zihao{-5} \titleheader } }
     \fancyfoot[C]       { \small \thepage }
     \fancyfoot[L,R]     { }
     \headheight = 13 pt
@@ -1012,10 +1012,10 @@
     info     / align       = center,
   }
 % 中英文摘要
-\tl_const:Nn \c__ecnu_name_abstract_tl    { 摘要 }
-\tl_const:Nn \c__ecnu_name_keywords_tl    { 关键词 }
+\tl_const:Nn \c__ecnu_name_abstract_tl    { \textbf{摘要} }
+\tl_const:Nn \c__ecnu_name_keywords_tl    { \textbf{关键词} }
 \tl_const:Nn \c__ecnu_name_abstractEN_tl  { \textbf{Abstract} }
-\tl_const:Nn \c__ecnu_name_keywordsEN_tl  { Keywords }
+\tl_const:Nn \c__ecnu_name_keywordsEN_tl  { \textbf{Keywords} }
 \tl_const:Nn \c__ecnu_comma_tl            { , }
 \cs_new_protected:Npn \__ecnu_keywords:nNn #1#2#3
   {
@@ -1040,7 +1040,7 @@
     \mode_leave_vertical: \par \noindent
     \zihao{5}
     \group_begin: 
-      \sffamily \c__ecnu_name_abstract_tl \c__ecnu_colon_tl
+      \rmfamily \c__ecnu_name_abstract_tl \c__ecnu_colon_tl
     \group_end:
     \par
   }
@@ -1048,30 +1048,31 @@
   { 
     \phantomsection
     \addcontentsline{toc}{chapter}{ABSTRACT}
-    \__ecnu_title:V \l__ecnu_info_titleEN_tl
+    \__ecnu_title:V 
+      { \rmfamily \textbf{ \l__ecnu_info_titleEN_tl } }
     \mode_leave_vertical: \par \noindent
     \zihao{5}
     \group_begin: 
-      \sffamily \c__ecnu_name_abstractEN_tl \c__ecnu_colon_tl
+      \rmfamily \c__ecnu_name_abstractEN_tl \c__ecnu_colon_tl
     \group_end:
     \par
   }
 \cs_new_protected:Npn \__ecnu_abstract_end:
   {
     \__ecnu_keywords:nNn
-      { \sffamily \c__ecnu_name_keywords_tl \c__ecnu_colon_tl }
+      { \rmfamily \c__ecnu_name_keywords_tl \c__ecnu_colon_tl }
       \l__ecnu_info_keywords_clist { ,~ }
     \clearpage{\thispagestyle{empty}\cleardoublepage}
   }
 \cs_new_protected:Npn \__ecnu_abstractEN_end:
   {
     \__ecnu_keywords:nNn
-      { \sffamily \c__ecnu_name_keywordsEN_tl \c__ecnu_colon_tl }
+      { \rmfamily \c__ecnu_name_keywordsEN_tl \c__ecnu_colon_tl }
       \l__ecnu_info_keywordsEN_clist { ,~ }
     \clearpage{\thispagestyle{empty}\cleardoublepage}
   }
 % 目录
-\tl_const:Nn \c__ecnu_name_toc_tl { 目录 }
+\tl_const:Nn \c__ecnu_name_toc_tl { \rmfamily \zihao{-4} \textbf{目录} }
 \cs_new_protected:Npn \__ecnu_patch_cmd:Nnn #1#2#3
   {
     \ctex_patch_cmd_once:NnnnTF #1 { } {#2} {#3}
@@ -1101,6 +1102,7 @@
   { \__ecnu_appendix_begin: } { \__ecnu_appendix_end: }
 \cs_new_protected:Npn \__ecnu_appendix_begin:
   { 
+    \clearpage
     \phantomsection
     \addcontentsline{toc}{chapter}{\c__ecnu_name_appendix_tl}
     \__ecnu_title:V \c__ecnu_name_appendix_tl

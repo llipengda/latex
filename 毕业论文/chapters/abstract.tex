@@ -1,18 +1,23 @@
 \begin{abstract}
 针对物联网与工业互联网中复杂网络协议的漏洞挖掘需求，
 本文聚焦传统 Peach 模糊测试框架因语义感知能力不足导致变异盲目、难以触发深层逻辑的问题，
-提出一种协议语义感知变异增强方法。
+提出一种协议语义感知变异增强方法，并将其集成于 Peach 框架中，开发了 LLMPeach 模糊测试框架。
 
-该方法通过设计自动化智能体（Agent）流程引导大语言模型（LLM）深度解析协议规范文档，自主提取字段含义、取值约束及逻辑关联，并生成语义相关的变异器（Mutator）与修复器（Fixer）。在此基础上，构建两阶段变异策略：第一阶段通过大模型生成的变异器对协议字段进行语义关联的变异，第二阶段辅以随机变异以保障样本多样性。
+该方法通过设计自动化智能体流程引导大语言模型深度解析协议规范文档，
+自主提取字段含义、取值约束及逻辑关联，构建数据模型，并生成语义相关的变异器与修复器。
+在此基础上，构建两阶段变异策略——第一阶段通过大模型生成的变异器对协议字段进行语义关联的变异，第二阶段辅以随机变异以保障样本多样性。
 
-在TODO个现实世界协议实现上的实验结果表明，相较于原生 Peach 框架，该方法在有效测试用例生成比例上提升了 TODO\%，协议代码分支覆盖率提高了 TODO\%。研究证明，结合 LLM 的语义感知机制能有效弥补传统模糊测试在语义维度的缺陷，提升复杂网络协议的漏洞挖掘效率。
+在5个现实世界协议实现上的实验结果表明，相较于原始 Peach，
+LLMPeach在被测协议实现代码分支覆盖上平均提高了 7.33\%。
+研究证明，结合大语言模型的语义感知机制能有效弥补传统模糊测试在语义维度的缺陷，提升复杂网络协议的漏洞挖掘效率。
 \end{abstract}
 
 \begin{abstractEN}
-To address the vulnerability discovery needs of complex network protocols in the IoT and Industrial Internet, this paper focuses on the inherent limitations of the traditional Peach fuzzer--specifically its lack of semantic awareness, which leads to blind mutations and difficulty in triggering deep-seated logic. We propose an protocol semantic-aware mutation enhancement method.
+To address the vulnerability discovery needs of complex network protocols in the IoT and Industrial Internet, this paper focuses on the inherent limitations of the traditional Peach fuzzer--specifically its lack of semantic awareness, which leads to blind mutations and difficulty in triggering deep-seated logic. We propose an protocol semantic-aware mutation enhancement method and integrate it into the Peach fuzzer, developing the LLMPeach fuzzer.
 
-This approach utilizes an automated Agent workflow to guide a Large Language Model in deeply parsing protocol specification documents. This allows for the autonomous extraction of field meanings, value constraints, and logical correlations to generate semantically relevant Mutators and Fixers. Based on this, a two-stage mutation strategy is constructed: the first stage uses LLM-generated mutators for semantically correlated mutations, while the second stage incorporates random mutations to ensure sample diversity.
+This approach utilizes an automated Agent workflow to guide a Large Language Model in deeply parsing protocol specification documents. This allows for the autonomous extraction of field meanings, value constraints, and logical correlations to construct a DataModel and generate semantically relevant Mutators and Fixers. Based on this, a two-stage mutation strategy is constructed: the first stage uses LLM-generated mutators for semantically correlated mutations, while the second stage incorporates random mutations to ensure sample diversity.
 
-Experimental results in TODO real-world protocol implementations
-demonstrate that, compared to the original Peach fuzzer, this method increased the proportion of effective test cases by TODO\% and improved protocol code branch coverage by TODO\%. This research proves that integrating the semantic awareness mechanism of LLMs effectively compensates for the semantic deficiencies of traditional fuzzing, thereby enhancing the efficiency of vulnerability discovery in complex network protocols.
+Experimental results in 5 real-world protocol implementations
+demonstrate that, compared to the original Peach fuzzer, LLMPeach achieves an average increase of 7.33\% in code branch coverage for the tested protocol implementations.
+This research proves that integrating the semantic awareness mechanism of LLMs effectively compensates for the semantic deficiencies of traditional fuzzing, thereby enhancing the efficiency of vulnerability discovery in complex network protocols.
 \end{abstractEN}
