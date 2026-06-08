@@ -55,9 +55,11 @@ ONLY output the types, nothing else.
 
 \bfsf{Tool:} RFC\_Search
 \end{tcolorbox}
-\bicaption{报文类型提取的提示词设计}{Prompt Design for Packet Type Extraction}
+\bicaption{报文类型提取的提示词设计\protect\footnotemark}{Prompt Design for Packet Type Extraction}
 \label{fig:prompt_1}
 \end{figure}
+
+\footnotetext{因大多数大语言模型的训练语料以英文为主，该提示词以英文设计，下同。}
 
 提取出的报文类型列表将作为元数据存储于系统的全局状态中，为后续针对每种具体报文进行建模提供明确的目标。
 

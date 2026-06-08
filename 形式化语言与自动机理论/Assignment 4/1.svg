@@ -1,0 +1,47 @@
+<svg width="560" height="520" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- q0 -->
+  <circle cx="220" cy="150" r="40" stroke="black" stroke-width="2" fill="none"/>
+  <text x="220" y="155" text-anchor="middle" font-size="16">q₀</text>
+
+  <!-- start 箭头 -->
+  <line x1="220" y1="80" x2="220" y2="110" stroke="black" stroke-width="2"/>
+  <polygon points="220,110 215,100 225,100" fill="black"/>
+  <text x="225" y="75" font-size="12">start</text>
+
+  <!-- q1 (接受态) -->
+  <circle cx="220" cy="350" r="40" stroke="black" stroke-width="2" fill="none"/>
+  <circle cx="220" cy="350" r="35" stroke="black" stroke-width="2" fill="none"/>
+  <text x="220" y="355" text-anchor="middle" font-size="16">q₁</text>
+
+  <!-- q0 -> q1 -->
+  <line x1="220" y1="190" x2="220" y2="310" stroke="black" stroke-width="2"/>
+  <polygon points="220,310 215,300 225,300" fill="black"/>
+  <text x="230" y="250" font-size="13">ε,Z₀/ε</text>
+
+<!-- 右侧自环（更自然的闭合曲线） -->
+<path d="M260 130 
+         C340 130, 340 170, 260 170"
+      fill="none" stroke="black" stroke-width="2"/>
+
+<!-- 自环箭头（沿曲线方向，指向回到节点） -->
+<polygon points="260,170 270,165 270,175" fill="black"/>
+
+  <!-- 每行一个转移（右侧排版） -->
+  <text x="360" y="40" font-size="12">a,Z₀/aZ₀</text>
+  <text x="360" y="55" font-size="12">b,Z₀/bZ₀</text>
+  <text x="360" y="70" font-size="12">c,Z₀/cZ₀</text>
+
+  <text x="360" y="95" font-size="12">a,a/aa</text>
+  <text x="360" y="110" font-size="12">a,b/ε</text>
+  <text x="360" y="125" font-size="12">a,c/ε</text>
+
+  <text x="360" y="150" font-size="12">b,a/ε</text>
+  <text x="360" y="165" font-size="12">b,b/bb</text>
+  <text x="360" y="180" font-size="12">b,c/bc</text>
+
+  <text x="360" y="205" font-size="12">c,a/ε</text>
+  <text x="360" y="220" font-size="12">c,b/cb</text>
+  <text x="360" y="235" font-size="12">c,c/cc</text>
+
+</svg>
